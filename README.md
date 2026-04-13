@@ -15,3 +15,22 @@ A **deterministic AI production pipeline** that uses **Python** as a strict mana
   ]
 }
 ```
+## INPUT_OUTPUT
+Machine-readable contracts are the right fit here: JSON Schema defines the structure and validation of JSON data, and OpenAPI documents the expected inputs/outputs as a contract that machines can parse.
+```json
+{
+  "input": {
+    "format": "json",
+    "schema": "workflow_state.json (schema-compliant pipeline state)",
+    "source": "local filesystem",
+    "path": "C:\\Users\\HP\\PROJECTS\\Automate_product_image_generation\\workflow_state\\workflow_state.json"
+  },
+  "output": {
+    "format": "json",
+    "schema": "validated pipeline state with appended PROMPT output",
+    "destination": "local filesystem",
+    "path": "C:\\Users\\HP\\PROJECTS\\Automate_product_image_generation\\workflow_state\\workflow_state.json"
+  },
+  "version": "1.0"
+}
+```
