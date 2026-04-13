@@ -104,3 +104,67 @@ A deterministic algorithm is an explicit sequence of states and transitions with
 }
 ```
 [1]: https://en.wikipedia.org/wiki/Finite-state_machine?utm_source=chatgpt.com "Finite-state machine"
+## EDGE_CASES
+Boundary testing is the right framing here because edge cases are the boundary or invalid inputs most likely to fail. ([Wikipedia][1])
+```json
+{
+  "validated_edge_cases": [
+    {
+      "edge_case_id": "EC_001",
+      "trigger_condition": "workflow_state.json is missing, unreadable, or malformed at ingestion",
+      "stage": "INGESTION",
+      "expected_state": "halt before any prompt execution",
+      "failure_response": {
+        "error_code": "INGESTION_MALFORMED_STATE",
+        "message": "workflow_state.json is invalid or unavailable.",
+        "termination": true
+      }
+    },
+    {
+      "edge_case_id": "EC_002",
+      "trigger_condition": "source product images are missing, empty, or not loadable",
+      "stage": "INGESTION",
+      "expected_state": "halt before visual extraction",
+      "failure_response": {
+        "error_code": "INGESTION_MISSING_IMAGES",
+        "message": "No valid source images were provided for visual extraction.",
+        "termination": true
+      }
+    },
+    {
+      "edge_case_id": "EC_003",
+      "trigger_condition": "required schema fields are absent or extra unexpected fields appear in extracted JSON",
+      "stage": "VALIDATION",
+      "expected_state": "halt before transformation",
+      "failure_response": {
+        "error_code": "VALIDATION_SCHEMA_DRIFT",
+        "message": "Extracted data does not match the required schema.",
+        "termination": true
+      }
+    },
+    {
+      "edge_case_id": "EC_004",
+      "trigger_condition": "text extraction and image extraction disagree on the product identity or category",
+      "stage": "TRANSFORMATION",
+      "expected_state": "halt before downstream prompt generation",
+      "failure_response": {
+        "error_code": "TRANSFORMATION_IDENTITY_CONFLICT",
+        "message": "Text and image sources describe conflicting product identities.",
+        "termination": true
+      }
+    },
+    {
+      "edge_case_id": "EC_005",
+      "trigger_condition": "product image set is empty or exceeds the supported maximum count for the image pipeline",
+      "stage": "INGESTION",
+      "expected_state": "halt before image prompt generation",
+      "failure_response": {
+        "error_code": "INGESTION_IMAGE_BOUNDARY_VIOLATION",
+        "message": "Image count is outside the supported boundary.",
+        "termination": true
+      }
+    }
+  ]
+}
+```
+[1]: https://en.wikipedia.org/wiki/Edge_case?utm_source=chatgpt.com "Edge case"
