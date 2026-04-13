@@ -358,7 +358,7 @@ The first implementation target should be:
       }
     }
 ```
-```
+```json
     "SCRIPT_002": {
       "script_id": "SCRIPT_002",
       "name": "workflow_state_manager",
