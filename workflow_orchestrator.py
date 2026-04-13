@@ -1,0 +1,726 @@
+# workflow_orchestrator.py
+from __future__ import annotations
+
+import argparse
+import base64
+import hashlib
+import json
+import logging
+import os
+import re
+import sys
+import time
+import uuid
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
+
+from openai import OpenAI
+
+SCRIPT_METADATA = {
+    "script_id": "SCRIPT_002",
+    "name": "workflow_orchestrator",
+    "version": "1.0",
+    "category": "PROCESSOR",
+    "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
+    "output_schema": "workflow_state.json + generated artifacts under output/",
+    "dependencies": [],
+    "external_libraries": ["openai"],
+    "status": "ACTIVE",
+}
+
+ROOT = Path(r"C:\Users\HP\Documents\Obsidian\test\PROJECTS")
+DATA_DIR = ROOT / "data"
+PROMPTS_DIR = ROOT / "docs" / "prompts"
+OUTPUT_DIR = ROOT / "output"
+LOG_DIR = OUTPUT_DIR / "logs"
+IMAGE_SOURCE_DIR = DATA_DIR / "images"
+GENERATED_IMAGE_DIR = OUTPUT_DIR / "generated_images"
+STATE_PATH = OUTPUT_DIR / "workflow_state.json"
+RAW_TEXT_PATH = DATA_DIR / "raw_product_input.txt"
+
+TEXT_MODEL = os.getenv("OPENAI_TEXT_MODEL", "gpt-5.4")
+IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
+
+TRACE_ID = str(uuid.uuid4())
+SPAN_COUNTER = 0
+
+client = OpenAI()
+
+
+@dataclass(frozen=True)
+class Step:
+    step_id: str
+    kind: str  # "text" | "image_prompt" | "image_generate"
+    prompt_file: Optional[str]
+    output_key: str
+    schema_builder: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None
+    image_ref_key: Optional[str] = None
+
+
+def next_span_id() -> str:
+    global SPAN_COUNTER
+    SPAN_COUNTER += 1
+    return f"{SPAN_COUNTER:06d}"
+
+
+def json_log(event: str, **fields: Any) -> None:
+    record = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "trace_id": TRACE_ID,
+        "span_id": next_span_id(),
+        "event": event,
+        **fields,
+    }
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def fail(code: str, message: str) -> None:
+    json_log("fail_fast", error_code=code, message=message)
+    raise SystemExit(f"{code}: {message}")
+
+
+def ensure_dirs() -> None:
+    for p in [DATA_DIR, PROMPTS_DIR, OUTPUT_DIR, LOG_DIR, IMAGE_SOURCE_DIR, GENERATED_IMAGE_DIR]:
+        p.mkdir(parents=True, exist_ok=True)
+
+
+def load_json(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        fail("MISSING_FILE", f"Missing file: {path}")
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        fail("INVALID_JSON", f"Invalid JSON at {path}: {e}")
+
+
+def save_json_atomic(path: Path, data: Dict[str, Any]) -> None:
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(path)
+
+
+def load_text(path: Path, required: bool = True) -> str:
+    if not path.exists():
+        if required:
+            fail("MISSING_FILE", f"Missing file: {path}")
+        return ""
+    return path.read_text(encoding="utf-8")
+
+
+def normalize_json_text(text: str) -> str:
+    text = text.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+    return text.strip()
+
+
+def parse_response_json(response_text: str) -> Dict[str, Any]:
+    try:
+        return json.loads(normalize_json_text(response_text))
+    except Exception as e:
+        fail("MODEL_OUTPUT_NOT_JSON", f"Model output is not valid JSON: {e}")
+
+
+def workflow_state_init() -> Dict[str, Any]:
+    return {
+        "reference_tag": "ROAV_DASHCAM_C1_R2110",
+        "trace_id": TRACE_ID,
+        "script_metadata": SCRIPT_METADATA,
+        "source": {
+            "raw_text_path": str(RAW_TEXT_PATH),
+            "image_dir": str(IMAGE_SOURCE_DIR),
+        },
+        "outputs": {},
+    }
+
+
+def merge_output(state: Dict[str, Any], step_id: str, output: Dict[str, Any], output_key: str) -> None:
+    state["outputs"][step_id] = output
+    state[output_key] = output
+    state["last_completed_step"] = step_id
+
+
+def read_source_images() -> List[Path]:
+    if not IMAGE_SOURCE_DIR.exists():
+        return []
+    return sorted([p for p in IMAGE_SOURCE_DIR.iterdir() if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}])
+
+
+def encode_image_data_url(path: Path) -> str:
+    mime = "image/png"
+    if path.suffix.lower() in {".jpg", ".jpeg"}:
+        mime = "image/jpeg"
+    elif path.suffix.lower() == ".webp":
+        mime = "image/webp"
+    data = base64.b64encode(path.read_bytes()).decode("utf-8")
+    return f"data:{mime};base64,{data}"
+
+
+def build_text_schema(output_key: str, schema: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "name": output_key,
+        "schema": schema,
+        "strict": True,
+        "type": "json_schema",
+    }
+
+
+def schema_1a() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "reference_tag",
+            "product_category",
+            "product_profile",
+            "core_features",
+            "attributes",
+            "package_contents",
+            "product_summary",
+        ],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "product_category": {"type": "string"},
+            "product_profile": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["brand", "product_name", "model", "color"],
+                "properties": {
+                    "brand": {"type": "string"},
+                    "product_name": {"type": "string"},
+                    "model": {"type": "string"},
+                    "color": {"type": "string"},
+                },
+            },
+            "core_features": {"type": "array", "items": {"type": "string"}},
+            "attributes": {"type": "object", "additionalProperties": {"type": "string"}},
+            "package_contents": {"type": "array", "items": {"type": "string"}},
+            "product_summary": {"type": "string"},
+        },
+    }
+
+
+def schema_1b() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "image_views",
+            "visual_identity",
+            "object_layout_map",
+            "lighting_profile",
+            "camera_profile",
+            "product_geometry",
+        ],
+        "properties": {
+            "image_views": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "front_3q_left": {"type": "string"},
+                    "front_3q_right": {"type": "string"},
+                    "rear_3q": {"type": "string"},
+                    "left_side": {"type": "string"},
+                    "right_side": {"type": "string"},
+                    "top_view": {"type": "string"},
+                    "bottom_view": {"type": "string"},
+                    "detail_closeup": {"type": "string"},
+                    "accessories_layout": {"type": "string"},
+                },
+            },
+            "visual_identity": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["product_type", "dominant_color", "materials", "primary_components"],
+                "properties": {
+                    "product_type": {"type": "string"},
+                    "dominant_color": {"type": "string"},
+                    "materials": {"type": "string"},
+                    "primary_components": {"type": "array", "items": {"type": "string"}},
+                },
+            },
+            "object_layout_map": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "component_positions": {"type": "object", "additionalProperties": {"type": "string"}},
+                },
+            },
+            "lighting_profile": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["lighting_type", "shadow_behavior", "reflection_style"],
+                "properties": {
+                    "lighting_type": {"type": "string"},
+                    "shadow_behavior": {"type": "string"},
+                    "reflection_style": {"type": "string"},
+                },
+            },
+            "camera_profile": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["camera_angle", "orientation", "lens_style"],
+                "properties": {
+                    "camera_angle": {"type": "string"},
+                    "orientation": {"type": "string"},
+                    "lens_style": {"type": "string"},
+                },
+            },
+            "product_geometry": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["shape_description", "proportions", "relative_dimensions"],
+                "properties": {
+                    "shape_description": {"type": "string"},
+                    "proportions": {"type": "string"},
+                    "relative_dimensions": {"type": "string"},
+                },
+            },
+        },
+    }
+
+
+def schema_title() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "amazon_product_title"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "amazon_product_title": {"type": "string"},
+        },
+    }
+
+
+def schema_bullets() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "amazon_bullet_points"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "amazon_bullet_points": {
+                "type": "array",
+                "minItems": 5,
+                "maxItems": 5,
+                "items": {"type": "string"},
+            },
+        },
+    }
+
+
+def schema_description() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "amazon_product_description"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "amazon_product_description": {"type": "string"},
+        },
+    }
+
+
+def schema_backend() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "amazon_backend_search_terms"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "amazon_backend_search_terms": {"type": "string"},
+        },
+    }
+
+
+def schema_search_intent() -> Dict[str, Any]:
+    arr = {"type": "array", "items": {"type": "string"}}
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "customer_search_intent_keywords"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "customer_search_intent_keywords": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "generic_searches",
+                    "feature_searches",
+                    "problem_solution_searches",
+                    "use_case_searches",
+                    "long_tail_buyer_searches",
+                ],
+                "properties": {
+                    "generic_searches": arr,
+                    "feature_searches": arr,
+                    "problem_solution_searches": arr,
+                    "use_case_searches": arr,
+                    "long_tail_buyer_searches": arr,
+                },
+            },
+        },
+    }
+
+
+def schema_aplus() -> Dict[str, Any]:
+    section = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["headline", "supporting_text"],
+        "properties": {
+            "headline": {"type": "string"},
+            "supporting_text": {"type": "string"},
+        },
+    }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "amazon_aplus_content"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "amazon_aplus_content": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["brand_story", "feature_section_1", "feature_section_2", "feature_section_3", "feature_section_4"],
+                "properties": {
+                    "brand_story": {"type": "string"},
+                    "feature_section_1": section,
+                    "feature_section_2": section,
+                    "feature_section_3": section,
+                    "feature_section_4": section,
+                },
+            },
+        },
+    }
+
+
+def schema_specs() -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "technical_specifications"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "technical_specifications": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["Brand", "Product Name", "Model", "Color", "Attributes"],
+                "properties": {
+                    "Brand": {"type": "string"},
+                    "Product Name": {"type": "string"},
+                    "Model": {"type": "string"},
+                    "Color": {"type": "string"},
+                    "Attributes": {"type": "object", "additionalProperties": {"type": "string"}},
+                },
+            },
+        },
+    }
+
+
+def schema_faq() -> Dict[str, Any]:
+    faq_item = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["question", "answer"],
+        "properties": {
+            "question": {"type": "string"},
+            "answer": {"type": "string"},
+        },
+    }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "customer_faq"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "customer_faq": {"type": "array", "minItems": 5, "maxItems": 5, "items": faq_item},
+        },
+    }
+
+
+def schema_social() -> Dict[str, Any]:
+    post = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["post_number", "caption_title", "caption_text", "tags", "hashtags"],
+        "properties": {
+            "post_number": {"type": "integer"},
+            "caption_title": {"type": "string"},
+            "caption_text": {"type": "string"},
+            "tags": {"type": "array", "items": {"type": "string"}},
+            "hashtags": {"type": "array", "items": {"type": "string"}},
+        },
+    }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "social_media_posts"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "social_media_posts": {"type": "array", "minItems": 3, "maxItems": 3, "items": post},
+        },
+    }
+
+
+def schema_image_prompt(image_number: int, buyer_question: str, image_type: str) -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["reference_tag", "image_strategy"],
+        "properties": {
+            "reference_tag": {"type": "string"},
+            "image_strategy": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "image_number",
+                    "image_type",
+                    "buyer_question",
+                    "layout_description",
+                    "headline_text",
+                    "supporting_text",
+                    "visual_design_direction",
+                    "image_generation_prompt",
+                ],
+                "properties": {
+                    "image_number": {"const": image_number},
+                    "image_type": {"const": image_type},
+                    "buyer_question": {"const": buyer_question},
+                    "layout_description": {"type": "string"},
+                    "headline_text": {"type": "string"},
+                    "supporting_text": {"type": "string"},
+                    "visual_design_direction": {"type": "string"},
+                    "image_generation_prompt": {"type": "string"},
+                },
+            },
+        },
+    }
+
+
+def read_prompt_file(step_id: str) -> str:
+    candidates = [
+        PROMPTS_DIR / f"prompt_{step_id}.txt",
+        PROMPTS_DIR / f"{step_id}.txt",
+        PROMPTS_DIR / f"{step_id}.md",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c.read_text(encoding="utf-8")
+    fail("MISSING_PROMPT", f"No prompt file found for step {step_id} in {PROMPTS_DIR}")
+
+
+def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:
+    compact_state = json.dumps(state, ensure_ascii=False, indent=2)
+    return (
+        f"WORKFLOW_STATE_JSON:\n{compact_state}\n\n"
+        f"INSTRUCTIONS:\n{prompt_text}\n\n"
+        f"OUTPUT RULES:\nReturn only valid JSON."
+    )
+
+
+def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+    json_log("step_start", step_id=step_id, kind="text")
+    response = client.responses.create(
+        model=TEXT_MODEL,
+        input=build_text_input(state, prompt_text),
+        text={"format": {"type": "json_schema", "json_schema": {"name": f"step_{step_id}", "schema": schema, "strict": True}}},
+        temperature=0,
+    )
+    raw = getattr(response, "output_text", "") or ""
+    if not raw.strip():
+        fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty output.")
+    parsed = parse_response_json(raw)
+    json_log("step_end", step_id=step_id, kind="text", output_keys=list(parsed.keys()))
+    return parsed
+
+
+def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+    json_log("step_start", kind="image_generation", size=size)
+    response = client.responses.create(
+        model=IMAGE_MODEL,
+        input=prompt,
+        tools=[{"type": "image_generation"}],
+        tool_choice={"type": "image_generation"},
+    )
+    image_data = [
+        output.result
+        for output in response.output
+        if getattr(output, "type", None) == "image_generation_call"
+    ]
+    revised_prompt = None
+    for output in response.output:
+        if getattr(output, "type", None) == "image_generation_call":
+            revised_prompt = getattr(output, "revised_prompt", None)
+            break
+    if not image_data:
+        fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
+    return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
+
+
+def save_image(image_base64: str, name: str) -> str:
+    GENERATED_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = GENERATED_IMAGE_DIR / name
+    out_path.write_bytes(base64.b64decode(image_base64))
+    return str(out_path)
+
+
+def update_state_with_prompt(state: Dict[str, Any], step_id: str, output: Dict[str, Any], output_key: str) -> None:
+    merge_output(state, step_id, output, output_key)
+    state["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def deterministic_style_lock() -> Dict[str, str]:
+    return {
+        "lighting": "studio product photography",
+        "camera_lens": "50mm product photography",
+        "shadow_style": "soft studio shadow",
+        "product_scale": "centered filling frame",
+        "background": "pure white",
+        "color_profile": "commercial product photography",
+    }
+
+
+STEP_PLAN: List[Step] = [
+    Step("01A", "text", "prompt_01A.txt", "prompt_01A", schema_1a),
+    Step("01B", "text", "prompt_01B.txt", "prompt_01B", schema_1b),
+    Step("02", "text", "prompt_02.txt", "amazon_product_title", schema_title),
+    Step("03", "text", "prompt_03.txt", "amazon_bullet_points", schema_bullets),
+    Step("04", "text", "prompt_04.txt", "amazon_product_description", schema_description),
+    Step("05", "text", "prompt_05.txt", "amazon_backend_search_terms", schema_backend),
+    Step("06", "text", "prompt_06.txt", "customer_search_intent_keywords", schema_search_intent),
+    Step("07", "text", "prompt_07.txt", "amazon_aplus_content", schema_aplus),
+    Step("08", "text", "prompt_08.txt", "technical_specifications", schema_specs),
+    Step("09", "text", "prompt_09.txt", "customer_faq", schema_faq),
+    Step("10", "text", "prompt_10.txt", "social_media_posts", schema_social),
+    Step("11", "text", "prompt_11.txt", "image_strategy_1", lambda s: schema_image_prompt(1, "What is this product?", "Hero Product Image")),
+    Step("12", "image_generate", None, "generated_image_1", None),
+    Step("13", "text", "prompt_13.txt", "image_strategy_2", lambda s: schema_image_prompt(2, "Why do I need it?", "Core Benefit Image")),
+    Step("14", "image_generate", None, "generated_image_2", None),
+    Step("15", "text", "prompt_15.txt", "image_strategy_3", lambda s: schema_image_prompt(3, "What problem does this product solve?", "Problem Solution Image")),
+    Step("16", "image_generate", None, "generated_image_3", None),
+    Step("17", "text", "prompt_17.txt", "image_strategy_4", lambda s: schema_image_prompt(4, "When would I use it?", "Lifestyle Use Image")),
+    Step("18", "image_generate", None, "generated_image_4", None),
+    Step("19", "text", "prompt_19.txt", "image_strategy_5", lambda s: schema_image_prompt(5, "What technology makes it better?", "Technology Feature Image")),
+    Step("20", "image_generate", None, "generated_image_5", None),
+    Step("21", "text", "prompt_21.txt", "image_strategy_6", lambda s: schema_image_prompt(6, "How easy is it to install or use?", "Ease of Use / Installation Image")),
+    Step("22", "image_generate", None, "generated_image_6", None),
+    Step("23", "text", "prompt_23.txt", "image_strategy_7", lambda s: schema_image_prompt(7, "What specifications matter?", "Specifications Infographic")),
+    Step("24", "image_generate", None, "generated_image_7", None),
+]
+
+
+def run_step(step: Step, state: Dict[str, Any]) -> None:
+    if step.kind == "text":
+        prompt_text = read_prompt_file(step.step_id)
+        schema = step.schema_builder(state) if step.schema_builder else {}
+        output = call_text_step(step.step_id, prompt_text, schema, state)
+        update_state_with_prompt(state, step.step_id, output, step.output_key)
+
+        # Promote key outputs for downstream prompts.
+        if step.step_id == "01A":
+            state["dataset"] = output
+        elif step.step_id == "01B":
+            state["visual_grounding"] = output
+        elif step.step_id == "11":
+            state["image_strategy"] = output["image_strategy"]
+        elif step.step_id in {"13", "15", "17", "19", "21", "23"}:
+            key = f"image_strategy_{step.step_id}"
+            state[key] = output["image_strategy"]
+
+    elif step.kind == "image_generate":
+        # Use the immediately preceding image strategy prompt stored in state.
+        prev_strategy_key = f"image_strategy_{int(step.step_id) - 1}"
+        strategy = state.get(prev_strategy_key) or state.get("image_strategy")
+        if not strategy:
+            fail("MISSING_IMAGE_STRATEGY", f"No image strategy found for image generation step {step.step_id}")
+        prompt = strategy["image_generation_prompt"]
+
+        result = call_image_generation(prompt)
+        image_filename = f"image_{step.step_id}.png"
+        saved_path = save_image(result["image_base64"], image_filename)
+
+        output = {
+            "reference_tag": state["reference_tag"],
+            "generated_image": {
+                "image_number": int(step.step_id) // 2,
+                "image_type": strategy["image_type"],
+                "image_generation_prompt": prompt,
+                "saved_path": saved_path,
+                "revised_prompt": result.get("revised_prompt"),
+            },
+            "image_style_lock": deterministic_style_lock(),
+        }
+        update_state_with_prompt(state, step.step_id, output, step.output_key)
+
+        # keep a canonical style lock for later prompts
+        state["image_style_lock"] = output["image_style_lock"]
+
+    else:
+        fail("UNKNOWN_STEP_KIND", f"Unknown step kind: {step.kind}")
+
+    save_json_atomic(STATE_PATH, state)
+
+
+def validate_initial_inputs() -> None:
+    if not RAW_TEXT_PATH.exists():
+        fail("MISSING_INPUT", f"Missing raw text input: {RAW_TEXT_PATH}")
+    if not IMAGE_SOURCE_DIR.exists():
+        fail("MISSING_INPUT", f"Missing image source directory: {IMAGE_SOURCE_DIR}")
+    if len(read_source_images()) == 0:
+        fail("MISSING_IMAGES", "No source images found in data/images/")
+    if not PROMPTS_DIR.exists():
+        fail("MISSING_PROMPTS", f"Missing prompts directory: {PROMPTS_DIR}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
+    parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
+    parser.add_argument("--stop-after", default=None, help="Optional step id to stop after (e.g. 10)")
+    args = parser.parse_args()
+
+    ensure_dirs()
+    validate_initial_inputs()
+
+    state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
+    state.setdefault("reference_tag", "ROAV_DASHCAM_C1_R2110")
+    state.setdefault("outputs", {})
+
+    raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
+    image_hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in read_source_images()]
+
+    state["input_fingerprint"] = {
+        "raw_text_sha256": raw_text_hash,
+        "image_sha256": image_hashes,
+    }
+
+    # Store source payload once for PROMPT 1A/1B.
+    state["source_payload"] = {
+        "raw_text": load_text(RAW_TEXT_PATH),
+        "source_images": [str(p) for p in read_source_images()],
+    }
+
+    save_json_atomic(STATE_PATH, state)
+    json_log("orchestrator_start", script_id=SCRIPT_METADATA["script_id"], version=SCRIPT_METADATA["version"])
+
+    for step in STEP_PLAN:
+        if args.stop_after and step.step_id == args.stop_after:
+            break
+        run_step(step, state)
+
+    json_log("orchestrator_complete", completed_step=state.get("last_completed_step"))
+    save_json_atomic(STATE_PATH, state)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception as e:
+        json_log("unhandled_exception", error=str(e))
+        raise
