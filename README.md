@@ -36,9 +36,6 @@ Machine-readable contracts are the right fit here: JSON Schema defines the struc
 ```
 ## ALGORITHM
 A deterministic algorithm is an explicit sequence of states and transitions with defined inputs and outputs. ([Wikipedia][1])
-
-`current_state = STATE 05`
-
 ```json
 {
   "steps": [
