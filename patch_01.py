@@ -1,23 +1,20 @@
+from datetime import datetime
+import json
 import re
 from pathlib import Path
 
 file_path = Path("workflow_orchestrator.py")
 content = file_path.read_text()
 
-FIND = r
-"""
-def log(level, message, trace_id=None, span_id=None):
+FIND = r """def log(level, message, trace_id=None, span_id=None):
     print(json.dumps({
         "level": level,
         "message": message,
         "trace_id": trace_id,
         "span_id": span_id
-    }))
-"""
+    }))"""
 
-REPLACE = 
-"""
-def log(level, message, stage, status, trace_id, span_id, context=None, progress_percent=None, current_step=None, total_steps=None):
+REPLACE = """def log(level, message, stage, status, trace_id, span_id, context=None, progress_percent=None, current_step=None, total_steps=None):
     log_entry = {
         "timestamp": datetime.utcnow().isoformat(),
         "level": level,
@@ -35,8 +32,7 @@ def log(level, message, stage, status, trace_id, span_id, context=None, progress
         log_entry["current_step"] = current_step
         log_entry["total_steps"] = total_steps
 
-    print(json.dumps(log_entry))
-"""
+    print(json.dumps(log_entry))"""
 
 # DRY RUN
 matches = re.findall(FIND, content, re.MULTILINE)
