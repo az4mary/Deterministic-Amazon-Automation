@@ -318,3 +318,64 @@ The first implementation target should be:
   }
 ]
 ```
+## PROJECT_ARCHITECTURE
+```json
+  "project_architecture": {
+    "system_model": "Deterministic File Processing Pipeline (Python)",
+    "pipeline_stages": [
+      "INGESTION",
+      "EXTRACTION",
+      "TRANSFORMATION",
+      "OUTPUT"
+    ],
+    "architecture_constraints": [
+      "each stage is atomic and single-responsibility",
+      "data flows linearly with no implicit branching",
+      "interfaces between stages are explicitly defined",
+      "full traceability from input to output is required"
+    ]
+  },
+```
+##SCRIPT_CATEGORIES
+```json
+  "script_categories": {
+    "SCRIPT_001": {
+      "script_id": "SCRIPT_001",
+      "name": "extract_parser",
+      "version": "4.0",
+      "category": "PARSER",
+      "input_schema": "markdown-like file with '# TITLE' followed by '**TASK:** text'",
+      "output_schema": "clean TITLE-TASK pairs with single spacing",
+      "dependencies": [],
+      "required_external_libraries": [],
+      "deterministic": true,
+      "pipeline_stage": "EXTRACTION",
+      "execution_model": "single-pass FSM parser",
+      "observability": {
+        "logging": "structured JSON",
+        "trace_fields": ["trace_id", "span_id"],
+        "lifecycle": ["INIT", "VALIDATED", "PROCESSING", "COMPLETED"]
+      }
+    }
+```
+```
+    "SCRIPT_002": {
+      "script_id": "SCRIPT_002",
+      "name": "workflow_state_manager",
+      "version": "1.0",
+      "category": "PROCESSOR",
+      "input_schema": "validated structured prompt outputs",
+      "output_schema": "updated workflow_state.json",
+      "dependencies": ["SCRIPT_001"],
+      "required_external_libraries": [],
+      "deterministic": true,
+      "pipeline_stage": "TRANSFORMATION",
+      "execution_model": "schema-validated state persistence",
+      "observability": {
+        "logging": "structured JSON",
+        "trace_fields": ["trace_id", "span_id"],
+        "lifecycle": ["INIT", "VALIDATED", "PROCESSING", "COMPLETED"]
+      }
+    }
+  }
+```
