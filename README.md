@@ -199,3 +199,122 @@ The first implementation target should be:
 3. build `workflow_state.json`
 4. run PROMPT 2 onward in order
 5. validate every JSON response before saving
+### TEST_CASES
+```json
+[
+  {
+    "test_id": "T1",
+    "name": "Valid raw inputs produce schema-compliant workflow state",
+    "category": "VALID",
+    "objective": "Validate that clean source images and unstructured product text are transformed into a complete workflow_state.json.",
+    "preconditions": {
+      "environment": "Windows 11, local filesystem available",
+      "dependencies": ["python", "json schema validator"]
+    },
+    "input": {
+      "data": "valid product images + valid unstructured product data",
+      "schema_version": "1.0"
+    },
+    "steps": [
+      "load source artifacts",
+      "run PROMPT 1A",
+      "run PROMPT 1B",
+      "merge outputs into workflow_state.json"
+    ],
+    "expected_result": {
+      "type": "SUCCESS",
+      "output": "schema-compliant workflow_state.json",
+      "error_code": null
+    },
+    "assertions": [
+      "required core fields exist",
+      "visual grounding fields exist",
+      "JSON is valid and parseable"
+    ],
+    "traceability": {
+      "script_id": "workflow_orchestrator_v1",
+      "algorithm_step": "S1-S4",
+      "edge_case_id": null
+    },
+    "execution": {
+      "status": "PENDING",
+      "actual_result": null
+    },
+    "version": "1.0"
+  },
+  {
+    "test_id": "T2",
+    "name": "Missing image input fails ingestion",
+    "category": "INVALID",
+    "objective": "Validate that the pipeline halts when no source images are provided.",
+    "preconditions": {
+      "environment": "Windows 11, local filesystem available",
+      "dependencies": ["python"]
+    },
+    "input": {
+      "data": "unstructured text only, no product images",
+      "schema_version": "1.0"
+    },
+    "steps": [
+      "load source artifacts",
+      "validate image presence"
+    ],
+    "expected_result": {
+      "type": "ERROR",
+      "output": null,
+      "error_code": "INGESTION_MISSING_IMAGES"
+    },
+    "assertions": [
+      "pipeline halts before PROMPT 1B",
+      "no workflow_state.json is saved"
+    ],
+    "traceability": {
+      "script_id": "workflow_orchestrator_v1",
+      "algorithm_step": "S1",
+      "edge_case_id": "EC_002"
+    },
+    "execution": {
+      "status": "PENDING",
+      "actual_result": null
+    },
+    "version": "1.0"
+  },
+  {
+    "test_id": "T3",
+    "name": "Schema drift in extracted JSON fails validation",
+    "category": "EDGE",
+    "objective": "Validate that unexpected or missing fields in PROMPT 1 output halt the pipeline immediately.",
+    "preconditions": {
+      "environment": "Windows 11, local filesystem available",
+      "dependencies": ["python", "json schema validator"]
+    },
+    "input": {
+      "data": "PROMPT 1A output with extra or missing required keys",
+      "schema_version": "1.0"
+    },
+    "steps": [
+      "run PROMPT 1A",
+      "validate JSON against schema"
+    ],
+    "expected_result": {
+      "type": "ERROR",
+      "output": null,
+      "error_code": "VALIDATION_SCHEMA_DRIFT"
+    },
+    "assertions": [
+      "validation fails before downstream prompts",
+      "no invalid state is persisted"
+    ],
+    "traceability": {
+      "script_id": "workflow_orchestrator_v1",
+      "algorithm_step": "S2",
+      "edge_case_id": "EC_003"
+    },
+    "execution": {
+      "status": "PENDING",
+      "actual_result": null
+    },
+    "version": "1.0"
+  }
+]
+```
