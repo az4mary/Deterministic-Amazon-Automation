@@ -168,3 +168,33 @@ Boundary testing is the right framing here because edge cases are the boundary o
 }
 ```
 [1]: https://en.wikipedia.org/wiki/Edge_case?utm_source=chatgpt.com "Edge case"
+## TEST_SCENARIO
+Use a **Python-orchestrated, state-file pipeline**: Python owns ingestion, schema checks, deduplication, saving `workflow_state.json`, and all deterministic transforms; LLMs only handle the few tasks that need language or visual generation. That fits TDD’s red-green-refactor discipline and pytest’s isolation model. ([martinfowler.com][1])
+
+### Version 1 workflow
+Python: ingest inputs → validate → build `workflow_state.json` → route prompts → save outputs.
+
+LLM calls:
+PROMPT 1A, 1B, 2, 3, 4, 5, 6, 7, 9, 10, 11–24.
+
+Python-first:
+PROMPT 8 can be mostly Python-generated from `workflow_state.json`; use an LLM only if a field is missing.
+
+### State loop
+`load workflow_state.json → send current prompt input → receive JSON output → validate → append to workflow_state.json → next prompt`
+
+### Deterministic files
+`images/source`, `workflow_state`, `prompts`, `outputs`, `logs`, `scripts`.
+[1]: https://martinfowler.com/articles/continuousIntegration.html?utm_source=chatgpt.com "Continuous Integration"
+The next deterministic step is the **Python orchestration layer**: it will load inputs, validate schema, execute each prompt call, append outputs to `workflow_state.json`, and stop immediately on any contract violation. The script should be split into `main.py`, `orchestrator.py`, `schema.py`, `state_store.py`, and `prompts/`.
+
+Core flow:
+```text
+ingest → validate → prompt step → validate output → persist state → next step
+```
+The first implementation target should be:
+1. load source images and raw text
+2. run PROMPT 1A and 1B
+3. build `workflow_state.json`
+4. run PROMPT 2 onward in order
+5. validate every JSON response before saving
