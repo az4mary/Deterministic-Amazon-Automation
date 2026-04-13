@@ -185,6 +185,7 @@ PROMPT 8 can be mostly Python-generated from `workflow_state.json`; use an LLM o
 
 ### Deterministic files
 `images/source`, `workflow_state`, `prompts`, `outputs`, `logs`, `scripts`.
+
 [1]: https://martinfowler.com/articles/continuousIntegration.html?utm_source=chatgpt.com "Continuous Integration"
 The next deterministic step is the **Python orchestration layer**: it will load inputs, validate schema, execute each prompt call, append outputs to `workflow_state.json`, and stop immediately on any contract violation. The script should be split into `main.py`, `orchestrator.py`, `schema.py`, `state_store.py`, and `prompts/`.
 
