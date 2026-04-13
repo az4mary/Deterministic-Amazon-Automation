@@ -377,3 +377,17 @@ The first implementation target should be:
       }
     }
 ```
+## SCRIPT_RULES
+```json
+  "script_rules": {
+    "metadata_header_required": true,
+    "step_isolation": true,
+    "boundary_validation_required": true,
+    "reuse_registered_patterns_only": true,
+    "duplicate_logic_prohibited": true,
+    "version_increment_required": true,
+    "category_alignment_required": true,
+    "deterministic": true,
+    "validation_status": "validated"
+  }
+```
