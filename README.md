@@ -336,7 +336,7 @@ The first implementation target should be:
     ]
   },
 ```
-##SCRIPT_CATEGORIES
+## SCRIPT_CATEGORIES
 ```json
   "script_categories": {
     "SCRIPT_001": {
@@ -377,5 +377,4 @@ The first implementation target should be:
         "lifecycle": ["INIT", "VALIDATED", "PROCESSING", "COMPLETED"]
       }
     }
-  }
 ```
