@@ -6,7 +6,7 @@ from pathlib import Path
 file_path = Path("workflow_orchestrator.py")
 content = file_path.read_text()
 
-FIND = r """def log(level, message, trace_id=None, span_id=None):
+FIND = r"""def log(level, message, trace_id=None, span_id=None):
     print(json.dumps({
         "level": level,
         "message": message,
