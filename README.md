@@ -338,7 +338,6 @@ The first implementation target should be:
 ```
 ## SCRIPT_CATEGORIES
 ```json
-  "script_categories": {
     "SCRIPT_001": {
       "script_id": "SCRIPT_001",
       "name": "extract_parser",
