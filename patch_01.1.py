@@ -1,66 +1,52 @@
-from __future__ import annotations
-
 import argparse
 import difflib
 import re
 import shutil
 from pathlib import Path
 
+FILE_PATH = Path("workflow_orchestrator.py")
 
-TARGET_FILE = Path("workflow_orchestrator.py")
+# === ONLY EDIT THESE TWO ===
+FIND = """<PASTE EXACT SNIPPET TO FIND>"""
 
-FIND = """import time"""
+REPLACE = """<PASTE REPLACEMENT SNIPPET>"""
+# ===========================
 
-REPLACE = """import time
-from datetime import datetime, timezone"""
-
-
-def main() -> int:
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--apply", action="store_true", help="Write changes to disk")
+    parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
-    if not TARGET_FILE.exists():
-        raise FileNotFoundError(f"Target file not found: {TARGET_FILE}")
+    content = FILE_PATH.read_text(encoding="utf-8")
 
-    original = TARGET_FILE.read_text(encoding="utf-8")
-    pattern = re.compile(re.escape(FIND), flags=re.MULTILINE)
+    pattern = re.compile(re.escape(FIND), re.MULTILINE)
+    matches = list(pattern.finditer(content))
 
-    matches = list(pattern.finditer(original))
     print(f"Matches found: {len(matches)}")
 
-    if len(matches) == 0:
-        print("No match found. Aborting.")
-        return 1
+    if len(matches) != 1:
+        print("❌ Abort: match must be exactly 1")
+        return
 
-    if len(matches) > 1:
-        print("Multiple matches found. Aborting to avoid accidental mass edit.")
-        return 1
-
-    updated = pattern.sub(REPLACE, original, count=1)
-
-    if original == updated:
-        print("Matched text found, but replacement produced no change.")
-        return 1
+    updated = pattern.sub(REPLACE, content, count=1)
 
     diff = difflib.unified_diff(
-        original.splitlines(True),
+        content.splitlines(True),
         updated.splitlines(True),
-        fromfile=str(TARGET_FILE),
-        tofile=f"{TARGET_FILE} (patched)",
+        fromfile=str(FILE_PATH),
+        tofile=str(FILE_PATH) + " (patched)",
     )
     print("".join(diff))
 
     if not args.apply:
-        print("Dry run only. No files were changed.")
-        return 0
+        print("Dry run only. No changes made.")
+        return
 
-    backup = TARGET_FILE.with_suffix(TARGET_FILE.suffix + ".bak")
-    shutil.copy2(TARGET_FILE, backup)
-    TARGET_FILE.write_text(updated, encoding="utf-8")
-    print(f"Patch applied. Backup saved to: {backup}")
-    return 0
+    backup = FILE_PATH.with_suffix(".bak")
+    shutil.copy2(FILE_PATH, backup)
 
+    FILE_PATH.write_text(updated, encoding="utf-8")
+    print(f"✅ Patch applied. Backup: {backup}")
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
