@@ -6,9 +6,6 @@ from pathlib import Path
 
 FILE_PATH = Path("workflow_orchestrator.py")
 
-print(repr(FIND))
-print(repr(content[content.find("def json_log"):content.find("def json_log") + len(FIND) + 20]))
-
 # === ONLY EDIT THESE TWO ===
 FIND = """def json_log(event: str, **fields: Any) -> None:
     record = {
@@ -21,6 +18,9 @@ FIND = """def json_log(event: str, **fields: Any) -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")"""
+
+print(repr(FIND))
+print(repr(content[content.find("def json_log"):content.find("def json_log") + len(FIND) + 20]))
 
 REPLACE = """def json_log(
     level: str,
