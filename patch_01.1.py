@@ -43,11 +43,8 @@ def main():
         print("Dry run only. No changes made.")
         return
 
-    backup = FILE_PATH.with_suffix(".bak")
-    shutil.copy2(FILE_PATH, backup)
-
     FILE_PATH.write_text(updated, encoding="utf-8")
-    print(f"✅ Patch applied. Backup: {backup}")
+    print(f"✅ Patch applied.")
 
 if __name__ == "__main__":
     main()
