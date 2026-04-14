@@ -100,9 +100,26 @@ def json_log(
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
-def fail(code: str, message: str) -> None:
-    json_log("fail_fast", error_code=code, message=message)
-    raise SystemExit(f"{code}: {message}")
+def fail(code: str, message: str, field: str = "", expected: str = "", actual: str = "", stage: str = "VALIDATION") -> None:
+    json_log(
+        level="ERROR",
+        message=message,
+        stage=stage,
+        status="FAILED",
+        context={
+            "error_code": code,
+            "field": field,
+            "expected": expected,
+            "actual": actual,
+        },
+    )
+    raise SystemExit(json.dumps({
+        "error_code": code,
+        "field": field,
+        "expected": expected,
+        "actual": actual,
+        "trace_id": TRACE_ID
+    }))
 
 
 def ensure_dirs() -> None:
