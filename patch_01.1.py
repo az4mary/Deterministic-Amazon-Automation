@@ -7,9 +7,10 @@ from pathlib import Path
 FILE_PATH = Path("workflow_orchestrator.py")
 
 # === ONLY EDIT THESE TWO ===
-FIND = """<PASTE EXACT SNIPPET TO FIND>"""
+FIND = """import time"""
 
-REPLACE = """<PASTE REPLACEMENT SNIPPET>"""
+REPLACE = """import time
+from datetime import datetime, timezone"""
 # ===========================
 
 def main():
