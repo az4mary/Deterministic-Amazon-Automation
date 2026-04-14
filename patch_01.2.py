@@ -1,12 +1,13 @@
-from datetime import datetime
-import json
+import argparse
+import difflib
 import re
+import shutil
 from pathlib import Path
 
-file_path = Path("workflow_orchestrator.py")
-content = file_path.read_text()
+FILE_PATH = Path("workflow_orchestrator.py")
 
-FIND = r"""def json_log(event: str, **fields: Any) -> None:
+# === ONLY EDIT THESE TWO ===
+FIND = """def json_log(event: str, **fields: Any) -> None:
     record = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "trace_id": TRACE_ID,
@@ -51,14 +52,40 @@ REPLACE = """def json_log(
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")"""
+# ===========================
 
-# DRY RUN
-matches = re.findall(FIND, content, re.MULTILINE)
-print(f"Matches found: {len(matches)}")
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apply", action="store_true")
+    args = parser.parse_args()
 
-if matches:
-    updated = re.sub(FIND, REPLACE, content, flags=re.MULTILINE)
-    file_path.write_text(updated)
-    print("Patch applied.")
-else:
-    print("No match found. Aborting.")
+    content = FILE_PATH.read_text(encoding="utf-8")
+
+    pattern = re.compile(re.escape(FIND), re.MULTILINE)
+    matches = list(pattern.finditer(content))
+
+    print(f"Matches found: {len(matches)}")
+
+    if len(matches) != 1:
+        print("❌ Abort: match must be exactly 1")
+        return
+
+    updated = pattern.sub(REPLACE, content, count=1)
+
+    diff = difflib.unified_diff(
+        content.splitlines(True),
+        updated.splitlines(True),
+        fromfile=str(FILE_PATH),
+        tofile=str(FILE_PATH) + " (patched)",
+    )
+    print("".join(diff))
+
+    if not args.apply:
+        print("Dry run only. No changes made.")
+        return
+
+    FILE_PATH.write_text(updated, encoding="utf-8")
+    print(f"✅ Patch applied.")
+
+if __name__ == "__main__":
+    main()
