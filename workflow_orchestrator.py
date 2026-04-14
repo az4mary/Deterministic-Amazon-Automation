@@ -65,14 +65,36 @@ def next_span_id() -> str:
     return f"{SPAN_COUNTER:06d}"
 
 
-def json_log(event: str, **fields: Any) -> None:
-    record = {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+def json_log(
+    level: str,
+    message: str,
+    stage: str,
+    status: str,
+    context: Optional[Dict[str, Any]] = None,
+    progress_percent: Optional[int] = None,
+    current_step: Optional[int] = None,
+    total_steps: Optional[int] = None,
+    **fields: Any,
+) -> None:
+    record: Dict[str, Any] = {
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "level": level,
+        "message": message,
+        "service": "workflow_orchestrator",
+        "stage": stage,
+        "status": status,
         "trace_id": TRACE_ID,
         "span_id": next_span_id(),
-        "event": event,
-        **fields,
+        "context": context or {},
     }
+
+    if progress_percent is not None:
+        record["progress_percent"] = int(progress_percent)
+        record["current_step"] = current_step
+        record["total_steps"] = total_steps
+
+    record.update(fields)
+
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
