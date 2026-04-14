@@ -6,6 +6,9 @@ from pathlib import Path
 
 FILE_PATH = Path("workflow_orchestrator.py")
 
+print(repr(FIND))
+print(repr(content[content.find("def json_log"):content.find("def json_log") + len(FIND) + 20]))
+
 # === ONLY EDIT THESE TWO ===
 FIND = """def json_log(event: str, **fields: Any) -> None:
     record = {
