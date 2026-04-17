@@ -24,11 +24,11 @@ def main():
 
     print(f"Matches found: {len(matches)}")
 
-    if len(matches) != 1:
-        print("❌ Abort: match must be exactly 1")
+    if len(matches) == 0:
+        print("❌ Abort: no matches found")
         return
 
-    updated = pattern.sub(REPLACE, content, count=1)
+    updated = pattern.sub(REPLACE, content)  # replaces ALL exact matches
 
     diff = difflib.unified_diff(
         content.splitlines(True),
