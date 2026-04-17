@@ -21,6 +21,61 @@ This follows the **prompt-chaining pipeline pattern**, where outputs from one st
 - visual prompt design
 
 ---
+
+# Version-1 Deterministic Workflow (Updated)
+
+SYSTEM STATE FILE
+- workflow_state.json
+
+CORE PRINCIPLE
+- Python handles ingestion, validation, deduplication, state updates, and output persistence.
+- LLM handles only creative generation tasks.
+
+STEP 0 — Python Initialization
+1. load product images
+2. load raw product data
+3. create empty workflow_state.json
+4. validate input files
+
+TEXT_STEP WAIT POLICY
+- wait_min: 600 seconds
+- preconditions:
+  - previous_step.status == "COMPLETED"
+  - output.validation == "PASSED"
+
+IMAGE_STEP WAIT POLICY
+- wait_min: 900 seconds
+- preconditions:
+  - image.status == "GENERATED"
+  - file.persistence == "CONFIRMED"
+  - style_lock.extracted == true
+
+PROMPT 1A — Product Data Extraction
+- LLM extracts structured product dataset
+- Python validates JSON and saves to workflow_state.json
+
+PROMPT 1B — Visual Product Identity Extraction
+- LLM extracts visual_identity, object_layout_map, product_geometry
+- Python validates schema and appends to workflow_state.json
+
+PROMPT 2 — PROMPT 10
+- LLM generates listing content
+- Python validates each output and saves it
+- Apply TEXT_STEP WAIT POLICY after each completed text step
+
+PROMPT 11 — PROMPT 24
+- LLM generates image prompts
+- image generation steps persist output and extract style_lock where required
+- Apply IMAGE_STEP WAIT POLICY after each completed image step
+
+FINAL OUTPUT
+- amazon_listing.json
+- image_prompts.json
+- social_posts.json
+- workflow_state.json
+
+---
+
 # SYSTEM STATE FILE
 ```text
 workflow_state.json
