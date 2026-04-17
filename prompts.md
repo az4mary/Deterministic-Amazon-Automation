@@ -19,7 +19,7 @@ Extract structured product information.
 3. If a known value cannot be confirmed → "Unconfirmed".
 4. Extract ALL discovered attributes as attribute-value pairs.
 5. Return ONLY valid JSON.
-6. reference_tag must be: ROAV_DASHCAM_C1_R2110.
+6. reference_tag must be read from workflow_state.json and preserved unchanged.
 
 **OUTPUT SCHEMA**
 
