@@ -4,13 +4,12 @@ import re
 import shutil
 from pathlib import Path
 
-FILE_PATH = Path("workflow_orchestrator.py")
+FILE_PATH = Path("workflow.md")
 
 # === ONLY EDIT THESE TWO ===
-FIND = """import time"""
+FIND = """reference_tag must be: ROAV_DASHCAM_C1_R2110"""
 
-REPLACE = """import time
-from datetime import datetime, timezone"""
+REPLACE = """reference_tag must be read from workflow_state.json and preserved unchanged"""
 # ===========================
 
 def main():
