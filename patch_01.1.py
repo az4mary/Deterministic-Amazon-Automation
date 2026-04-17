@@ -4,7 +4,7 @@ import re
 import shutil
 from pathlib import Path
 
-FILE_PATH = Path("workflow.md")
+FILE_PATH = Path("prompts.md")
 
 # === ONLY EDIT THESE TWO ===
 FIND = """reference_tag must be: ROAV_DASHCAM_C1_R2110"""
