@@ -205,7 +205,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "amazon_product_title": ""
 }
 ```
@@ -251,7 +251,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "amazon_bullet_points": [
    "BENEFIT HEADLINE — Supporting feature explanation",
    "BENEFIT HEADLINE — Supporting feature explanation",
@@ -308,7 +308,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "amazon_product_description": ""
 }
 ```
@@ -351,7 +351,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "amazon_backend_search_terms": ""
 }
 ```
@@ -401,7 +401,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "customer_search_intent_keywords": {
    "generic_searches": [],
    "feature_searches": [],
@@ -467,7 +467,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "amazon_aplus_content": {
    "brand_story": "",
    "feature_section_1": {
@@ -530,7 +530,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "technical_specifications": {
    "Brand": "",
    "Product Name": "",
@@ -593,7 +593,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "customer_faq": [
    {
      "question": "",
@@ -665,7 +665,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "social_media_posts": [
    {
      "post_number": 1,
@@ -745,7 +745,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 1,
    "image_type": "Hero Product Image",
@@ -823,7 +823,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 1,
    "image_type": "Hero Product Image",
@@ -897,7 +897,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 2,
    "image_type": "Core Benefit Image",
@@ -969,7 +969,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 2,
    "image_type": "Core Benefit Image",
@@ -1034,7 +1034,7 @@ Do not suggest additional steps.
 OUTPUT FORMAT (JSON)
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 3,
    "image_type": "Problem Solution Image",
@@ -1106,7 +1106,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 3,
    "image_type": "Problem Solution Image",
@@ -1171,7 +1171,7 @@ Do not suggest additional steps.
 OUTPUT FORMAT (JSON)
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 4,
    "image_type": "Lifestyle Use Image",
@@ -1243,7 +1243,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 4,
    "image_type": "Lifestyle Use Image",
@@ -1308,7 +1308,7 @@ Do not suggest additional steps.
 OUTPUT FORMAT (JSON)
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 5,
    "image_type": "Technology Feature Image",
@@ -1380,7 +1380,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 5,
    "image_type": "Technology / Capability Feature Image",
@@ -1445,7 +1445,7 @@ Do not suggest additional steps.
 OUTPUT FORMAT (JSON)
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 6,
    "image_type": "Ease of Use / Installation Image",
@@ -1517,7 +1517,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 6,
    "image_type": "Ease of Use / Installation Image",
@@ -1582,7 +1582,7 @@ Do not suggest additional steps.
 OUTPUT FORMAT (JSON)
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "image_strategy": {
    "image_number": 7,
    "image_type": "Specifications Infographic",
@@ -1654,7 +1654,7 @@ Do not suggest additional steps.
 **OUTPUT FORMAT (JSON)**
 
 {
- "reference_tag": "ROAV_DASHCAM_C1_R2110",
+ "reference_tag": "",
  "generated_image": {
    "image_number": 7,
    "image_type": "Specifications Infographic",
