@@ -175,7 +175,7 @@ Return only valid JSON.
 **INPUT**
 Use the structured dataset and visual grounding information from workflow_state.json.
 
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 **OBJECTIVE**
 Generate a high-conversion Amazon product title optimized for search visibility and customer readability.
@@ -217,7 +217,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -269,7 +269,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -320,7 +320,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -363,7 +363,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -419,7 +419,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -497,7 +497,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -551,7 +551,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -626,7 +626,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -700,7 +700,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -766,7 +766,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -848,7 +848,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -918,7 +918,7 @@ Do not suggest additional steps.
 
 INPUT
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -985,7 +985,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1055,7 +1055,7 @@ OUTPUT FORMAT (JSON)
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1122,7 +1122,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1192,7 +1192,7 @@ OUTPUT FORMAT (JSON)
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1259,7 +1259,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1329,7 +1329,7 @@ OUTPUT FORMAT (JSON)
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1396,7 +1396,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1466,7 +1466,7 @@ OUTPUT FORMAT (JSON)
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1533,7 +1533,7 @@ Do not suggest additional steps.
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1603,7 +1603,7 @@ OUTPUT FORMAT (JSON)
 
 **INPUT**
 Use the structured dataset contained in workflow_state.json.
-reference_tag must remain: ROAV_DASHCAM_C1_R2110.
+reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
 - product_profile
