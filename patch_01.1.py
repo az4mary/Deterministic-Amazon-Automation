@@ -7,7 +7,7 @@ from pathlib import Path
 FILE_PATH = Path("prompts.md")
 
 # === ONLY EDIT THESE TWO ===
-FIND = """reference_tag must be: ROAV_DASHCAM_C1_R2110"""
+FIND = """reference_tag must remain: ROAV_DASHCAM_C1_R2110"""
 
 REPLACE = """reference_tag must be read from workflow_state.json and preserved unchanged"""
 # ===========================
