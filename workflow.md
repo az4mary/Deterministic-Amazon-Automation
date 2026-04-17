@@ -76,6 +76,21 @@ FINAL OUTPUT
 
 ---
 
+| State | Stage                   | Action                                                                                          | Wait                         |
+| ----- | ----------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- |
+| 0     | INIT                    | Load inputs, create `workflow_state.json`                                                       | —                            |
+| 1A    | EXTRACTION              | Extract product dataset from text/unstructured data                                             | 10 min after complete        |
+| 1B    | EXTRACTION              | Extract visual identity from images                                                             | 15 min after complete        |
+| 2–10  | TRANSFORMATION / OUTPUT | Generate title, bullets, description, keywords, A+, specs, FAQ, social posts                    | 10 min after each text step  |
+| 11    | IMAGE STRATEGY          | Generate Image 1 prompt                                                                         | 10 min                       |
+| 12    | IMAGE OUTPUT            | Generate Image 1 + style_lock                                                                   | 15 min                       |
+| 13–24 | IMAGE STRATEGY / OUTPUT | Repeat prompt → generate cycle for Images 2–7                                                   | 15 min after each image step |
+| FINAL | OUTPUT                  | Compile `amazon_listing.json`, `image_prompts.json`, `social_posts.json`, `workflow_state.json` | —                            |
+
+Python owns validation, deduplication, state writes, and timing enforcement; the LLM only generates the prompt/image/content payloads. 
+
+---
+
 # SYSTEM STATE FILE
 ```text
 workflow_state.json
