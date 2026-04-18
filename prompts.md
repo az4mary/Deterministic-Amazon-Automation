@@ -155,8 +155,16 @@ Return only valid JSON.
 
 **INPUT**
 Use the structured dataset and visual grounding information from workflow_state.json.
-
 reference_tag must be read from workflow_state.json and preserved unchanged.
+
+The dataset includes:
+- product_profile
+- core_features
+- attributes
+- additional_attributes
+- package_contents
+- visual_identity
+- product_geometry
 
 **OBJECTIVE**
 Generate a high-conversion Amazon product title optimized for search visibility and customer readability.
@@ -204,6 +212,7 @@ The dataset includes:
 - product_profile
 - core_features
 - attributes
+- additional_attributes
 - package_contents
 - visual_identity
 - product_geometry
