@@ -464,7 +464,7 @@ Do not suggest additional steps.
 {
  "reference_tag": "",
  "amazon_aplus_content": {
-   "brand_story": "",
+   "seller_or_brand_story": "",
    "feature_section_1": {
      "headline": "",
      "supporting_text": ""
