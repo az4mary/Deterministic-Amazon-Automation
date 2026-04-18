@@ -265,6 +265,7 @@ The dataset includes:
 - product_profile
 - core_features
 - attributes
+- additional_attributes
 - package_contents
 - visual_identity
 - product_geometry
