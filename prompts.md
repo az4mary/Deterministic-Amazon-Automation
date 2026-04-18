@@ -553,6 +553,7 @@ The dataset includes:
 - product_profile
 - core_features
 - attributes
+- additional_attributes
 - package_contents
 - amazon_product_title
 - amazon_bullet_points
