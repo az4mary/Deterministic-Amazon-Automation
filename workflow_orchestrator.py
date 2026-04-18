@@ -66,16 +66,41 @@ def next_span_id() -> str:
 
 
 def json_log(
-    level: str,
-    message: str,
-    stage: str,
-    status: str,
+    *args: Any,
+    level: Optional[str] = None,
+    message: Optional[str] = None,
+    stage: Optional[str] = None,
+    status: Optional[str] = None,
     context: Optional[Dict[str, Any]] = None,
     progress_percent: Optional[int] = None,
     current_step: Optional[int] = None,
     total_steps: Optional[int] = None,
     **fields: Any,
 ) -> None:
+    legacy_event: Optional[str] = None
+
+    if len(args) == 1 and isinstance(args[0], str) and level is None and message is None and stage is None and status is None:
+        legacy_event = args[0]
+        legacy_map = {
+            "step_start": ("INFO", "Step started", "PROCESSING", "STARTED"),
+            "step_end": ("INFO", "Step completed", "PROCESSING", "COMPLETED"),
+            "orchestrator_start": ("INFO", "Orchestrator started", "INIT", "STARTED"),
+            "orchestrator_complete": ("INFO", "Orchestrator completed", "OUTPUT", "SUCCESS"),
+            "fail_fast": ("ERROR", "Validation failed", "VALIDATION", "FAILED"),
+            "unhandled_exception": ("ERROR", "Unhandled exception", "VALIDATION", "FAILED"),
+        }
+        level, message, stage, status = legacy_map.get(legacy_event, ("INFO", legacy_event, "PROCESSING", "IN_PROGRESS"))
+    elif len(args) >= 4 and level is None and message is None and stage is None and status is None:
+        level, message, stage, status = args[:4]
+    elif level is None or message is None or stage is None or status is None:
+        fail(
+            "LOGGER_SCHEMA_INVALID",
+            "json_log called without required schema fields.",
+            field="json_log",
+            expected="level/message/stage/status",
+            actual=str(args),
+        )
+
     record: Dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "level": level,
@@ -87,6 +112,9 @@ def json_log(
         "span_id": next_span_id(),
         "context": context or {},
     }
+
+    if legacy_event is not None:
+        record["context"] = {"legacy_event": legacy_event, **(context or {})}
 
     if progress_percent is not None:
         record["progress_percent"] = int(progress_percent)
