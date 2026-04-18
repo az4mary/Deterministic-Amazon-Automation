@@ -714,6 +714,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate the image-generation prompt for Image 1 of the Amazon listing.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 1 → What is this product?
 
@@ -781,6 +784,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate Image 1 for the Amazon listing using the previously generated prompt.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 1 → What is this product?
@@ -863,6 +869,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate the image-generation prompt for Image 2 of the Amazon listing.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 2 → Why do I need this product?
 
@@ -936,6 +945,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate Image 2 for the Amazon listing based on the previously created prompt.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 2 → Why do I need this product?
 
@@ -1001,6 +1013,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 3 of the Amazon listing.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 3 → What problem does this product solve?
@@ -1075,6 +1090,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate Image 3 for the Amazon listing using the prepared image strategy.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 3 → What problem does this product solve?
 
@@ -1140,6 +1158,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 4 of the Amazon listing.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 4 → When would I use this product?
@@ -1214,6 +1235,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate Image 4 for the Amazon listing using the prepared image strategy.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 4 → When would I use this product?
 
@@ -1279,6 +1303,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 5 of the Amazon listing.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 5 → What technology makes this product better?
@@ -1353,6 +1380,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate Image 5 for the Amazon listing using the prepared image strategy.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 5 → What technology makes this product better?
 
@@ -1418,6 +1448,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 6 of the Amazon listing.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 6 → How easy is it to install or use?
@@ -1492,6 +1525,9 @@ The dataset includes:
 **OBJECTIVE**
 Generate Image 6 for the Amazon listing using the prepared image strategy.
 
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
+
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 6 → How easy is it to install/use?
 
@@ -1557,6 +1593,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 7 of the Amazon listing.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 7 → What specifications or technical details matter?
@@ -1630,6 +1669,9 @@ The dataset includes:
 
 **OBJECTIVE**
 Generate Image 7 for the Amazon listing using the prepared image strategy.
+
+**RULES**
+Use only workflow_state.json; do not assume category, product type, or features beyond the state file.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
 Image 7 → What specifications or technical details matter?
