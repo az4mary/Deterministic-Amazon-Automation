@@ -729,7 +729,7 @@ def main() -> None:
     validate_initial_inputs()
 
     state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
-    state.setdefault("reference_tag", "ROAV_DASHCAM_C1_R2110")
+    state.setdefault("reference_tag", "")
     state.setdefault("outputs", {})
 
     raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
