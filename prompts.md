@@ -22,7 +22,6 @@ Extract structured product information.
 6. reference_tag must be read from workflow_state.json and preserved unchanged.
 
 **OUTPUT SCHEMA**
-
 {
  "reference_tag": "",
  "product_category": "",
@@ -36,6 +35,10 @@ Extract structured product information.
  "core_features": [],
 
  "attributes": {
+   "attribute_name": "value"
+ },
+
+ "additional_attributes": {
    "attribute_name": "value"
  },
 
