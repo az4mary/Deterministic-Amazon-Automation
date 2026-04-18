@@ -497,6 +497,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - package_contents
 - visual_identity
