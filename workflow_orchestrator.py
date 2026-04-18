@@ -167,7 +167,7 @@ def parse_response_json(response_text: str) -> Dict[str, Any]:
 
 def workflow_state_init() -> Dict[str, Any]:
     return {
-        "reference_tag": "ROAV_DASHCAM_C1_R2110",
+        "reference_tag": "",
         "trace_id": TRACE_ID,
         "script_metadata": SCRIPT_METADATA,
         "source": {
