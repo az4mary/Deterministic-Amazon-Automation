@@ -703,6 +703,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - visual_identity
 - object_layout_map
 - lighting_profile
@@ -769,13 +770,14 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - visual_identity
 - object_layout_map
 - lighting_profile
 - camera_profile
 - product_geometry
 - image_views
-- image_strategy (from PROMPT 11)
+- image_strategy
 
 **OBJECTIVE**
 Generate Image 1 for the Amazon listing using the previously generated prompt.
@@ -851,6 +853,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - product_geometry
@@ -921,6 +924,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - object_layout_map
@@ -988,6 +992,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - product_geometry
@@ -1058,6 +1063,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - object_layout_map
@@ -1125,6 +1131,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - product_geometry
@@ -1195,6 +1202,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - object_layout_map
@@ -1262,6 +1270,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - product_geometry
@@ -1332,6 +1341,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - object_layout_map
@@ -1399,6 +1409,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - product_geometry
@@ -1469,6 +1480,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - object_layout_map
@@ -1536,6 +1548,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - product_geometry
@@ -1606,6 +1619,7 @@ reference_tag must be read from workflow_state.json and preserved unchanged.
 The dataset includes:
 - product_profile
 - attributes
+- additional_attributes
 - core_features
 - visual_identity
 - object_layout_map
