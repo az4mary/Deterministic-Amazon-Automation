@@ -792,13 +792,35 @@ def validate_initial_inputs() -> None:
 
 
 def main() -> None:
+    global RUN_START_TIME
+    RUN_START_TIME = time.time()
+
     parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
     parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
     parser.add_argument("--stop-after", default=None, help="Optional step id to stop after (e.g. 10)")
     args = parser.parse_args()
 
     ensure_dirs()
+
+    emit_lifecycle_event(
+        stage="INIT",
+        status="STARTED",
+        message="Orchestrator initialization started",
+        progress_percent=0,
+        current_step=0,
+        total_steps=len(STEP_PLAN),
+    )
+
     validate_initial_inputs()
+
+    emit_lifecycle_event(
+        stage="VALIDATED",
+        status="COMPLETED",
+        message="Input validation completed",
+        progress_percent=0,
+        current_step=0,
+        total_steps=len(STEP_PLAN),
+    )
 
     state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
     state.setdefault("reference_tag", "")
@@ -812,22 +834,55 @@ def main() -> None:
         "image_sha256": image_hashes,
     }
 
-    # Store source payload once for PROMPT 1A/1B.
     state["source_payload"] = {
         "raw_text": load_text(RAW_TEXT_PATH),
         "source_images": [str(p) for p in read_source_images()],
     }
 
     save_json_atomic(STATE_PATH, state)
-    json_log("orchestrator_start", script_id=SCRIPT_METADATA["script_id"], version=SCRIPT_METADATA["version"])
 
-    for step in STEP_PLAN:
+    emit_lifecycle_event(
+        stage="PROCESSING",
+        status="STARTED",
+        message="Workflow processing started",
+        progress_percent=0,
+        current_step=0,
+        total_steps=len(STEP_PLAN),
+    )
+
+    for idx, step in enumerate(STEP_PLAN, start=1):
         if args.stop_after and step.step_id == args.stop_after:
             break
         run_step(step, state)
+        progress_percent = int((idx / len(STEP_PLAN)) * 100)
+        json_log(
+            level="INFO",
+            message=f"Completed step {step.step_id}",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"step_id": step.step_id},
+            progress_percent=progress_percent,
+            current_step=idx,
+            total_steps=len(STEP_PLAN),
+        )
 
-    json_log("orchestrator_complete", completed_step=state.get("last_completed_step"))
     save_json_atomic(STATE_PATH, state)
+
+    output_hash = hashlib.sha256(STATE_PATH.read_bytes()).hexdigest()
+    emit_lifecycle_event(
+        stage="COMPLETED",
+        status="SUCCESS",
+        message="Workflow completed successfully",
+        progress_percent=100,
+        current_step=len(STEP_PLAN),
+        total_steps=len(STEP_PLAN),
+    )
+    emit_terminal_event(
+        status="SUCCESS",
+        message="Workflow completed successfully",
+        output_hash=output_hash,
+        context={"completed_step": state.get("last_completed_step")},
+    )
 
 
 if __name__ == "__main__":
