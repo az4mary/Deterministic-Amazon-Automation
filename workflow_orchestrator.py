@@ -130,6 +130,37 @@ def json_log(
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
+def emit_lifecycle_event(stage: str, status: str, message: str, progress_percent: int, current_step: int, total_steps: int) -> None:
+    json_log(
+        level="INFO",
+        message=message,
+        stage=stage,
+        status=status,
+        context={"stage": stage},
+        progress_percent=progress_percent,
+        current_step=current_step,
+        total_steps=total_steps,
+    )
+
+
+def emit_terminal_event(status: str, message: str, output_hash: str, context: Optional[Dict[str, Any]] = None) -> None:
+    global TERMINAL_EVENT_EMITTED
+    if TERMINAL_EVENT_EMITTED:
+        return
+
+    duration_ms = int((time.time() - RUN_START_TIME) * 1000) if RUN_START_TIME else 0
+    json_log(
+        level="INFO" if status == "SUCCESS" else "ERROR",
+        message=message,
+        stage="OUTPUT",
+        status=status,
+        context=context or {},
+        duration_ms=duration_ms,
+        output_hash=output_hash,
+    )
+    TERMINAL_EVENT_EMITTED = True
+
+
 def fail(code: str, message: str, field: str = "", expected: str = "", actual: str = "", stage: str = "VALIDATION") -> None:
     json_log(
         level="ERROR",
