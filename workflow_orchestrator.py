@@ -174,6 +174,17 @@ def fail(code: str, message: str, field: str = "", expected: str = "", actual: s
             "actual": actual,
         },
     )
+    emit_terminal_event(
+        status="FAILED",
+        message=message,
+        output_hash="",
+        context={
+            "error_code": code,
+            "field": field,
+            "expected": expected,
+            "actual": actual,
+        },
+    )
     raise SystemExit(json.dumps({
         "error_code": code,
         "field": field,
