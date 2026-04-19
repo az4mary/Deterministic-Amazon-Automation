@@ -45,6 +45,8 @@ IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
 
 TRACE_ID = str(uuid.uuid4())
 SPAN_COUNTER = 0
+RUN_START_TIME = 0.0
+TERMINAL_EVENT_EMITTED = False
 
 client = OpenAI()
 
