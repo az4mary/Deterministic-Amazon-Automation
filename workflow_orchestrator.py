@@ -702,6 +702,13 @@ def deterministic_style_lock() -> Dict[str, str]:
     }
 
 
+def apply_step_wait(step_kind: str) -> None:
+    if step_kind == "text":
+        time.sleep(TEXT_STEP_WAIT_SECONDS)
+    elif step_kind == "image_generate":
+        time.sleep(IMAGE_STEP_WAIT_SECONDS)
+
+
 STEP_PLAN: List[Step] = [
     Step("01A", "text", "prompt_01A.txt", "prompt_01A", schema_1a),
     Step("01B", "text", "prompt_01B.txt", "prompt_01B", schema_1b),
