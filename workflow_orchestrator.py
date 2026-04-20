@@ -167,34 +167,42 @@ def emit_terminal_event(status: str, message: str, output_hash: str, context: Op
 
 
 def fail(code: str, message: str, field: str = "", expected: str = "", actual: str = "", stage: str = "VALIDATION") -> None:
+    caller = inspect.currentframe().f_back if inspect.currentframe() and inspect.currentframe().f_back else None
+    file_path = str(Path(caller.f_code.co_filename)) if caller else ""
+    line_no = int(caller.f_lineno) if caller else 0
+    snippet = linecache.getline(file_path, line_no).strip() if file_path and line_no else ""
+
+    error_context = {
+        "error_code": code,
+        "field": field,
+        "expected": expected,
+        "actual": actual,
+        "file": file_path,
+        "line": line_no,
+        "snippet": snippet,
+    }
+
     json_log(
         level="ERROR",
         message=message,
         stage=stage,
         status="FAILED",
-        context={
-            "error_code": code,
-            "field": field,
-            "expected": expected,
-            "actual": actual,
-        },
+        context=error_context,
     )
     emit_terminal_event(
         status="FAILED",
         message=message,
         output_hash="",
-        context={
-            "error_code": code,
-            "field": field,
-            "expected": expected,
-            "actual": actual,
-        },
+        context=error_context,
     )
     raise SystemExit(json.dumps({
         "error_code": code,
         "field": field,
         "expected": expected,
         "actual": actual,
+        "file": file_path,
+        "line": line_no,
+        "snippet": snippet,
         "trace_id": TRACE_ID
     }))
 
