@@ -76,6 +76,11 @@ def next_span_id() -> str:
     return f"{SPAN_COUNTER:06d}"
 
 
+def build_deterministic_trace_id(raw_text_hash: str, image_hashes: List[str]) -> str:
+    payload = "|".join([raw_text_hash, *image_hashes, SCRIPT_METADATA["script_id"]])
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
+
+
 def json_log(
     *args: Any,
     level: Optional[str] = None,
