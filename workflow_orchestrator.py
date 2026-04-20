@@ -167,6 +167,52 @@ def emit_terminal_event(status: str, message: str, output_hash: str, context: Op
     TERMINAL_EVENT_EMITTED = True
 
 
+def validate_progress_percent(progress_percent: int, current_step: int, total_steps: int) -> None:
+    global LAST_PROGRESS_PERCENT
+
+    if not isinstance(progress_percent, int):
+        fail(
+            "PROGRESS_TYPE_INVALID",
+            "progress_percent must be an integer.",
+            field="progress_percent",
+            expected="int",
+            actual=type(progress_percent).__name__,
+            stage="PROCESSING",
+        )
+
+    if progress_percent < 0 or progress_percent > 100:
+        fail(
+            "PROGRESS_RANGE_INVALID",
+            "progress_percent must be between 0 and 100.",
+            field="progress_percent",
+            expected="0..100",
+            actual=str(progress_percent),
+            stage="PROCESSING",
+        )
+
+    if progress_percent < LAST_PROGRESS_PERCENT:
+        fail(
+            "PROGRESS_NON_MONOTONIC",
+            "progress_percent must be monotonic.",
+            field="progress_percent",
+            expected=f">= {LAST_PROGRESS_PERCENT}",
+            actual=str(progress_percent),
+            stage="PROCESSING",
+        )
+
+    if current_step < 0 or total_steps <= 0 or current_step > total_steps:
+        fail(
+            "PROGRESS_STEP_INVALID",
+            "current_step/total_steps are outside valid bounds.",
+            field="current_step",
+            expected=f"0 <= current_step <= total_steps and total_steps > 0",
+            actual=f"current_step={current_step}, total_steps={total_steps}",
+            stage="PROCESSING",
+        )
+
+    LAST_PROGRESS_PERCENT = progress_percent
+
+
 def fail(code: str, message: str, field: str = "", expected: str = "", actual: str = "", stage: str = "VALIDATION") -> None:
     caller = inspect.currentframe().f_back if inspect.currentframe() and inspect.currentframe().f_back else None
     file_path = str(Path(caller.f_code.co_filename)) if caller else ""
