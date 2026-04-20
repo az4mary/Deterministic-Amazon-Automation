@@ -922,7 +922,8 @@ def main() -> None:
         if args.stop_after and step.step_id == args.stop_after:
             break
         run_step(step, state)
-        progress_percent = int((idx / len(STEP_PLAN)) * 100)
+        progress_percent = min(100, int((idx / len(STEP_PLAN)) * 100))
+        validate_progress_percent(progress_percent, idx, len(STEP_PLAN))
         json_log(
             level="INFO",
             message=f"Completed step {step.step_id}",
