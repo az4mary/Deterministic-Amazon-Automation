@@ -788,7 +788,7 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
         fail("UNKNOWN_STEP_KIND", f"Unknown step kind: {step.kind}")
 
     save_json_atomic(STATE_PATH, state)
-
+    apply_step_wait(step.kind)
 
 def validate_initial_inputs() -> None:
     if not RAW_TEXT_PATH.exists():
