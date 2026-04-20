@@ -137,6 +137,7 @@ def json_log(
 
 
 def emit_lifecycle_event(stage: str, status: str, message: str, progress_percent: int, current_step: int, total_steps: int) -> None:
+    validate_progress_percent(progress_percent, current_step, total_steps)
     json_log(
         level="INFO",
         message=message,
