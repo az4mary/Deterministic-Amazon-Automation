@@ -883,6 +883,18 @@ def main() -> None:
 
     ensure_dirs()
 
+    state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
+    state.setdefault("reference_tag", "")
+    state.setdefault("outputs", {})
+
+    validate_initial_inputs()
+
+    raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
+    image_hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in read_source_images()]
+
+    global TRACE_ID
+    TRACE_ID = build_deterministic_trace_id(raw_text_hash, image_hashes)
+
     emit_lifecycle_event(
         stage="INIT",
         status="STARTED",
@@ -892,8 +904,6 @@ def main() -> None:
         total_steps=len(STEP_PLAN),
     )
 
-    validate_initial_inputs()
-
     emit_lifecycle_event(
         stage="VALIDATED",
         status="COMPLETED",
@@ -902,13 +912,6 @@ def main() -> None:
         current_step=0,
         total_steps=len(STEP_PLAN),
     )
-
-    state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
-    state.setdefault("reference_tag", "")
-    state.setdefault("outputs", {})
-
-    raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
-    image_hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in read_source_images()]
 
     state["input_fingerprint"] = {
         "raw_text_sha256": raw_text_hash,
