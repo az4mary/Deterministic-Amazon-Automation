@@ -32,7 +32,7 @@ SCRIPT_METADATA = {
     "status": "ACTIVE",
 }
 
-ROOT = Path(r"C:\Users\HP\Documents\Obsidian\test\PROJECTS")
+ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 PROMPTS_DIR = ROOT / "docs" / "prompts"
 OUTPUT_DIR = ROOT / "output"
