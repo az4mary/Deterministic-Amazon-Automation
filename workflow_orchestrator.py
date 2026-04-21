@@ -164,7 +164,7 @@ def emit_terminal_event(status: str, message: str, output_hash: str, context: Op
     if TERMINAL_EVENT_EMITTED:
         return
 
-    duration_ms = int((time.time() - RUN_START_TIME) * 1000) if RUN_START_TIME else 0
+    duration_ms = SYNTHETIC_DURATION_MS
     json_log(
         level="INFO" if status == "SUCCESS" else "ERROR",
         message=message,
