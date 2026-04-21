@@ -117,8 +117,9 @@ def json_log(
             actual=str(args),
         )
 
+    global LOG_SEQUENCE
     record: Dict[str, Any] = {
-        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "timestamp": (DETERMINISTIC_TIME_BASE + timedelta(seconds=LOG_SEQUENCE)).isoformat().replace("+00:00", "Z"),
         "level": level,
         "message": message,
         "service": "workflow_orchestrator",
