@@ -181,15 +181,8 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         page = self._page()
-        box = self._input_box(page)
         payload = build_text_input(state, prompt_text)
-        try:
-            box.fill(payload)
-        except Exception:
-            box.click()
-            box.type(payload, delay=20)
-        page.keyboard.press("Enter")
-        response_text = self._extract_response(page)
+        response_text = self.send_prompt(page, payload)
         if not response_text:
             fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
         return parse_response_json(response_text)
