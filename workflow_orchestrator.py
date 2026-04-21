@@ -57,8 +57,6 @@ DETERMINISTIC_TIME_BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 TEXT_STEP_WAIT_SECONDS = 600
 IMAGE_STEP_WAIT_SECONDS = 900
 
-client = OpenAI()
-
 
 @dataclass(frozen=True)
 class Step:
@@ -120,6 +118,10 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
         if not image_data:
             fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
         return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
+
+
+client = OpenAI()
+EXECUTION_ADAPTER: PromptExecutionAdapter = OpenAIPromptExecutionAdapter(client)
 
 
 def build_deterministic_trace_id(raw_text_hash: str, image_hashes: List[str]) -> str:
