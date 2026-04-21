@@ -125,6 +125,62 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
         return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
 
 
+class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
+    def __init__(self, cdp_url: str, chat_url: str, action_timeout_ms: int, image_fallback: PromptExecutionAdapter) -> None:
+        self.cdp_url = cdp_url
+        self.chat_url = chat_url
+        self.action_timeout_ms = action_timeout_ms
+        self.image_fallback = image_fallback
+        self._playwright = None
+        self._browser = None
+        self._context = None
+
+    def _page(self):
+        if self._browser is None:
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
+            self._context = self._browser.contexts[0] if self._browser.contexts else self._browser.new_context()
+        page = self._context.pages[0] if self._context.pages else self._context.new_page()
+        page.bring_to_front()
+        if self.chat_url and self.chat_url not in (page.url or ""):
+            page.goto(self.chat_url, wait_until="domcontentloaded")
+        return page
+
+    def _input_box(self, page):
+        try:
+            box = page.get_by_role("textbox").first
+            box.wait_for(timeout=self.action_timeout_ms)
+            return box
+        except Exception:
+            box = page.locator('[contenteditable="true"]').first
+            box.wait_for(timeout=self.action_timeout_ms)
+            return box
+
+    def _extract_response(self, page) -> str:
+        assistant = page.locator("[data-message-author-role='assistant']").last
+        assistant.wait_for(timeout=self.action_timeout_ms)
+        page.wait_for_timeout(2000)
+        return assistant.inner_text(timeout=self.action_timeout_ms).strip()
+
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        page = self._page()
+        box = self._input_box(page)
+        payload = build_text_input(state, prompt_text)
+        try:
+            box.fill(payload)
+        except Exception:
+            box.click()
+            box.type(payload, delay=20)
+        page.keyboard.press("Enter")
+        response_text = self._extract_response(page)
+        if not response_text:
+            fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
+        return parse_response_json(response_text)
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        return self.image_fallback.execute_image(prompt, size=size)
+
+
 client: Optional[OpenAI] = None
 EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
 
@@ -132,8 +188,19 @@ EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
 def get_execution_adapter() -> PromptExecutionAdapter:
     global client, EXECUTION_ADAPTER
     if EXECUTION_ADAPTER is None:
-        client = OpenAI()
-        EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
+        if EXECUTION_BACKEND == "browser":
+            if client is None:
+                client = OpenAI()
+            EXECUTION_ADAPTER = BrowserPromptExecutionAdapter(
+                BROWSER_CDP_URL,
+                BROWSER_CHAT_URL,
+                BROWSER_ACTION_TIMEOUT_MS,
+                OpenAIPromptExecutionAdapter(client),
+            )
+        else:
+            if client is None:
+                client = OpenAI()
+            EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
     return EXECUTION_ADAPTER
 
 
