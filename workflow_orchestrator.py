@@ -120,8 +120,16 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
         return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
 
 
-client = OpenAI()
-EXECUTION_ADAPTER: PromptExecutionAdapter = OpenAIPromptExecutionAdapter(client)
+client: Optional[OpenAI] = None
+EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
+
+
+def get_execution_adapter() -> PromptExecutionAdapter:
+    global client, EXECUTION_ADAPTER
+    if EXECUTION_ADAPTER is None:
+        client = OpenAI()
+        EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
+    return EXECUTION_ADAPTER
 
 
 def build_deterministic_trace_id(raw_text_hash: str, image_hashes: List[str]) -> str:
@@ -757,14 +765,14 @@ def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:
 
 def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
     json_log("step_start", step_id=step_id, kind="text")
-    parsed = EXECUTION_ADAPTER.execute_text(step_id, prompt_text, schema, state)
+    parsed = get_execution_adapter().execute_text(step_id, prompt_text, schema, state)
     json_log("step_end", step_id=step_id, kind="text", output_keys=list(parsed.keys()))
     return parsed
 
 
 def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
     json_log("step_start", kind="image_generation", size=size)
-    return EXECUTION_ADAPTER.execute_image(prompt, size=size)
+    return get_execution_adapter().execute_image(prompt, size=size)
 
 
 def save_image(image_base64: str, name: str) -> str:
