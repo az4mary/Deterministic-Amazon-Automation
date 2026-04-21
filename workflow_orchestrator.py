@@ -873,8 +873,13 @@ def validate_initial_inputs() -> None:
 
 
 def main() -> None:
-    global RUN_START_TIME
+    global RUN_START_TIME, LOG_SEQUENCE, SYNTHETIC_DURATION_MS, TERMINAL_EVENT_EMITTED, LAST_PROGRESS_PERCENT, SPAN_COUNTER
     RUN_START_TIME = time.time()
+    LOG_SEQUENCE = 0
+    SYNTHETIC_DURATION_MS = 0
+    TERMINAL_EVENT_EMITTED = False
+    LAST_PROGRESS_PERCENT = -1
+    SPAN_COUNTER = 0
 
     parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
     parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
