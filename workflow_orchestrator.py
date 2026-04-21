@@ -76,6 +76,52 @@ def next_span_id() -> str:
     return f"{SPAN_COUNTER:06d}"
 
 
+class PromptExecutionAdapter:
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
+    def __init__(self, client: OpenAI) -> None:
+        self.client = client
+
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        response = self.client.responses.create(
+            model=TEXT_MODEL,
+            input=build_text_input(state, prompt_text),
+            text={"format": {"type": "json_schema", "json_schema": {"name": f"step_{step_id}", "schema": schema, "strict": True}}},
+            temperature=0,
+        )
+        raw = getattr(response, "output_text", "") or ""
+        if not raw.strip():
+            fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty output.")
+        return parse_response_json(raw)
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        response = self.client.responses.create(
+            model=IMAGE_MODEL,
+            input=prompt,
+            tools=[{"type": "image_generation"}],
+            tool_choice={"type": "image_generation"},
+        )
+        image_data = [
+            output.result
+            for output in response.output
+            if getattr(output, "type", None) == "image_generation_call"
+        ]
+        revised_prompt = None
+        for output in response.output:
+            if getattr(output, "type", None) == "image_generation_call":
+                revised_prompt = getattr(output, "revised_prompt", None)
+                break
+        if not image_data:
+            fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
+        return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
+
+
 def build_deterministic_trace_id(raw_text_hash: str, image_hashes: List[str]) -> str:
     payload = "|".join([raw_text_hash, *image_hashes, SCRIPT_METADATA["script_id"]])
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
