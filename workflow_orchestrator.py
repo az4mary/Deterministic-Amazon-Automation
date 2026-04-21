@@ -757,16 +757,7 @@ def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:
 
 def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
     json_log("step_start", step_id=step_id, kind="text")
-    response = client.responses.create(
-        model=TEXT_MODEL,
-        input=build_text_input(state, prompt_text),
-        text={"format": {"type": "json_schema", "json_schema": {"name": f"step_{step_id}", "schema": schema, "strict": True}}},
-        temperature=0,
-    )
-    raw = getattr(response, "output_text", "") or ""
-    if not raw.strip():
-        fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty output.")
-    parsed = parse_response_json(raw)
+    parsed = EXECUTION_ADAPTER.execute_text(step_id, prompt_text, schema, state)
     json_log("step_end", step_id=step_id, kind="text", output_keys=list(parsed.keys()))
     return parsed
 
