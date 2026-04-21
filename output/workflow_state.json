@@ -1,0 +1,34 @@
+{
+  "reference_tag": "",
+  "trace_id": "",
+  "script_metadata": {
+    "script_id": "SCRIPT_002",
+    "name": "workflow_orchestrator",
+    "version": "1.0",
+    "category": "PROCESSOR",
+    "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
+    "output_schema": "workflow_state.json + generated artifacts under output/",
+    "dependencies": [],
+    "external_libraries": [
+      "openai"
+    ],
+    "status": "ACTIVE"
+  },
+  "source": {
+    "raw_text_path": "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\raw_product_input.txt",
+    "image_dir": "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\images"
+  },
+  "outputs": {},
+  "input_fingerprint": {
+    "raw_text_sha256": "fa7c05d0a0dd14e8ae258abc26cde78dcd4ca42bf06bdef0d3f6e37ee8d0f080",
+    "image_sha256": [
+      "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+    ]
+  },
+  "source_payload": {
+    "raw_text": "﻿sample raw product input\n",
+    "source_images": [
+      "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\images\\sample.png"
+    ]
+  }
+}
