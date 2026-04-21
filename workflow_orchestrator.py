@@ -764,25 +764,7 @@ def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state
 
 def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
     json_log("step_start", kind="image_generation", size=size)
-    response = client.responses.create(
-        model=IMAGE_MODEL,
-        input=prompt,
-        tools=[{"type": "image_generation"}],
-        tool_choice={"type": "image_generation"},
-    )
-    image_data = [
-        output.result
-        for output in response.output
-        if getattr(output, "type", None) == "image_generation_call"
-    ]
-    revised_prompt = None
-    for output in response.output:
-        if getattr(output, "type", None) == "image_generation_call":
-            revised_prompt = getattr(output, "revised_prompt", None)
-            break
-    if not image_data:
-        fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
-    return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
+    return EXECUTION_ADAPTER.execute_image(prompt, size=size)
 
 
 def save_image(image_base64: str, name: str) -> str:
