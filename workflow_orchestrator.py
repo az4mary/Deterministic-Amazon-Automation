@@ -156,10 +156,27 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             box.wait_for(timeout=self.action_timeout_ms)
             return box
 
-    def _extract_response(self, page) -> str:
+    def send_prompt(self, page, payload: str) -> str:
+        before_count = page.locator("[data-message-author-role='assistant']").count()
+        box = self._input_box(page)
+
+        try:
+            box.fill(payload)
+        except Exception:
+            box.click()
+            box.type(payload, delay=20)
+
+        page.keyboard.press("Enter")
+
+        page.wait_for_function(
+            """([selector, beforeCount]) => document.querySelectorAll(selector).length > beforeCount""",
+            arg=["[data-message-author-role='assistant']", before_count],
+            timeout=self.action_timeout_ms,
+        )
+
         assistant = page.locator("[data-message-author-role='assistant']").last
         assistant.wait_for(timeout=self.action_timeout_ms)
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(1000)
         return assistant.inner_text(timeout=self.action_timeout_ms).strip()
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
