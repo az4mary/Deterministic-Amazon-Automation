@@ -142,8 +142,12 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         self._playwright = None
         self._browser = None
         self._context = None
+        self._page_obj = None
+        self._prepared_chat = False
 
     def _page(self):
+        reuse_page = os.getenv("BROWSER_REUSE_PAGE", "1") == "1"
+
         if self._browser is None:
             self._playwright = sync_playwright().start()
             try:
@@ -155,6 +159,7 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                     self.cdp_url = alt
                 else:
                     raise
+
             # Prefer an existing (already-authenticated) context/page that is already on ChatGPT.
             chosen_context = None
             chosen_page = None
@@ -166,24 +171,49 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                         break
                 if chosen_context is not None:
                     break
+
             self._context = chosen_context or (self._browser.contexts[0] if self._browser.contexts else self._browser.new_context())
-            reuse_page = os.getenv("BROWSER_REUSE_PAGE", "0") == "1"
-            if reuse_page and chosen_page is not None:
-                page = chosen_page
-            elif reuse_page and self._context.pages:
-                page = self._context.pages[0]
-            else:
-                page = self._context.new_page()
+            if reuse_page:
+                self._page_obj = chosen_page or (self._context.pages[0] if self._context.pages else self._context.new_page())
+
+        if reuse_page:
+            if self._page_obj is None:
+                self._page_obj = self._context.pages[0] if self._context.pages else self._context.new_page()
+            page = self._page_obj
         else:
-            reuse_page = os.getenv("BROWSER_REUSE_PAGE", "0") == "1"
-            if reuse_page and self._context.pages:
-                page = self._context.pages[0]
-            else:
-                page = self._context.new_page()
+            page = self._context.new_page()
+
         page.bring_to_front()
         if self.chat_url and self.chat_url not in (page.url or ""):
             page.goto(self.chat_url, wait_until="domcontentloaded")
         return page
+
+    def _start_new_chat(self, page) -> None:
+        # Best-effort "new chat" without opening more tabs.
+        selectors = [
+            "button[data-testid='new-chat-button']",
+            "a[data-testid='new-chat-button']",
+            "button:has-text('New chat')",
+            "a:has-text('New chat')",
+            "button[aria-label*='New chat']",
+            "a[aria-label*='New chat']",
+        ]
+        for sel in selectors:
+            try:
+                el = page.locator(sel).first
+                if el.count() and el.is_visible():
+                    el.click()
+                    page.wait_for_timeout(500)
+                    return
+            except Exception:
+                pass
+
+        # Fallback: navigate to the root (often lands in a fresh composer state).
+        try:
+            page.goto("https://chatgpt.com/", wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+        except Exception:
+            pass
 
     def _input_box(self, page):
         selectors = [
@@ -350,6 +380,9 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         page = self._page()
+        if not self._prepared_chat and os.getenv("BROWSER_NEW_CHAT", "1") == "1":
+            self._start_new_chat(page)
+            self._prepared_chat = True
         payload = build_text_input(state, prompt_text)
         response_text = self.send_prompt(page, payload)
         if not response_text:
@@ -1250,6 +1283,18 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
             state[key] = output["image_strategy"]
 
     elif step.kind == "image_generate":
+        if os.getenv("SKIP_IMAGES", "0") == "1":
+            output = {
+                "reference_tag": state["reference_tag"],
+                "generated_image": {"skipped": True, "reason": "SKIP_IMAGES=1"},
+                "image_style_lock": deterministic_style_lock(),
+            }
+            update_state_with_prompt(state, step.step_id, output, step.output_key)
+            state["image_style_lock"] = output["image_style_lock"]
+            save_json_atomic(STATE_PATH, state)
+            apply_step_wait(step.kind)
+            return
+
         # Use the immediately preceding image strategy prompt stored in state.
         prev_strategy_key = f"image_strategy_{int(step.step_id) - 1}"
         strategy = state.get(prev_strategy_key) or state.get("image_strategy")
