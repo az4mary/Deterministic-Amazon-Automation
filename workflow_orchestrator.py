@@ -401,11 +401,41 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         elif not self._prepared_chat and os.getenv("BROWSER_NEW_CHAT", "1") == "1":
             self._start_new_chat(page)
             self._prepared_chat = True
+
+        max_retries = int(os.getenv("BROWSER_JSON_RETRIES", "2"))
         payload = build_text_input(state, prompt_text)
-        response_text = self.send_prompt(page, payload)
-        if not response_text:
-            fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
-        return parse_response_json(response_text)
+
+        last_response = ""
+        for attempt in range(max_retries + 1):
+            response_text = self.send_prompt(page, payload if attempt == 0 else _json_only_retry_prompt(step_id, schema, last_response))
+            last_response = response_text
+            if not response_text:
+                fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
+            parsed, err, excerpt = try_parse_response_json(response_text)
+            if parsed is not None:
+                return parsed
+            if attempt >= max_retries:
+                fail(
+                    "MODEL_OUTPUT_NOT_JSON",
+                    f"Model output is not valid JSON: {err}",
+                    actual=excerpt[:2000],
+                )
+
+        fail("MODEL_OUTPUT_NOT_JSON", "Model output is not valid JSON: exhausted retries.")
+
+
+def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_response: str) -> str:
+    schema_compact = json.dumps(schema, ensure_ascii=False, indent=2)
+    prev = previous_response.strip()
+    if len(prev) > 1500:
+        prev = prev[:1500] + "…"
+    return (
+        f"Your previous reply for step {step_id} was not valid JSON.\n\n"
+        f"Return ONLY valid JSON now. No prose, no markdown fences, no prefix text.\n"
+        f"If you are unsure, still return best-effort JSON that matches the schema.\n\n"
+        f"JSON SCHEMA:\n{schema_compact}\n\n"
+        f"PREVIOUS (invalid) RESPONSE:\n{prev}\n"
+    )
 
     def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
         if self.image_fallback is None:
@@ -716,21 +746,31 @@ def repair_common_json_glitches(json_text: str) -> str:
     return json_text
 
 
-def parse_response_json(response_text: str) -> Dict[str, Any]:
+def try_parse_response_json(response_text: str) -> Tuple[Optional[Dict[str, Any]], Optional[str], str]:
+    """
+    Returns (parsed, error, excerpt). Does not call fail().
+    """
     excerpt = normalize_json_text(response_text)
     try:
-        return json.loads(excerpt)
+        return json.loads(excerpt), None, excerpt
     except Exception:
         repaired = repair_common_json_glitches(excerpt)
         repaired = repair_unescaped_quotes(repaired)
         try:
-            return json.loads(repaired)
+            return json.loads(repaired), None, excerpt
         except Exception as e:
-            fail(
-                "MODEL_OUTPUT_NOT_JSON",
-                f"Model output is not valid JSON: {e}",
-                actual=excerpt[:2000],
-            )
+            return None, str(e), excerpt
+
+
+def parse_response_json(response_text: str) -> Dict[str, Any]:
+    parsed, error, excerpt = try_parse_response_json(response_text)
+    if parsed is None:
+        fail(
+            "MODEL_OUTPUT_NOT_JSON",
+            f"Model output is not valid JSON: {error}",
+            actual=excerpt[:2000],
+        )
+    return parsed
 
 
 def workflow_state_init() -> Dict[str, Any]:
