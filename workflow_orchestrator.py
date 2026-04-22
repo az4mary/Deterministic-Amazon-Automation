@@ -42,6 +42,7 @@ LOG_DIR = OUTPUT_DIR / "logs"
 IMAGE_SOURCE_DIR = DATA_DIR / "images"
 GENERATED_IMAGE_DIR = OUTPUT_DIR / "generated_images"
 STATE_PATH = OUTPUT_DIR / "workflow_state.json"
+IMAGE_PROMPTS_PATH = OUTPUT_DIR / "image_prompts.json"
 RAW_TEXT_PATH = DATA_DIR / "raw_product_input.txt"
 RAW_TEXT_PATH_MD = DATA_DIR / "raw_product_input.md"
 
@@ -190,6 +191,12 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
     def _start_new_chat(self, page) -> None:
         # Best-effort "new chat" without opening more tabs.
+        old_url = ""
+        try:
+            old_url = page.url or ""
+        except Exception:
+            old_url = ""
+
         selectors = [
             "button[data-testid='new-chat-button']",
             "a[data-testid='new-chat-button']",
@@ -203,17 +210,34 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                 el = page.locator(sel).first
                 if el.count() and el.is_visible():
                     el.click()
-                    page.wait_for_timeout(500)
-                    return
+                    break
             except Exception:
                 pass
 
         # Fallback: navigate to the root (often lands in a fresh composer state).
+        # Also: if the click didn't work (or there's no sidebar), force-navigation helps.
+        deadline = time.time() + 5.0
+        while time.time() < deadline:
+            try:
+                if old_url and page.url and page.url != old_url:
+                    break
+            except Exception:
+                pass
+            try:
+                box = page.locator("textarea#prompt-textarea, [contenteditable='true']").first
+                if box.count() and box.is_visible():
+                    break
+            except Exception:
+                pass
+            page.wait_for_timeout(200)
+
         try:
-            page.goto("https://chatgpt.com/", wait_until="domcontentloaded")
-            page.wait_for_timeout(500)
+            # If we're still on a conversation URL, force to home to ensure a clean chat.
+            if "/c/" in (page.url or ""):
+                page.goto("https://chatgpt.com/", wait_until="domcontentloaded")
         except Exception:
             pass
+        page.wait_for_timeout(500)
 
     def _input_box(self, page):
         selectors = [
@@ -300,15 +324,6 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             try_click_send()
             page.wait_for_timeout(250)
 
-        if page.locator("[data-message-author-role='user']").count() <= before_user_count:
-            fail(
-                "SELECTOR_TIMEOUT",
-                "Prompt did not submit in browser.",
-                field="browser",
-                expected="new user message",
-                actual=f"user_count={before_user_count} url={page.url}",
-            )
-
         # Wait for a new assistant message to appear (response started).
         response_deadline = time.time() + (self.action_timeout_ms / 1000.0)
         while time.time() < response_deadline:
@@ -380,7 +395,10 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         page = self._page()
-        if not self._prepared_chat and os.getenv("BROWSER_NEW_CHAT", "1") == "1":
+        # By default: start a fresh chat for every prompt (same tab) to avoid context bleed.
+        if os.getenv("BROWSER_NEW_CHAT_EACH_PROMPT", "1") == "1":
+            self._start_new_chat(page)
+        elif not self._prepared_chat and os.getenv("BROWSER_NEW_CHAT", "1") == "1":
             self._start_new_chat(page)
             self._prepared_chat = True
         payload = build_text_input(state, prompt_text)
@@ -1253,6 +1271,22 @@ STEP_PLAN: List[Step] = [
     Step("24", "image_generate", None, "generated_image_7", None),
 ]
 
+def build_step_plan(*, enable_image_generation: bool) -> List[Step]:
+    if enable_image_generation:
+        return list(STEP_PLAN)
+    return [s for s in STEP_PLAN if s.kind != "image_generate"]
+
+
+def write_image_prompts(state: Dict[str, Any]) -> None:
+    prompts: List[Dict[str, Any]] = []
+    for n in range(1, 8):
+        key = f"image_strategy_{n}"
+        container = state.get(key)
+        if isinstance(container, dict) and isinstance(container.get("image_strategy"), dict):
+            prompts.append(container["image_strategy"])
+    if prompts:
+        IMAGE_PROMPTS_PATH.write_text(json.dumps(prompts, indent=2, ensure_ascii=False), encoding="utf-8")
+
 
 def run_step(step: Step, state: Dict[str, Any]) -> None:
     def build_schema() -> Dict[str, Any]:
@@ -1283,6 +1317,11 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
             state[key] = output["image_strategy"]
 
     elif step.kind == "image_generate":
+        if not os.getenv("OPENAI_API_KEY") and os.getenv("SKIP_IMAGES", "0") != "0":
+            fail(
+                "IMAGE_GENERATION_DISABLED",
+                "Image generation is disabled. Use prompt-only mode (default) or pass --enable-image-generation with OPENAI_API_KEY.",
+            )
         if os.getenv("SKIP_IMAGES", "0") == "1":
             output = {
                 "reference_tag": state["reference_tag"],
@@ -1360,6 +1399,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
     parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
     parser.add_argument("--stop-after", default=None, help="Optional step id to stop after (e.g. 10)")
+    parser.add_argument(
+        "--enable-image-generation",
+        action="store_true",
+        help="Enable image generation steps (requires OPENAI_API_KEY). Default is prompt-only.",
+    )
     args = parser.parse_args()
 
     ensure_dirs()
@@ -1380,13 +1424,16 @@ def main() -> None:
     TRACE_ID = build_deterministic_trace_id(raw_text_hash, image_hashes)
     state["trace_id"] = TRACE_ID
 
+    plan = build_step_plan(enable_image_generation=bool(args.enable_image_generation))
+    total_steps = len(plan)
+
     emit_lifecycle_event(
         stage="INIT",
         status="STARTED",
         message="Orchestrator initialization started",
         progress_percent=0,
         current_step=0,
-        total_steps=len(STEP_PLAN),
+        total_steps=total_steps,
     )
 
     emit_lifecycle_event(
@@ -1395,7 +1442,7 @@ def main() -> None:
         message="Input validation completed",
         progress_percent=0,
         current_step=0,
-        total_steps=len(STEP_PLAN),
+        total_steps=total_steps,
     )
 
     state["input_fingerprint"] = {
@@ -1416,25 +1463,25 @@ def main() -> None:
         message="Workflow processing started",
         progress_percent=0,
         current_step=0,
-        total_steps=len(STEP_PLAN),
+        total_steps=total_steps,
     )
 
     start_from = 0
     if args.resume and state.get("last_completed_step"):
         last_step = str(state["last_completed_step"])
-        for i, step in enumerate(STEP_PLAN):
+        for i, step in enumerate(plan):
             if step.step_id == last_step:
                 start_from = i + 1
                 break
 
-    for i in range(start_from, len(STEP_PLAN)):
-        step = STEP_PLAN[i]
+    for i in range(start_from, len(plan)):
+        step = plan[i]
         current_step_number = i + 1
         if args.stop_after and step.step_id == args.stop_after:
             break
         run_step(step, state)
-        progress_percent = min(100, int((current_step_number / len(STEP_PLAN)) * 100))
-        validate_progress_percent(progress_percent, current_step_number, len(STEP_PLAN))
+        progress_percent = min(100, int((current_step_number / len(plan)) * 100))
+        validate_progress_percent(progress_percent, current_step_number, len(plan))
         json_log(
             level="INFO",
             message=f"Completed step {step.step_id}",
@@ -1443,10 +1490,11 @@ def main() -> None:
             context={"step_id": step.step_id},
             progress_percent=progress_percent,
             current_step=current_step_number,
-            total_steps=len(STEP_PLAN),
+            total_steps=len(plan),
         )
 
     save_json_atomic(STATE_PATH, state)
+    write_image_prompts(state)
 
     output_hash = hashlib.sha256(STATE_PATH.read_bytes()).hexdigest()
     emit_lifecycle_event(
@@ -1454,8 +1502,8 @@ def main() -> None:
         status="SUCCESS",
         message="Workflow completed successfully",
         progress_percent=100,
-        current_step=len(STEP_PLAN),
-        total_steps=len(STEP_PLAN),
+        current_step=len(plan),
+        total_steps=len(plan),
     )
     emit_terminal_event(
         status="SUCCESS",
