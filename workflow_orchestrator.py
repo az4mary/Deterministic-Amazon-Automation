@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from openai import OpenAI
+from playwright.sync_api import sync_playwright
 
 SCRIPT_METADATA = {
     "script_id": "SCRIPT_002",
@@ -28,7 +29,7 @@ SCRIPT_METADATA = {
     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
     "output_schema": "workflow_state.json + generated artifacts under output/",
     "dependencies": [],
-    "external_libraries": ["openai"],
+    "external_libraries": ["openai", "playwright"],
     "status": "ACTIVE",
 }
 
@@ -44,6 +45,10 @@ RAW_TEXT_PATH = DATA_DIR / "raw_product_input.txt"
 
 TEXT_MODEL = os.getenv("OPENAI_TEXT_MODEL", "gpt-5.4")
 IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
+EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "browser").lower()
+BROWSER_CDP_URL = os.getenv("BROWSER_CDP_URL", "http://localhost:9222")
+BROWSER_CHAT_URL = os.getenv("BROWSER_CHAT_URL", "https://chatgpt.com/")
+BROWSER_ACTION_TIMEOUT_MS = int(os.getenv("BROWSER_ACTION_TIMEOUT_MS", "120000"))
 
 TRACE_ID = ""
 SPAN_COUNTER = 0
@@ -120,6 +125,72 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
         return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
 
 
+class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
+    def __init__(self, cdp_url: str, chat_url: str, action_timeout_ms: int, image_fallback: PromptExecutionAdapter) -> None:
+        self.cdp_url = cdp_url
+        self.chat_url = chat_url
+        self.action_timeout_ms = action_timeout_ms
+        self.image_fallback = image_fallback
+        self._playwright = None
+        self._browser = None
+        self._context = None
+
+    def _page(self):
+        if self._browser is None:
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
+            self._context = self._browser.contexts[0] if self._browser.contexts else self._browser.new_context()
+        page = self._context.pages[0] if self._context.pages else self._context.new_page()
+        page.bring_to_front()
+        if self.chat_url and self.chat_url not in (page.url or ""):
+            page.goto(self.chat_url, wait_until="domcontentloaded")
+        return page
+
+    def _input_box(self, page):
+        try:
+            box = page.get_by_role("textbox").first
+            box.wait_for(timeout=self.action_timeout_ms)
+            return box
+        except Exception:
+            box = page.locator('[contenteditable="true"]').first
+            box.wait_for(timeout=self.action_timeout_ms)
+            return box
+
+    def send_prompt(self, page, payload: str) -> str:
+        before_count = page.locator("[data-message-author-role='assistant']").count()
+        box = self._input_box(page)
+
+        try:
+            box.fill(payload)
+        except Exception:
+            box.click()
+            box.type(payload, delay=20)
+
+        page.keyboard.press("Enter")
+
+        page.wait_for_function(
+            """([selector, beforeCount]) => document.querySelectorAll(selector).length > beforeCount""",
+            arg=["[data-message-author-role='assistant']", before_count],
+            timeout=self.action_timeout_ms,
+        )
+
+        assistant = page.locator("[data-message-author-role='assistant']").last
+        assistant.wait_for(timeout=self.action_timeout_ms)
+        page.wait_for_timeout(1000)
+        return assistant.inner_text(timeout=self.action_timeout_ms).strip()
+
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        page = self._page()
+        payload = build_text_input(state, prompt_text)
+        response_text = self.send_prompt(page, payload)
+        if not response_text:
+            fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
+        return parse_response_json(response_text)
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        return self.image_fallback.execute_image(prompt, size=size)
+
+
 client: Optional[OpenAI] = None
 EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
 
@@ -127,8 +198,19 @@ EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
 def get_execution_adapter() -> PromptExecutionAdapter:
     global client, EXECUTION_ADAPTER
     if EXECUTION_ADAPTER is None:
-        client = OpenAI()
-        EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
+        if EXECUTION_BACKEND == "browser":
+            if client is None:
+                client = OpenAI()
+            EXECUTION_ADAPTER = BrowserPromptExecutionAdapter(
+                BROWSER_CDP_URL,
+                BROWSER_CHAT_URL,
+                BROWSER_ACTION_TIMEOUT_MS,
+                OpenAIPromptExecutionAdapter(client),
+            )
+        else:
+            if client is None:
+                client = OpenAI()
+            EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
     return EXECUTION_ADAPTER
 
 
@@ -199,6 +281,8 @@ def json_log(
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    LOG_SEQUENCE += 1
 
 
 def emit_lifecycle_event(stage: str, status: str, message: str, progress_percent: int, current_step: int, total_steps: int) -> None:
