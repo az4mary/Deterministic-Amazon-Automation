@@ -282,6 +282,8 @@ def json_log(
     with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
+    LOG_SEQUENCE += 1
+
 
 def emit_lifecycle_event(stage: str, status: str, message: str, progress_percent: int, current_step: int, total_steps: int) -> None:
     validate_progress_percent(progress_percent, current_step, total_steps)
