@@ -29,7 +29,7 @@ SCRIPT_METADATA = {
     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
     "output_schema": "workflow_state.json + generated artifacts under output/",
     "dependencies": [],
-    "external_libraries": ["openai"],
+    "external_libraries": ["openai", "playwright"],
     "status": "ACTIVE",
 }
 
