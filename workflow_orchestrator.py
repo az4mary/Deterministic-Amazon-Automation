@@ -167,39 +167,67 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                 if chosen_context is not None:
                     break
             self._context = chosen_context or (self._browser.contexts[0] if self._browser.contexts else self._browser.new_context())
-            if chosen_page is not None:
+            reuse_page = os.getenv("BROWSER_REUSE_PAGE", "0") == "1"
+            if reuse_page and chosen_page is not None:
                 page = chosen_page
+            elif reuse_page and self._context.pages:
+                page = self._context.pages[0]
             else:
-                page = self._context.pages[0] if self._context.pages else self._context.new_page()
+                page = self._context.new_page()
         else:
-            page = self._context.pages[0] if self._context.pages else self._context.new_page()
+            reuse_page = os.getenv("BROWSER_REUSE_PAGE", "0") == "1"
+            if reuse_page and self._context.pages:
+                page = self._context.pages[0]
+            else:
+                page = self._context.new_page()
         page.bring_to_front()
         if self.chat_url and self.chat_url not in (page.url or ""):
             page.goto(self.chat_url, wait_until="domcontentloaded")
         return page
 
     def _input_box(self, page):
-        try:
-            box = page.get_by_role("textbox").first
-            box.wait_for(timeout=self.action_timeout_ms)
-            return box
-        except Exception:
-            box = page.locator('[contenteditable="true"]').first
-            box.wait_for(timeout=self.action_timeout_ms)
-            return box
+        selectors = [
+            "textarea#prompt-textarea",
+            "textarea[data-testid='prompt-textarea']",
+            "[contenteditable='true']",
+        ]
+        last_exc: Optional[Exception] = None
+        for sel in selectors:
+            try:
+                box = page.locator(sel).first
+                box.wait_for(timeout=self.action_timeout_ms)
+                if box.is_visible():
+                    return box
+            except Exception as e:
+                last_exc = e
+        if last_exc is not None:
+            raise last_exc
+        fail("SELECTOR_TIMEOUT", "Could not find ChatGPT input box.")
 
     def send_prompt(self, page, payload: str) -> str:
         before_assistant_count = page.locator("[data-message-author-role='assistant']").count()
         before_user_count = page.locator("[data-message-author-role='user']").count()
+        before_last_assistant_text = ""
+        try:
+            if before_assistant_count > 0:
+                before_last_assistant_text = page.locator("[data-message-author-role='assistant']").last.inner_text(timeout=5000).strip()
+        except Exception:
+            before_last_assistant_text = ""
         box = self._input_box(page)
 
+        box.click()
         try:
-            box.fill(payload)
+            page.keyboard.press("Control+A")
+            page.keyboard.press("Backspace")
         except Exception:
-            box.click()
-            box.type(payload, delay=20)
-
-        page.keyboard.press("Enter")
+            pass
+        try:
+            box.fill(payload, timeout=self.action_timeout_ms)
+        except Exception:
+            try:
+                page.keyboard.insert_text(payload)
+            except Exception:
+                box.type(payload, delay=0, timeout=self.action_timeout_ms)
 
         def try_click_send() -> bool:
             selectors = [
@@ -227,7 +255,8 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         # Ensure the prompt is actually submitted (some UI states require clicking send
         # or using Ctrl+Enter).
-        send_deadline = time.time() + 5.0
+        page.keyboard.press("Enter")
+        send_deadline = time.time() + 15.0
         ctrl_enter_tried = False
         while time.time() < send_deadline:
             if page.locator("[data-message-author-role='user']").count() > before_user_count:
@@ -241,11 +270,28 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             try_click_send()
             page.wait_for_timeout(250)
 
+        if page.locator("[data-message-author-role='user']").count() <= before_user_count:
+            fail(
+                "SELECTOR_TIMEOUT",
+                "Prompt did not submit in browser.",
+                field="browser",
+                expected="new user message",
+                actual=f"user_count={before_user_count} url={page.url}",
+            )
+
         # Wait for a new assistant message to appear (response started).
         response_deadline = time.time() + (self.action_timeout_ms / 1000.0)
         while time.time() < response_deadline:
-            if page.locator("[data-message-author-role='assistant']").count() > before_assistant_count:
+            assistant_count = page.locator("[data-message-author-role='assistant']").count()
+            if assistant_count > before_assistant_count:
                 break
+            try:
+                if assistant_count > 0:
+                    current_last = page.locator("[data-message-author-role='assistant']").last.inner_text(timeout=5000).strip()
+                    if before_last_assistant_text and current_last and current_last != before_last_assistant_text:
+                        break
+            except Exception:
+                pass
             try:
                 stop_btn = page.get_by_role("button", name=re.compile(r"stop generating", re.I)).first
                 if stop_btn.count() and stop_btn.is_visible():
@@ -260,7 +306,7 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                 "Timed out waiting for assistant response in browser.",
                 field="browser",
                 expected="new assistant message",
-                actual=f"assistant_count={before_assistant_count}",
+                actual=f"assistant_count={before_assistant_count} url={page.url}",
             )
 
         assistant = page.locator("[data-message-author-role='assistant']").last
@@ -558,6 +604,7 @@ def load_text(path: Path, required: bool = True) -> str:
 
 def normalize_json_text(text: str) -> str:
     text = text.strip()
+    text = re.sub(r"^(?:JSON|json)\s*[:\-]?\s*\n", "", text)
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
         text = re.sub(r"\s*```$", "", text)
@@ -609,12 +656,22 @@ def repair_unescaped_quotes(json_text: str) -> str:
     return "".join(out)
 
 
+def repair_common_json_glitches(json_text: str) -> str:
+    # Fix the common inch-mark issue that breaks JSON strings, e.g.:
+    # "sensor": "SONY Exmor IMX323 (1/2.9", 2.8µ pixel)"
+    # becomes:
+    # "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)"
+    json_text = re.sub(r'(\d)"\s*,\s*(\d)', r"\1 inches, \2", json_text)
+    return json_text
+
+
 def parse_response_json(response_text: str) -> Dict[str, Any]:
     excerpt = normalize_json_text(response_text)
     try:
         return json.loads(excerpt)
     except Exception:
-        repaired = repair_unescaped_quotes(excerpt)
+        repaired = repair_common_json_glitches(excerpt)
+        repaired = repair_unescaped_quotes(repaired)
         try:
             return json.loads(repaired)
         except Exception as e:
@@ -1317,12 +1374,22 @@ def main() -> None:
         total_steps=len(STEP_PLAN),
     )
 
-    for idx, step in enumerate(STEP_PLAN, start=1):
+    start_from = 0
+    if args.resume and state.get("last_completed_step"):
+        last_step = str(state["last_completed_step"])
+        for i, step in enumerate(STEP_PLAN):
+            if step.step_id == last_step:
+                start_from = i + 1
+                break
+
+    for i in range(start_from, len(STEP_PLAN)):
+        step = STEP_PLAN[i]
+        current_step_number = i + 1
         if args.stop_after and step.step_id == args.stop_after:
             break
         run_step(step, state)
-        progress_percent = min(100, int((idx / len(STEP_PLAN)) * 100))
-        validate_progress_percent(progress_percent, idx, len(STEP_PLAN))
+        progress_percent = min(100, int((current_step_number / len(STEP_PLAN)) * 100))
+        validate_progress_percent(progress_percent, current_step_number, len(STEP_PLAN))
         json_log(
             level="INFO",
             message=f"Completed step {step.step_id}",
@@ -1330,7 +1397,7 @@ def main() -> None:
             status="IN_PROGRESS",
             context={"step_id": step.step_id},
             progress_percent=progress_percent,
-            current_step=idx,
+            current_step=current_step_number,
             total_steps=len(STEP_PLAN),
         )
 
