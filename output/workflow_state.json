@@ -31,33 +31,35 @@
       },
       "core_features": [
         "Built-In Wi-Fi With App Support",
+        "Exmor IMX 323 Advanced SONY Sensor",
         "FHD 1080P Crystal-Clear Definition",
-        "SONY Exmor IMX323 sensor with Nighthawk Vision",
-        "145° wide-angle recording",
-        "Gravity sensor automatic recording",
-        "WDR Superior Night Vision",
-        "Includes 32GB SD card",
-        "App connectivity via Roav app"
+        "SD Free 32GB Card",
+        "Nighthawk Vision to clearly capture speeding license plates, especially at night",
+        "145° wide-angle view simultaneously records up to 4 lanes of traffic",
+        "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+        "Connect to DashCam's Wi-Fi to review, download, and share videos via the Roav app"
       ],
       "attributes": {
         "chipset": "Novatek NT96658",
-        "wifi": "Built-in",
+        "wi_fi": "Built-in",
         "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
         "motion_sensor": "G-Sensor",
         "video_resolution": "1080P 30FPS (1920×1080)",
         "night_vision": "WDR Superior Night Vision",
-        "operating_temperature": "14°F to 149°F",
-        "screen_size": "2.4 inch",
-        "lens": "F1.8 with 6 glass elements",
+        "operating_temperatures": "14°F to 149°F",
+        "screen": "Illuminated 2.4\"",
+        "lens": "F1.8 with 6 high-quality glass elements and 145° viewing angle",
+        "battery": "470mAh Li-polymer battery capable of operating in high and low temperatures",
         "viewing_angle": "145°",
-        "battery": "470mAh Li-polymer"
+        "app_support": "Roav Dashcam app available on App Store or Google Play",
+        "included_memory_card": "32GB card",
+        "included_car_charger": "ANKER 2-Port USB Car Charger"
       },
       "additional_attributes": {
-        "app_support": "Roav Dashcam app (App Store and Google Play)",
-        "usb_charger": "ANKER 2-Port USB Car Charger included",
-        "storage": "32GB SD card included",
-        "collision_detection": "Automatic recording via gravity sensor",
-        "lane_coverage": "Records up to 4 lanes of traffic"
+        "sony_sensor_marketing_name": "Nighthawk Vision",
+        "recording_coverage": "Up to 4 lanes of traffic",
+        "collision_detection_recording": "Instantly starts recording when sudden stops or collisions occur",
+        "video_sharing": "Review, download, and share videos via the Roav app"
       },
       "package_contents": [
         "DashCam C1",
@@ -66,58 +68,62 @@
         "32GB card",
         "Owner's Manual"
       ],
-      "product_summary": "The ROAV by ANKER DashCam C1 (Model R2110) is a full HD 1080P dash camera featuring a SONY Exmor IMX323 sensor with enhanced night vision capabilities. It includes built-in Wi-Fi for seamless connectivity with the Roav mobile app, allowing users to review and share footage. The device offers a 145° wide-angle lens, G-sensor collision detection, and supports recording across multiple traffic lanes. Designed for durability, it operates in extreme temperatures and includes essential accessories such as a 32GB SD card and a dual-port USB car charger."
+      "product_summary": "ROAV by ANKER DASHCAM C1 model R2110 in Black is a dash camera with built-in Wi-Fi, app support, SONY Exmor IMX323 sensor, 1080P 30FPS recording, WDR superior night vision, 145° wide-angle lens, G-Sensor collision detection, illuminated 2.4-inch screen, and a 470mAh Li-polymer battery. Package includes the dashcam, Anker 2-port USB car charger, Micro-USB charging cable, 32GB card, and owner's manual."
     },
     "01B": {
       "image_views": {
-        "front_3q_left": "Unconfirmed",
-        "front_3q_right": "Unconfirmed",
-        "rear_3q": "Unconfirmed",
-        "left_side": "Unconfirmed",
-        "right_side": "Unconfirmed",
-        "top_view": "Unconfirmed",
-        "bottom_view": "Unconfirmed",
-        "detail_closeup": "Dashcam device close-up showing screen (driver-facing view)",
-        "accessories_layout": "Unconfirmed"
+        "front_3q_left": "",
+        "front_3q_right": "",
+        "rear_3q": "",
+        "left_side": "",
+        "right_side": "",
+        "top_view": "",
+        "bottom_view": "",
+        "detail_closeup": "",
+        "accessories_layout": ""
       },
       "visual_identity": {
-        "product_type": "Dash camera",
-        "dominant_color": "Black",
-        "materials": "Plastic (matte finish appearance)",
-        "primary_components": [
-          "Camera lens",
-          "Display screen",
-          "Mounting structure",
-          "Body housing"
-        ]
+        "product_type": "",
+        "dominant_color": "",
+        "materials": "",
+        "primary_components": []
       },
       "object_layout_map": {
-        "component_positions": {
-          "lens": "Front-facing side of device (road-facing orientation)",
-          "screen": "Rear side of device (driver-facing orientation)",
-          "mount": "Top area of device body",
-          "body": "Central housing enclosing internal components"
-        }
+        "component_positions": {}
       },
       "lighting_profile": {
-        "lighting_type": "Even studio lighting",
-        "shadow_behavior": "Soft minimal shadows",
-        "reflection_style": "Low reflection, matte surface diffusion"
+        "lighting_type": "",
+        "shadow_behavior": "",
+        "reflection_style": ""
       },
       "camera_profile": {
-        "camera_angle": "Eye-level product shot",
-        "orientation": "Horizontal orientation",
-        "lens_style": "Standard product photography lens (no distortion observed)"
+        "camera_angle": "",
+        "orientation": "",
+        "lens_style": ""
       },
       "product_geometry": {
-        "shape_description": "Rectangular compact body with slightly rounded edges",
-        "proportions": "Wider than tall, slim depth profile",
-        "relative_dimensions": "Screen occupies majority of rear surface; lens protrudes slightly from front"
+        "shape_description": "",
+        "proportions": "",
+        "relative_dimensions": ""
       }
     },
     "02": {
       "reference_tag": "",
-      "amazon_product_title": "ROAV by ANKER DashCam C1 Dash Camera R2110, 1080P WiFi, Sony Exmor IMX323 Sensor, 145 Degree Wide Angle, G Sensor, WDR Night Vision, 32GB Card Included"
+      "amazon_product_title": "ROAV by ANKER Dash Camera DASHCAM C1 Built In WiFi 1080P Full HD Sony Exmor IMX323 G Sensor WDR Night Vision 145 Degree Wide Angle Black"
+    },
+    "03": {
+      "reference_tag": "",
+      "amazon_bullet_points": [
+        "CLEAR 1080P RECORDING — Captures Full HD 1080P video at 30FPS with a SONY Exmor IMX323 sensor for detailed everyday driving footage.",
+        "ENHANCED NIGHT VISIBILITY — Nighthawk Vision with WDR Superior Night Vision helps capture clearer license plates and road details in low-light conditions.",
+        "WIDE ROAD COVERAGE — A 145° wide-angle lens records up to 4 lanes of traffic for broader visibility on the road.",
+        "SMART INCIDENT RECORDING — The built-in G-Sensor detects sudden stops or collisions and instantly starts recording when impact is sensed.",
+        "EASY APP CONNECTIVITY — Built-in Wi-Fi connects to the Roav Dashcam app so you can review, download, and share videos from your phone."
+      ]
+    },
+    "04": {
+      "reference_tag": "",
+      "amazon_product_description": "The ROAV by ANKER DASHCAM C1 is a compact dash camera designed for everyday drivers who want clear road recording, dependable incident capture, and convenient video access from their phone. With Full HD 1080P recording at 30FPS and a SONY Exmor IMX323 sensor, it captures detailed driving footage for daily commutes, road trips, and general in-car recording needs.\n\nA 145° wide-angle lens records up to 4 lanes of traffic, helping provide broader road coverage in changing driving conditions. For low-light use, Nighthawk Vision and WDR Superior Night Vision help improve visibility of road details and license plates at night. The built-in G-Sensor is designed to monitor sudden stops or collisions and instantly start recording when impact is detected, supporting safer and more reliable event documentation.\n\nBuilt-in Wi-Fi and Roav app support make it easy to review, download, and share videos without removing the camera. The illuminated 2.4-inch screen supports on-device viewing, while the included 32GB card helps get recording started right away. With a Novatek NT96658 chipset, F1.8 lens with 6 glass elements, and operating temperatures from 14°F to 149°F, the DASHCAM C1 is built for regular driving use in a range of conditions. The package also includes an ANKER 2-Port USB car charger, Micro-USB charging cable, and owner’s manual."
     }
   },
   "input_fingerprint": {
@@ -145,33 +151,35 @@
     },
     "core_features": [
       "Built-In Wi-Fi With App Support",
+      "Exmor IMX 323 Advanced SONY Sensor",
       "FHD 1080P Crystal-Clear Definition",
-      "SONY Exmor IMX323 sensor with Nighthawk Vision",
-      "145° wide-angle recording",
-      "Gravity sensor automatic recording",
-      "WDR Superior Night Vision",
-      "Includes 32GB SD card",
-      "App connectivity via Roav app"
+      "SD Free 32GB Card",
+      "Nighthawk Vision to clearly capture speeding license plates, especially at night",
+      "145° wide-angle view simultaneously records up to 4 lanes of traffic",
+      "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+      "Connect to DashCam's Wi-Fi to review, download, and share videos via the Roav app"
     ],
     "attributes": {
       "chipset": "Novatek NT96658",
-      "wifi": "Built-in",
+      "wi_fi": "Built-in",
       "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
       "motion_sensor": "G-Sensor",
       "video_resolution": "1080P 30FPS (1920×1080)",
       "night_vision": "WDR Superior Night Vision",
-      "operating_temperature": "14°F to 149°F",
-      "screen_size": "2.4 inch",
-      "lens": "F1.8 with 6 glass elements",
+      "operating_temperatures": "14°F to 149°F",
+      "screen": "Illuminated 2.4\"",
+      "lens": "F1.8 with 6 high-quality glass elements and 145° viewing angle",
+      "battery": "470mAh Li-polymer battery capable of operating in high and low temperatures",
       "viewing_angle": "145°",
-      "battery": "470mAh Li-polymer"
+      "app_support": "Roav Dashcam app available on App Store or Google Play",
+      "included_memory_card": "32GB card",
+      "included_car_charger": "ANKER 2-Port USB Car Charger"
     },
     "additional_attributes": {
-      "app_support": "Roav Dashcam app (App Store and Google Play)",
-      "usb_charger": "ANKER 2-Port USB Car Charger included",
-      "storage": "32GB SD card included",
-      "collision_detection": "Automatic recording via gravity sensor",
-      "lane_coverage": "Records up to 4 lanes of traffic"
+      "sony_sensor_marketing_name": "Nighthawk Vision",
+      "recording_coverage": "Up to 4 lanes of traffic",
+      "collision_detection_recording": "Instantly starts recording when sudden stops or collisions occur",
+      "video_sharing": "Review, download, and share videos via the Roav app"
     },
     "package_contents": [
       "DashCam C1",
@@ -180,10 +188,10 @@
       "32GB card",
       "Owner's Manual"
     ],
-    "product_summary": "The ROAV by ANKER DashCam C1 (Model R2110) is a full HD 1080P dash camera featuring a SONY Exmor IMX323 sensor with enhanced night vision capabilities. It includes built-in Wi-Fi for seamless connectivity with the Roav mobile app, allowing users to review and share footage. The device offers a 145° wide-angle lens, G-sensor collision detection, and supports recording across multiple traffic lanes. Designed for durability, it operates in extreme temperatures and includes essential accessories such as a 32GB SD card and a dual-port USB car charger."
+    "product_summary": "ROAV by ANKER DASHCAM C1 model R2110 in Black is a dash camera with built-in Wi-Fi, app support, SONY Exmor IMX323 sensor, 1080P 30FPS recording, WDR superior night vision, 145° wide-angle lens, G-Sensor collision detection, illuminated 2.4-inch screen, and a 470mAh Li-polymer battery. Package includes the dashcam, Anker 2-port USB car charger, Micro-USB charging cable, 32GB card, and owner's manual."
   },
-  "last_completed_step": "02",
-  "updated_at": "2026-04-22T21:56:18Z",
+  "last_completed_step": "04",
+  "updated_at": "2026-04-22T22:30:26Z",
   "dataset": {
     "reference_tag": "",
     "product_category": "Dash Camera",
@@ -195,33 +203,35 @@
     },
     "core_features": [
       "Built-In Wi-Fi With App Support",
+      "Exmor IMX 323 Advanced SONY Sensor",
       "FHD 1080P Crystal-Clear Definition",
-      "SONY Exmor IMX323 sensor with Nighthawk Vision",
-      "145° wide-angle recording",
-      "Gravity sensor automatic recording",
-      "WDR Superior Night Vision",
-      "Includes 32GB SD card",
-      "App connectivity via Roav app"
+      "SD Free 32GB Card",
+      "Nighthawk Vision to clearly capture speeding license plates, especially at night",
+      "145° wide-angle view simultaneously records up to 4 lanes of traffic",
+      "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+      "Connect to DashCam's Wi-Fi to review, download, and share videos via the Roav app"
     ],
     "attributes": {
       "chipset": "Novatek NT96658",
-      "wifi": "Built-in",
+      "wi_fi": "Built-in",
       "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
       "motion_sensor": "G-Sensor",
       "video_resolution": "1080P 30FPS (1920×1080)",
       "night_vision": "WDR Superior Night Vision",
-      "operating_temperature": "14°F to 149°F",
-      "screen_size": "2.4 inch",
-      "lens": "F1.8 with 6 glass elements",
+      "operating_temperatures": "14°F to 149°F",
+      "screen": "Illuminated 2.4\"",
+      "lens": "F1.8 with 6 high-quality glass elements and 145° viewing angle",
+      "battery": "470mAh Li-polymer battery capable of operating in high and low temperatures",
       "viewing_angle": "145°",
-      "battery": "470mAh Li-polymer"
+      "app_support": "Roav Dashcam app available on App Store or Google Play",
+      "included_memory_card": "32GB card",
+      "included_car_charger": "ANKER 2-Port USB Car Charger"
     },
     "additional_attributes": {
-      "app_support": "Roav Dashcam app (App Store and Google Play)",
-      "usb_charger": "ANKER 2-Port USB Car Charger included",
-      "storage": "32GB SD card included",
-      "collision_detection": "Automatic recording via gravity sensor",
-      "lane_coverage": "Records up to 4 lanes of traffic"
+      "sony_sensor_marketing_name": "Nighthawk Vision",
+      "recording_coverage": "Up to 4 lanes of traffic",
+      "collision_detection_recording": "Instantly starts recording when sudden stops or collisions occur",
+      "video_sharing": "Review, download, and share videos via the Roav app"
     },
     "package_contents": [
       "DashCam C1",
@@ -230,104 +240,98 @@
       "32GB card",
       "Owner's Manual"
     ],
-    "product_summary": "The ROAV by ANKER DashCam C1 (Model R2110) is a full HD 1080P dash camera featuring a SONY Exmor IMX323 sensor with enhanced night vision capabilities. It includes built-in Wi-Fi for seamless connectivity with the Roav mobile app, allowing users to review and share footage. The device offers a 145° wide-angle lens, G-sensor collision detection, and supports recording across multiple traffic lanes. Designed for durability, it operates in extreme temperatures and includes essential accessories such as a 32GB SD card and a dual-port USB car charger."
+    "product_summary": "ROAV by ANKER DASHCAM C1 model R2110 in Black is a dash camera with built-in Wi-Fi, app support, SONY Exmor IMX323 sensor, 1080P 30FPS recording, WDR superior night vision, 145° wide-angle lens, G-Sensor collision detection, illuminated 2.4-inch screen, and a 470mAh Li-polymer battery. Package includes the dashcam, Anker 2-port USB car charger, Micro-USB charging cable, 32GB card, and owner's manual."
   },
   "prompt_01B": {
     "image_views": {
-      "front_3q_left": "Unconfirmed",
-      "front_3q_right": "Unconfirmed",
-      "rear_3q": "Unconfirmed",
-      "left_side": "Unconfirmed",
-      "right_side": "Unconfirmed",
-      "top_view": "Unconfirmed",
-      "bottom_view": "Unconfirmed",
-      "detail_closeup": "Dashcam device close-up showing screen (driver-facing view)",
-      "accessories_layout": "Unconfirmed"
+      "front_3q_left": "",
+      "front_3q_right": "",
+      "rear_3q": "",
+      "left_side": "",
+      "right_side": "",
+      "top_view": "",
+      "bottom_view": "",
+      "detail_closeup": "",
+      "accessories_layout": ""
     },
     "visual_identity": {
-      "product_type": "Dash camera",
-      "dominant_color": "Black",
-      "materials": "Plastic (matte finish appearance)",
-      "primary_components": [
-        "Camera lens",
-        "Display screen",
-        "Mounting structure",
-        "Body housing"
-      ]
+      "product_type": "",
+      "dominant_color": "",
+      "materials": "",
+      "primary_components": []
     },
     "object_layout_map": {
-      "component_positions": {
-        "lens": "Front-facing side of device (road-facing orientation)",
-        "screen": "Rear side of device (driver-facing orientation)",
-        "mount": "Top area of device body",
-        "body": "Central housing enclosing internal components"
-      }
+      "component_positions": {}
     },
     "lighting_profile": {
-      "lighting_type": "Even studio lighting",
-      "shadow_behavior": "Soft minimal shadows",
-      "reflection_style": "Low reflection, matte surface diffusion"
+      "lighting_type": "",
+      "shadow_behavior": "",
+      "reflection_style": ""
     },
     "camera_profile": {
-      "camera_angle": "Eye-level product shot",
-      "orientation": "Horizontal orientation",
-      "lens_style": "Standard product photography lens (no distortion observed)"
+      "camera_angle": "",
+      "orientation": "",
+      "lens_style": ""
     },
     "product_geometry": {
-      "shape_description": "Rectangular compact body with slightly rounded edges",
-      "proportions": "Wider than tall, slim depth profile",
-      "relative_dimensions": "Screen occupies majority of rear surface; lens protrudes slightly from front"
+      "shape_description": "",
+      "proportions": "",
+      "relative_dimensions": ""
     }
   },
   "visual_grounding": {
     "image_views": {
-      "front_3q_left": "Unconfirmed",
-      "front_3q_right": "Unconfirmed",
-      "rear_3q": "Unconfirmed",
-      "left_side": "Unconfirmed",
-      "right_side": "Unconfirmed",
-      "top_view": "Unconfirmed",
-      "bottom_view": "Unconfirmed",
-      "detail_closeup": "Dashcam device close-up showing screen (driver-facing view)",
-      "accessories_layout": "Unconfirmed"
+      "front_3q_left": "",
+      "front_3q_right": "",
+      "rear_3q": "",
+      "left_side": "",
+      "right_side": "",
+      "top_view": "",
+      "bottom_view": "",
+      "detail_closeup": "",
+      "accessories_layout": ""
     },
     "visual_identity": {
-      "product_type": "Dash camera",
-      "dominant_color": "Black",
-      "materials": "Plastic (matte finish appearance)",
-      "primary_components": [
-        "Camera lens",
-        "Display screen",
-        "Mounting structure",
-        "Body housing"
-      ]
+      "product_type": "",
+      "dominant_color": "",
+      "materials": "",
+      "primary_components": []
     },
     "object_layout_map": {
-      "component_positions": {
-        "lens": "Front-facing side of device (road-facing orientation)",
-        "screen": "Rear side of device (driver-facing orientation)",
-        "mount": "Top area of device body",
-        "body": "Central housing enclosing internal components"
-      }
+      "component_positions": {}
     },
     "lighting_profile": {
-      "lighting_type": "Even studio lighting",
-      "shadow_behavior": "Soft minimal shadows",
-      "reflection_style": "Low reflection, matte surface diffusion"
+      "lighting_type": "",
+      "shadow_behavior": "",
+      "reflection_style": ""
     },
     "camera_profile": {
-      "camera_angle": "Eye-level product shot",
-      "orientation": "Horizontal orientation",
-      "lens_style": "Standard product photography lens (no distortion observed)"
+      "camera_angle": "",
+      "orientation": "",
+      "lens_style": ""
     },
     "product_geometry": {
-      "shape_description": "Rectangular compact body with slightly rounded edges",
-      "proportions": "Wider than tall, slim depth profile",
-      "relative_dimensions": "Screen occupies majority of rear surface; lens protrudes slightly from front"
+      "shape_description": "",
+      "proportions": "",
+      "relative_dimensions": ""
     }
   },
   "amazon_product_title": {
     "reference_tag": "",
-    "amazon_product_title": "ROAV by ANKER DashCam C1 Dash Camera R2110, 1080P WiFi, Sony Exmor IMX323 Sensor, 145 Degree Wide Angle, G Sensor, WDR Night Vision, 32GB Card Included"
+    "amazon_product_title": "ROAV by ANKER Dash Camera DASHCAM C1 Built In WiFi 1080P Full HD Sony Exmor IMX323 G Sensor WDR Night Vision 145 Degree Wide Angle Black"
+  },
+  "amazon_bullet_points": {
+    "reference_tag": "",
+    "amazon_bullet_points": [
+      "CLEAR 1080P RECORDING — Captures Full HD 1080P video at 30FPS with a SONY Exmor IMX323 sensor for detailed everyday driving footage.",
+      "ENHANCED NIGHT VISIBILITY — Nighthawk Vision with WDR Superior Night Vision helps capture clearer license plates and road details in low-light conditions.",
+      "WIDE ROAD COVERAGE — A 145° wide-angle lens records up to 4 lanes of traffic for broader visibility on the road.",
+      "SMART INCIDENT RECORDING — The built-in G-Sensor detects sudden stops or collisions and instantly starts recording when impact is sensed.",
+      "EASY APP CONNECTIVITY — Built-in Wi-Fi connects to the Roav Dashcam app so you can review, download, and share videos from your phone."
+    ]
+  },
+  "amazon_product_description": {
+    "reference_tag": "",
+    "amazon_product_description": "The ROAV by ANKER DASHCAM C1 is a compact dash camera designed for everyday drivers who want clear road recording, dependable incident capture, and convenient video access from their phone. With Full HD 1080P recording at 30FPS and a SONY Exmor IMX323 sensor, it captures detailed driving footage for daily commutes, road trips, and general in-car recording needs.\n\nA 145° wide-angle lens records up to 4 lanes of traffic, helping provide broader road coverage in changing driving conditions. For low-light use, Nighthawk Vision and WDR Superior Night Vision help improve visibility of road details and license plates at night. The built-in G-Sensor is designed to monitor sudden stops or collisions and instantly start recording when impact is detected, supporting safer and more reliable event documentation.\n\nBuilt-in Wi-Fi and Roav app support make it easy to review, download, and share videos without removing the camera. The illuminated 2.4-inch screen supports on-device viewing, while the included 32GB card helps get recording started right away. With a Novatek NT96658 chipset, F1.8 lens with 6 glass elements, and operating temperatures from 14°F to 149°F, the DASHCAM C1 is built for regular driving use in a range of conditions. The package also includes an ANKER 2-Port USB car charger, Micro-USB charging cable, and owner’s manual."
   }
 }
