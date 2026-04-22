@@ -36,17 +36,19 @@ SCRIPT_METADATA = {
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 PROMPTS_DIR = ROOT / "docs" / "prompts"
+PROMPTS_MD_PATH = ROOT / "docs" / "prompts.md"
 OUTPUT_DIR = ROOT / "output"
 LOG_DIR = OUTPUT_DIR / "logs"
 IMAGE_SOURCE_DIR = DATA_DIR / "images"
 GENERATED_IMAGE_DIR = OUTPUT_DIR / "generated_images"
 STATE_PATH = OUTPUT_DIR / "workflow_state.json"
 RAW_TEXT_PATH = DATA_DIR / "raw_product_input.txt"
+RAW_TEXT_PATH_MD = DATA_DIR / "raw_product_input.md"
 
 TEXT_MODEL = os.getenv("OPENAI_TEXT_MODEL", "gpt-5.4")
 IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "browser").lower()
-BROWSER_CDP_URL = os.getenv("BROWSER_CDP_URL", "http://localhost:9222")
+BROWSER_CDP_URL = os.getenv("BROWSER_CDP_URL", "http://127.0.0.1:9222")
 BROWSER_CHAT_URL = os.getenv("BROWSER_CHAT_URL", "https://chatgpt.com/")
 BROWSER_ACTION_TIMEOUT_MS = int(os.getenv("BROWSER_ACTION_TIMEOUT_MS", "120000"))
 
@@ -59,8 +61,8 @@ LOG_SEQUENCE = 0
 SYNTHETIC_DURATION_MS = 0
 DETERMINISTIC_TIME_BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
-TEXT_STEP_WAIT_SECONDS = 600
-IMAGE_STEP_WAIT_SECONDS = 900
+TEXT_STEP_WAIT_SECONDS = int(os.getenv("TEXT_STEP_WAIT_SECONDS", "0"))
+IMAGE_STEP_WAIT_SECONDS = int(os.getenv("IMAGE_STEP_WAIT_SECONDS", "0"))
 
 
 @dataclass(frozen=True)
@@ -126,7 +128,13 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
 
 
 class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
-    def __init__(self, cdp_url: str, chat_url: str, action_timeout_ms: int, image_fallback: PromptExecutionAdapter) -> None:
+    def __init__(
+        self,
+        cdp_url: str,
+        chat_url: str,
+        action_timeout_ms: int,
+        image_fallback: Optional[PromptExecutionAdapter] = None,
+    ) -> None:
         self.cdp_url = cdp_url
         self.chat_url = chat_url
         self.action_timeout_ms = action_timeout_ms
@@ -138,9 +146,33 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
     def _page(self):
         if self._browser is None:
             self._playwright = sync_playwright().start()
-            self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
-            self._context = self._browser.contexts[0] if self._browser.contexts else self._browser.new_context()
-        page = self._context.pages[0] if self._context.pages else self._context.new_page()
+            try:
+                self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
+            except Exception:
+                if "localhost" in self.cdp_url:
+                    alt = self.cdp_url.replace("localhost", "127.0.0.1")
+                    self._browser = self._playwright.chromium.connect_over_cdp(alt)
+                    self.cdp_url = alt
+                else:
+                    raise
+            # Prefer an existing (already-authenticated) context/page that is already on ChatGPT.
+            chosen_context = None
+            chosen_page = None
+            for ctx in self._browser.contexts:
+                for p in ctx.pages:
+                    if self.chat_url and self.chat_url in (p.url or ""):
+                        chosen_context = ctx
+                        chosen_page = p
+                        break
+                if chosen_context is not None:
+                    break
+            self._context = chosen_context or (self._browser.contexts[0] if self._browser.contexts else self._browser.new_context())
+            if chosen_page is not None:
+                page = chosen_page
+            else:
+                page = self._context.pages[0] if self._context.pages else self._context.new_page()
+        else:
+            page = self._context.pages[0] if self._context.pages else self._context.new_page()
         page.bring_to_front()
         if self.chat_url and self.chat_url not in (page.url or ""):
             page.goto(self.chat_url, wait_until="domcontentloaded")
@@ -157,7 +189,8 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             return box
 
     def send_prompt(self, page, payload: str) -> str:
-        before_count = page.locator("[data-message-author-role='assistant']").count()
+        before_assistant_count = page.locator("[data-message-author-role='assistant']").count()
+        before_user_count = page.locator("[data-message-author-role='user']").count()
         box = self._input_box(page)
 
         try:
@@ -168,16 +201,106 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         page.keyboard.press("Enter")
 
-        page.wait_for_function(
-            """([selector, beforeCount]) => document.querySelectorAll(selector).length > beforeCount""",
-            arg=["[data-message-author-role='assistant']", before_count],
-            timeout=self.action_timeout_ms,
-        )
+        def try_click_send() -> bool:
+            selectors = [
+                "button[data-testid='send-button']",
+                "button[aria-label*='Send']",
+                "button[aria-label*='send']",
+                "button:has-text('Send')",
+            ]
+            for sel in selectors:
+                try:
+                    btn = page.locator(sel).first
+                    if btn.count() and btn.is_visible() and btn.is_enabled():
+                        btn.click()
+                        return True
+                except Exception:
+                    pass
+            try:
+                btn = page.get_by_role("button", name=re.compile(r"send", re.I)).first
+                if btn.count() and btn.is_visible() and btn.is_enabled():
+                    btn.click()
+                    return True
+            except Exception:
+                pass
+            return False
+
+        # Ensure the prompt is actually submitted (some UI states require clicking send
+        # or using Ctrl+Enter).
+        send_deadline = time.time() + 5.0
+        ctrl_enter_tried = False
+        while time.time() < send_deadline:
+            if page.locator("[data-message-author-role='user']").count() > before_user_count:
+                break
+            try:
+                if not ctrl_enter_tried:
+                    page.keyboard.press("Control+Enter")
+                    ctrl_enter_tried = True
+            except Exception:
+                pass
+            try_click_send()
+            page.wait_for_timeout(250)
+
+        # Wait for a new assistant message to appear (response started).
+        response_deadline = time.time() + (self.action_timeout_ms / 1000.0)
+        while time.time() < response_deadline:
+            if page.locator("[data-message-author-role='assistant']").count() > before_assistant_count:
+                break
+            try:
+                stop_btn = page.get_by_role("button", name=re.compile(r"stop generating", re.I)).first
+                if stop_btn.count() and stop_btn.is_visible():
+                    break
+            except Exception:
+                pass
+            page.wait_for_timeout(250)
+
+        if page.locator("[data-message-author-role='assistant']").count() <= before_assistant_count:
+            fail(
+                "SELECTOR_TIMEOUT",
+                "Timed out waiting for assistant response in browser.",
+                field="browser",
+                expected="new assistant message",
+                actual=f"assistant_count={before_assistant_count}",
+            )
 
         assistant = page.locator("[data-message-author-role='assistant']").last
         assistant.wait_for(timeout=self.action_timeout_ms)
-        page.wait_for_timeout(1000)
-        return assistant.inner_text(timeout=self.action_timeout_ms).strip()
+        # Wait for streaming to settle to avoid capturing partial (invalid) JSON.
+        stable_required = 3
+        stable_count = 0
+        last_text = ""
+        deadline = time.time() + (self.action_timeout_ms / 1000.0)
+        while time.time() < deadline:
+            # Expand collapsed assistant content if present.
+            try:
+                show_more = assistant.get_by_role("button", name=re.compile(r"show more", re.I)).first
+                if show_more.count() and show_more.is_visible():
+                    show_more.click()
+                    stable_count = 0
+                    page.wait_for_timeout(250)
+            except Exception:
+                pass
+
+            # If the model stopped early, ask it to continue.
+            try:
+                cont = page.get_by_role("button", name=re.compile(r"continue generating", re.I)).first
+                if cont.count() and cont.is_visible():
+                    cont.click()
+                    stable_count = 0
+                    page.wait_for_timeout(500)
+            except Exception:
+                pass
+
+            current = assistant.inner_text(timeout=self.action_timeout_ms).strip()
+            if current and current == last_text:
+                stable_count += 1
+                if stable_count >= stable_required:
+                    return current
+            else:
+                stable_count = 0
+                last_text = current
+            page.wait_for_timeout(500)
+        return last_text.strip()
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         page = self._page()
@@ -188,6 +311,10 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         return parse_response_json(response_text)
 
     def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        if self.image_fallback is None:
+            # Delay OpenAI client initialization until image generation is requested so
+            # browser-backed text steps don't require OPENAI_API_KEY.
+            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
         return self.image_fallback.execute_image(prompt, size=size)
 
 
@@ -199,13 +326,10 @@ def get_execution_adapter() -> PromptExecutionAdapter:
     global client, EXECUTION_ADAPTER
     if EXECUTION_ADAPTER is None:
         if EXECUTION_BACKEND == "browser":
-            if client is None:
-                client = OpenAI()
             EXECUTION_ADAPTER = BrowserPromptExecutionAdapter(
                 BROWSER_CDP_URL,
                 BROWSER_CHAT_URL,
                 BROWSER_ACTION_TIMEOUT_MS,
-                OpenAIPromptExecutionAdapter(client),
             )
         else:
             if client is None:
@@ -440,20 +564,75 @@ def normalize_json_text(text: str) -> str:
     return text.strip()
 
 
+def repair_unescaped_quotes(json_text: str) -> str:
+    """
+    Best-effort repair for common browser-LLM failures where a quote character
+    appears inside a JSON string value (e.g. inch marks like 2.4") without being escaped.
+    This is a heuristic: treat a quote inside a string as a terminator only if
+    the next non-whitespace character is a valid JSON delimiter.
+    """
+    out: List[str] = []
+    in_string = False
+    escape = False
+
+    for idx, ch in enumerate(json_text):
+        if not in_string:
+            out.append(ch)
+            if ch == '"':
+                in_string = True
+            continue
+
+        # in_string
+        if escape:
+            out.append(ch)
+            escape = False
+            continue
+
+        if ch == "\\":
+            out.append(ch)
+            escape = True
+            continue
+
+        if ch == '"':
+            j = idx + 1
+            while j < len(json_text) and json_text[j] in " \t\r\n":
+                j += 1
+            if j >= len(json_text) or json_text[j] in [",", ":", "}", "]"]:
+                out.append(ch)
+                in_string = False
+            else:
+                out.append('\\"')
+            continue
+
+        out.append(ch)
+
+    return "".join(out)
+
+
 def parse_response_json(response_text: str) -> Dict[str, Any]:
+    excerpt = normalize_json_text(response_text)
     try:
-        return json.loads(normalize_json_text(response_text))
-    except Exception as e:
-        fail("MODEL_OUTPUT_NOT_JSON", f"Model output is not valid JSON: {e}")
+        return json.loads(excerpt)
+    except Exception:
+        repaired = repair_unescaped_quotes(excerpt)
+        try:
+            return json.loads(repaired)
+        except Exception as e:
+            fail(
+                "MODEL_OUTPUT_NOT_JSON",
+                f"Model output is not valid JSON: {e}",
+                actual=excerpt[:2000],
+            )
 
 
 def workflow_state_init() -> Dict[str, Any]:
+    raw_text_path = resolve_raw_text_path()
     return {
         "reference_tag": "",
         "trace_id": TRACE_ID,
         "script_metadata": SCRIPT_METADATA,
         "source": {
-            "raw_text_path": str(RAW_TEXT_PATH),
+            "raw_text_path": str(raw_text_path),
             "image_dir": str(IMAGE_SOURCE_DIR),
         },
         "outputs": {},
@@ -835,7 +1014,70 @@ def read_prompt_file(step_id: str) -> str:
     for c in candidates:
         if c.exists():
             return c.read_text(encoding="utf-8")
+
+    prompt_from_md = read_prompt_from_prompts_md(step_id)
+    if prompt_from_md is not None:
+        return prompt_from_md
+
     fail("MISSING_PROMPT", f"No prompt file found for step {step_id} in {PROMPTS_DIR}")
+
+
+def _normalize_prompt_key(step_id: str) -> str:
+    """
+    Normalize internal step ids (e.g. '01A') to prompts.md keys (e.g. '1A').
+    prompts.md uses headings like '# PROMPT 1A', '# PROMPT 2', ... '# PROMPT 24'.
+    """
+    m = re.match(r"^0*(\d+)([A-Za-z]?)$", step_id.strip())
+    if not m:
+        stripped = step_id.strip().lstrip("0")
+        return (stripped or step_id.strip()).upper()
+    number = str(int(m.group(1)))
+    suffix = m.group(2).upper()
+    return f"{number}{suffix}"
+
+
+_PROMPT_HEADING_RE = re.compile(r"(?m)^#\s+PROMPT\s+(.+?)\s*$")
+_FENCE_RE = re.compile(r"```[^\n]*\n(.*?)\n```", re.DOTALL)
+_PROMPTS_MD_CACHE: Optional[Dict[str, str]] = None
+
+
+def _load_prompts_md_sections() -> Dict[str, str]:
+    if not PROMPTS_MD_PATH.exists():
+        return {}
+    text = PROMPTS_MD_PATH.read_text(encoding="utf-8")
+    matches = list(_PROMPT_HEADING_RE.finditer(text))
+    if not matches:
+        return {}
+    sections: Dict[str, str] = {}
+    for idx, m in enumerate(matches):
+        key = m.group(1).strip().replace(" ", "").upper()
+        start = m.end()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+        sections[key] = text[start:end].strip()
+    return sections
+
+
+def read_prompt_from_prompts_md(step_id: str) -> Optional[str]:
+    """
+    Fallback prompt loader for repos that store prompt content in docs/prompts.md
+    instead of individual files under docs/prompts/.
+    """
+    global _PROMPTS_MD_CACHE
+    if _PROMPTS_MD_CACHE is None:
+        _PROMPTS_MD_CACHE = _load_prompts_md_sections()
+
+    if not _PROMPTS_MD_CACHE:
+        return None
+
+    key = _normalize_prompt_key(step_id).replace(" ", "").upper()
+    body = _PROMPTS_MD_CACHE.get(key)
+    if body is None:
+        return None
+
+    fence = _FENCE_RE.search(body)
+    if fence:
+        return fence.group(1).strip()
+    return body.strip()
 
 
 def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:
@@ -923,9 +1165,19 @@ STEP_PLAN: List[Step] = [
 
 
 def run_step(step: Step, state: Dict[str, Any]) -> None:
+    def build_schema() -> Dict[str, Any]:
+        if not step.schema_builder:
+            return {}
+        try:
+            if len(inspect.signature(step.schema_builder).parameters) == 0:
+                return step.schema_builder()  # type: ignore[misc]
+        except Exception:
+            pass
+        return step.schema_builder(state)  # type: ignore[misc]
+
     if step.kind == "text":
         prompt_text = read_prompt_file(step.step_id)
-        schema = step.schema_builder(state) if step.schema_builder else {}
+        schema = build_schema()
         output = call_text_step(step.step_id, prompt_text, schema, state)
         update_state_with_prompt(state, step.step_id, output, step.output_key)
 
@@ -975,14 +1227,23 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
     apply_step_wait(step.kind)
 
 def validate_initial_inputs() -> None:
-    if not RAW_TEXT_PATH.exists():
-        fail("MISSING_INPUT", f"Missing raw text input: {RAW_TEXT_PATH}")
+    raw_text_path = resolve_raw_text_path()
+    if not raw_text_path.exists():
+        fail("MISSING_INPUT", f"Missing raw text input: {RAW_TEXT_PATH} (or {RAW_TEXT_PATH_MD})")
     if not IMAGE_SOURCE_DIR.exists():
         fail("MISSING_INPUT", f"Missing image source directory: {IMAGE_SOURCE_DIR}")
     if len(read_source_images()) == 0:
         fail("MISSING_IMAGES", "No source images found in data/images/")
     if not PROMPTS_DIR.exists():
         fail("MISSING_PROMPTS", f"Missing prompts directory: {PROMPTS_DIR}")
+
+
+def resolve_raw_text_path() -> Path:
+    if RAW_TEXT_PATH.exists():
+        return RAW_TEXT_PATH
+    if RAW_TEXT_PATH_MD.exists():
+        return RAW_TEXT_PATH_MD
+    return RAW_TEXT_PATH
 
 
 def main() -> None:
@@ -1000,6 +1261,8 @@ def main() -> None:
     args = parser.parse_args()
 
     ensure_dirs()
+    if not args.resume:
+        (LOG_DIR / "execution.jsonl").write_text("", encoding="utf-8")
 
     state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
     state.setdefault("reference_tag", "")
@@ -1007,11 +1270,13 @@ def main() -> None:
 
     validate_initial_inputs()
 
-    raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
+    raw_text_path = resolve_raw_text_path()
+    raw_text_hash = hashlib.sha256(raw_text_path.read_bytes()).hexdigest()
     image_hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in read_source_images()]
 
     global TRACE_ID
     TRACE_ID = build_deterministic_trace_id(raw_text_hash, image_hashes)
+    state["trace_id"] = TRACE_ID
 
     emit_lifecycle_event(
         stage="INIT",
@@ -1037,7 +1302,7 @@ def main() -> None:
     }
 
     state["source_payload"] = {
-        "raw_text": load_text(RAW_TEXT_PATH),
+        "raw_text": load_text(raw_text_path),
         "source_images": [str(p) for p in read_source_images()],
     }
 

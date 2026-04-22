@@ -1,6 +1,6 @@
 {
   "reference_tag": "",
-  "trace_id": "",
+  "trace_id": "cc0e41a31279e1627caebabc59e344e2",
   "script_metadata": {
     "script_id": "SCRIPT_002",
     "name": "workflow_orchestrator",
@@ -10,23 +10,24 @@
     "output_schema": "workflow_state.json + generated artifacts under output/",
     "dependencies": [],
     "external_libraries": [
-      "openai"
+      "openai",
+      "playwright"
     ],
     "status": "ACTIVE"
   },
   "source": {
-    "raw_text_path": "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\raw_product_input.txt",
+    "raw_text_path": "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\raw_product_input.md",
     "image_dir": "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\images"
   },
   "outputs": {},
   "input_fingerprint": {
-    "raw_text_sha256": "fa7c05d0a0dd14e8ae258abc26cde78dcd4ca42bf06bdef0d3f6e37ee8d0f080",
+    "raw_text_sha256": "295ae056b3b79dd56b1a88114f1c173acd2cdef9afd7201cf02705a745c24067",
     "image_sha256": [
       "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
     ]
   },
   "source_payload": {
-    "raw_text": "﻿sample raw product input\n",
+    "raw_text": "Analyze the below product information.  **Structure and “Lock in” the product data** so we can use it in the next step to build an optimized Amazon listing for this product.\n\n**Product Name:** DASHCAM C1\n**Brand:** ROAV by ANKER \n**Color:** Black\n**Model:** R2110\n\n**Features and Specifications:** found on actual product label/package\n- Built-In Wi-Fi With App Support\n- ANKER 2-Port USB Car Charger\n- Exmor IMX 323 Advanced SONY Sensor\n- FHD 1080P Crystal-Clear Definition\n- SD Free 32GB Card\n- SONY Exmor IMX323 sensor has Nighthawk Vision™ to clearly capture speeding license plates — especially at night.\n- 145° wide-angle view simultaneously records up to 4 lanes of traffic.\n- Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur.\n- Connect to DashCam's Wi-Fi to seamlessly review, download, and share videos via the Roav app.\n- Chipset: Novatek NT96658 \n- Wi-Fi: Built-in \n- Sensor: SONY Exmor IMX323 (1/2.9\", 2.8µ pixel) \n- Motion Sensor: G-Sensor \n- Video: 1080P 30FPS (1920×1080) \n- Night Vision: WDR Superior Night Vision \n- Operating Temperatures: 14°F to 149°F \n- Screen: Illuminated 2.4\" \n- Screen Lens: F1.8 with 6 high-quality glass elements and 145° viewing angle \n- Battery: 470mAh Li-polymer battery capable of operating in high and low temperatures.\n- Download the Roav Dashcam app from the App Store or Google Play.\n\n**Box Contents:**\n- DashCam C1\n- Anker 2-Port USB car charger\n- Micro-USB charging cable\n- 32GB card\n- Owner's Manual\n",
     "source_images": [
       "C:\\Users\\HP\\PROJECTS\\GITHUB\\az4M\\Deterministic-Amazon-Automation\\data\\images\\sample.png"
     ]
