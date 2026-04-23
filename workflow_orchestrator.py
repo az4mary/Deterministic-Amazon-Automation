@@ -1594,8 +1594,6 @@ def main() -> None:
     for i in range(start_from, len(plan)):
         step = plan[i]
         current_step_number = i + 1
-        if args.stop_after and step.step_id == args.stop_after:
-            break
         run_step(step, state)
         progress_percent = min(100, int((current_step_number / len(plan)) * 100))
         validate_progress_percent(progress_percent, current_step_number, len(plan))
@@ -1609,6 +1607,8 @@ def main() -> None:
             current_step=current_step_number,
             total_steps=len(plan),
         )
+        if args.stop_after and step.step_id == args.stop_after:
+            break
 
     save_json_atomic(STATE_PATH, state)
     write_image_prompts(state)
