@@ -18,7 +18,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-from openai import OpenAI
+try:
+    from openai import OpenAI  # type: ignore
+except ModuleNotFoundError:
+    OpenAI = None  # type: ignore
 from playwright.sync_api import sync_playwright
 
 SCRIPT_METADATA = {
@@ -239,6 +242,51 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             pass
         page.wait_for_timeout(500)
 
+    def _attach_images_for_state(self, page, state: Dict[str, Any]) -> None:
+        if os.getenv("BROWSER_ATTACH_IMAGES", "1") != "1":
+            return
+        payload = state.get("source_payload") or {}
+        paths = payload.get("source_images") or []
+        if not isinstance(paths, list) or not paths:
+            return
+        file_paths: List[str] = []
+        for p in paths:
+            if isinstance(p, str) and Path(p).exists():
+                file_paths.append(p)
+        if not file_paths:
+            return
+
+        max_files = int(os.getenv("BROWSER_ATTACH_MAX_FILES", "4"))
+        file_paths = file_paths[:max_files]
+
+        # Best-effort: set files on any file input.
+        # Some ChatGPT builds hide the input behind an "Attach" button; try to reveal it.
+        attach_selectors = [
+            "button[aria-label*='Attach']",
+            "button[aria-label*='attach']",
+            "button:has-text('Attach')",
+            "button[data-testid*='attach']",
+        ]
+        try:
+            if page.locator("input[type=file]").count() == 0:
+                for sel in attach_selectors:
+                    btn = page.locator(sel).first
+                    if btn.count() and btn.is_visible():
+                        btn.click()
+                        page.wait_for_timeout(250)
+                        break
+        except Exception:
+            pass
+
+        try:
+            inp = page.locator("input[type=file]").first
+            if inp.count():
+                inp.set_input_files(file_paths, timeout=self.action_timeout_ms)
+                page.wait_for_timeout(500)
+        except Exception:
+            # Non-fatal: the step can still proceed without attachments.
+            pass
+
     def _input_box(self, page):
         selectors = [
             "textarea#prompt-textarea",
@@ -402,6 +450,10 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             self._start_new_chat(page)
             self._prepared_chat = True
 
+        # Step 01B requires actual image attachments to do real visual grounding.
+        if step_id == "01B":
+            self._attach_images_for_state(page, state)
+
         max_retries = int(os.getenv("BROWSER_JSON_RETRIES", "2"))
         payload = build_text_input(state, prompt_text)
 
@@ -441,11 +493,13 @@ def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_respo
         if self.image_fallback is None:
             # Delay OpenAI client initialization until image generation is requested so
             # browser-backed text steps don't require OPENAI_API_KEY.
+            if OpenAI is None:
+                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
             self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
         return self.image_fallback.execute_image(prompt, size=size)
 
 
-client: Optional[OpenAI] = None
+client: Any = None
 EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
 
 
@@ -459,6 +513,8 @@ def get_execution_adapter() -> PromptExecutionAdapter:
                 BROWSER_ACTION_TIMEOUT_MS,
             )
         else:
+            if OpenAI is None:
+                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for EXECUTION_BACKEND != browser.")
             if client is None:
                 client = OpenAI()
             EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
@@ -1439,6 +1495,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
     parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
     parser.add_argument("--stop-after", default=None, help="Optional step id to stop after (e.g. 10)")
+    parser.add_argument("--restart-from", default=None, help="Restart execution from a specific step id (e.g. 01B)")
     parser.add_argument(
         "--enable-image-generation",
         action="store_true",
@@ -1507,6 +1564,26 @@ def main() -> None:
     )
 
     start_from = 0
+    if args.restart_from:
+        restart_step = str(args.restart_from)
+        # Clear cached outputs for the restarted step and all subsequent steps in the current plan.
+        found_restart = False
+        for i, step in enumerate(plan):
+            if step.step_id == restart_step:
+                start_from = i
+                found_restart = True
+            if not found_restart:
+                continue
+            if isinstance(state.get("outputs"), dict):
+                state["outputs"].pop(step.step_id, None)
+            # Remove promoted/top-level outputs if present.
+            if step.kind == "text" and step.output_key in state:
+                state.pop(step.output_key, None)
+        if found_restart:
+            state.pop("last_completed_step", None)
+        else:
+            fail("INVALID_ARGS", f"--restart-from step id not found in plan: {restart_step}")
+
     if args.resume and state.get("last_completed_step"):
         last_step = str(state["last_completed_step"])
         for i, step in enumerate(plan):
