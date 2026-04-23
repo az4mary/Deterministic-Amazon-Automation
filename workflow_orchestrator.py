@@ -16,7 +16,7 @@ from datetime import datetime, timezone, timedelta
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 try:
     from openai import OpenAI  # type: ignore
@@ -27,7 +27,7 @@ from playwright.sync_api import sync_playwright
 SCRIPT_METADATA = {
     "script_id": "SCRIPT_002",
     "name": "workflow_orchestrator",
-    "version": "1.0",
+    "version": "1.1",
     "category": "PROCESSOR",
     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
     "output_schema": "workflow_state.json + generated artifacts under output/",
@@ -475,6 +475,15 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         fail("MODEL_OUTPUT_NOT_JSON", "Model output is not valid JSON: exhausted retries.")
 
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        if self.image_fallback is None:
+            # Delay OpenAI client initialization until image generation is requested so
+            # browser-backed text steps don't require OPENAI_API_KEY.
+            if OpenAI is None:
+                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
+            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
+        return self.image_fallback.execute_image(prompt, size=size)
+
 
 def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_response: str) -> str:
     schema_compact = json.dumps(schema, ensure_ascii=False, indent=2)
@@ -488,15 +497,6 @@ def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_respo
         f"JSON SCHEMA:\n{schema_compact}\n\n"
         f"PREVIOUS (invalid) RESPONSE:\n{prev}\n"
     )
-
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
-        if self.image_fallback is None:
-            # Delay OpenAI client initialization until image generation is requested so
-            # browser-backed text steps don't require OPENAI_API_KEY.
-            if OpenAI is None:
-                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
-            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
-        return self.image_fallback.execute_image(prompt, size=size)
 
 
 client: Any = None
