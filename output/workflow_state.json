@@ -22,7 +22,7 @@
   "outputs": {
     "01A": {
       "reference_tag": "",
-      "product_category": "Dash Cam",
+      "product_category": "Dash Camera",
       "product_profile": {
         "brand": "ROAV by ANKER",
         "product_name": "DASHCAM C1",
@@ -31,36 +31,39 @@
       },
       "core_features": [
         "Built-In Wi-Fi With App Support",
-        "ANKER 2-Port USB Car Charger",
-        "Exmor IMX 323 Advanced SONY Sensor",
+        "ANKER 2-Port USB Car Charger included",
+        "Exmor IMX323 Advanced SONY Sensor",
         "FHD 1080P Crystal-Clear Definition",
-        "SD Free 32GB Card",
-        "SONY Exmor IMX323 sensor has Nighthawk Vision™ to clearly capture speeding license plates — especially at night.",
-        "145° wide-angle view simultaneously records up to 4 lanes of traffic.",
-        "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur.",
-        "Connect to DashCam's Wi-Fi to seamlessly review, download, and share videos via the Roav app."
+        "SD Free 32GB Card included",
+        "Nighthawk Vision to capture license plates at night",
+        "145° wide-angle view records up to 4 lanes of traffic",
+        "Gravity sensor starts recording during sudden stops or collisions",
+        "Roav app support for reviewing, downloading, and sharing videos"
       ],
       "attributes": {
         "chipset": "Novatek NT96658",
         "wifi": "Built-in",
         "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
         "motion_sensor": "G-Sensor",
-        "video_resolution": "1080P 30FPS (1920×1080)",
+        "video_resolution": "1080P",
+        "frame_rate": "30FPS",
+        "video_dimensions": "1920×1080",
         "night_vision": "WDR Superior Night Vision",
-        "operating_temperature": "14°F to 149°F",
+        "operating_temperature_range": "14°F to 149°F",
         "screen_size": "2.4\"",
-        "lens": "F1.8 with 6 high-quality glass elements and 145° viewing angle",
-        "battery": "470mAh Li-polymer battery capable of operating in high and low temperatures",
-        "app_support": "Roav Dashcam app",
-        "app_availability": "App Store or Google Play",
+        "screen_type": "Illuminated",
+        "lens_aperture": "F1.8",
+        "lens_elements": "6 high-quality glass elements",
         "viewing_angle": "145°",
-        "lane_coverage": "Up to 4 lanes of traffic"
+        "battery": "470mAh Li-polymer battery",
+        "app_availability": "App Store or Google Play"
       },
       "additional_attributes": {
-        "recording_trigger": "Sudden stops or collisions",
-        "collision_monitoring": "Gravity sensor monitors and instantly starts recording",
-        "video_sharing": "Review, download, and share videos via the Roav app",
-        "included_memory_card_capacity": "32GB"
+        "lane_coverage": "Up to 4 lanes of traffic",
+        "collision_recording_trigger": "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+        "app_functions": "Review, download, and share videos via the Roav app",
+        "included_memory_card_capacity": "32GB",
+        "image_sources_reviewed": "Unconfirmed"
       },
       "package_contents": [
         "DashCam C1",
@@ -69,7 +72,395 @@
         "32GB card",
         "Owner's Manual"
       ],
-      "product_summary": "ROAV by ANKER DASHCAM C1 (Model R2110) in Black is a dash cam with built-in Wi-Fi and app support, featuring a SONY Exmor IMX323 sensor, Novatek NT96658 chipset, FHD 1080P recording at 30FPS, WDR superior night vision, a 145° wide-angle view, G-sensor collision detection, a 2.4\" illuminated screen, and a 470mAh Li-polymer battery. Package contents include the DashCam C1, Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual."
+      "product_summary": "ROAV by ANKER DASHCAM C1 (Model R2110) is a black dash camera with built-in Wi-Fi, app support, SONY Exmor IMX323 sensor, 1080P 30FPS recording, WDR Superior Night Vision, 145° viewing angle, G-Sensor collision recording, 2.4\" illuminated screen, and a 470mAh Li-polymer battery. Package includes a 32GB card, Anker 2-Port USB car charger, Micro-USB charging cable, and Owner's Manual."
+    },
+    "01B": {
+      "image_views": {
+        "front_3q_left": "Image showing the display side of the dash camera at a three-quarter angle, with the screen facing forward and the left side panel visible.",
+        "front_3q_right": "Image showing the lens side of the dash camera at a three-quarter angle, with the camera lens facing forward and the right side panel visible.",
+        "rear_3q": "",
+        "left_side": "",
+        "right_side": "",
+        "top_view": "",
+        "bottom_view": "",
+        "detail_closeup": "",
+        "accessories_layout": ""
+      },
+      "visual_identity": {
+        "product_type": "Dash camera",
+        "dominant_color": "Black",
+        "materials": "Matte and glossy plastic, glass lens cover",
+        "primary_components": [
+          "Display screen",
+          "Camera lens",
+          "Top mounting bracket",
+          "Side circular panel/button",
+          "Bottom mounting joint",
+          "Front control buttons",
+          "Brand/logo marking"
+        ]
+      },
+      "object_layout_map": {
+        "component_positions": {
+          "display_screen": "Centered on the display-facing side, occupying the upper-middle front surface.",
+          "camera_lens": "Centered near the lower front of the lens-facing side, protruding outward.",
+          "top_mounting_bracket": "Mounted on the top center of the main body.",
+          "side_circular_panel_button": "Located on the side arm/end cap area of the body.",
+          "bottom_mounting_joint": "Positioned beneath the main body.",
+          "front_control_buttons": "Aligned horizontally below the display screen.",
+          "logo_marking": "Placed above the display on the display-facing side; feature labels appear near the lens on the lens-facing side."
+        }
+      },
+      "lighting_profile": {
+        "lighting_type": "Soft studio lighting",
+        "shadow_behavior": "Minimal, diffuse shadows beneath and around the product",
+        "reflection_style": "Controlled reflections with mild highlights on curved glossy edges and lens surfaces"
+      },
+      "camera_profile": {
+        "camera_angle": "Elevated three-quarter product shot",
+        "orientation": "Portrait-oriented product render on a light gray background",
+        "lens_style": "Standard product rendering perspective with minimal wide-angle distortion"
+      },
+      "product_geometry": {
+        "shape_description": "Compact angular body with a rectangular main housing, rounded side arm/end caps, protruding lens barrel, and a top-mounted bracket",
+        "proportions": "Taller than deep on the display-facing view; compact and block-like with a short projecting lens on the lens-facing view",
+        "relative_dimensions": "Screen occupies much of one face; lens is smaller than the body and protrudes from the lower front; top bracket is broad and flat relative to the main housing"
+      }
+    },
+    "02": {
+      "reference_tag": "",
+      "amazon_product_title": "ROAV by ANKER Dash Camera DASHCAM C1 R2110 Black 1080P WiFi Sony Exmor IMX323 G Sensor 145 Degree Wide Angle WDR Night Vision with 32GB Card and USB Car Charger"
+    },
+    "03": {
+      "reference_tag": "",
+      "amazon_bullet_points": [
+        "CLEAR 1080P RECORDING — Captures full HD 1920×1080 video at 30FPS for detailed everyday driving footage.",
+        "ENHANCED NIGHT VISIBILITY — SONY Exmor IMX323 sensor with WDR Superior Night Vision helps record clearer footage and license plates in low light.",
+        "WIDE ROAD COVERAGE — 145° wide-angle lens records up to 4 lanes of traffic to capture more of the road ahead.",
+        "AUTOMATIC INCIDENT CAPTURE — Built-in G-Sensor detects sudden stops or collisions and starts recording when impact events occur.",
+        "EASY VIDEO ACCESS — Built-in Wi-Fi connects to the Roav app for reviewing, downloading, and sharing footage from your dash cam."
+      ]
+    },
+    "04": {
+      "reference_tag": "",
+      "amazon_product_description": "ROAV by ANKER DASHCAM C1 (Model R2110) is a compact black dash camera designed for drivers who want dependable front-road recording with convenient access to their footage. It records in full HD 1080P at 30FPS, helping capture clear everyday driving video for commuting, road trips, and routine parking situations. The 145° wide-angle lens covers up to 4 lanes of traffic, giving you a broader view of the road ahead.\n\nFor low-light driving, the SONY Exmor IMX323 sensor works with WDR Superior Night Vision and an F1.8 lens with 6 high-quality glass elements to improve visibility in darker conditions. The built-in G-Sensor automatically starts recording when sudden stops or collisions occur, supporting incident documentation when it matters most.\n\nBuilt-in Wi-Fi lets you connect the dash camera to the Roav app so you can review, download, and share videos without removing the device. The 2.4\" illuminated screen also makes on-device viewing more accessible. With its compact housing, top-mounted bracket, and straightforward control layout, the DASHCAM C1 is suited for drivers looking for practical recording, app-based convenience, and consistent performance. The package includes the DashCam C1, 32GB card, Anker 2-Port USB car charger, Micro-USB charging cable, and Owner’s Manual."
+    },
+    "05": {
+      "reference_tag": "",
+      "amazon_backend_search_terms": "automobile vehicle dashboard dvr windshield recorder surveillance monitor accident evidence crash security onboard windscreen motorist"
+    },
+    "06": {
+      "reference_tag": "",
+      "customer_search_intent_keywords": {
+        "generic_searches": [
+          "dash camera",
+          "car dash camera",
+          "1080p dash camera",
+          "wifi dash camera",
+          "wide angle dash camera",
+          "front recording dash camera",
+          "car camera recorder",
+          "dashboard camera for car"
+        ],
+        "feature_searches": [
+          "1080p wifi dash camera",
+          "dash camera with app support",
+          "dash camera with sony sensor",
+          "dash camera with g sensor",
+          "dash camera with night vision",
+          "145 degree wide angle dash camera",
+          "dash camera with 32gb card",
+          "dash camera with usb car charger",
+          "dash camera with 2.4 inch screen",
+          "full hd dash cam 30fps"
+        ],
+        "problem_solution_searches": [
+          "dash camera for recording accidents",
+          "dash cam for collision recording",
+          "dash camera for capturing license plates at night",
+          "dash camera for low light driving",
+          "dash camera for incident evidence",
+          "dash cam with automatic recording on impact",
+          "car camera for safer driving records",
+          "dash camera for clear night footage"
+        ],
+        "use_case_searches": [
+          "dash camera for commuting",
+          "dash cam for road trips",
+          "dash camera for daily driving",
+          "dash camera for highway driving",
+          "dash camera for city driving",
+          "dash camera for parking situations",
+          "dash camera for rideshare drivers",
+          "dash camera for drivers wanting app video access"
+        ],
+        "long_tail_buyer_searches": [
+          "1080p dash camera with wifi and app",
+          "dash camera with sony exmor imx323 sensor",
+          "145 degree dash camera with night vision",
+          "dash camera with g sensor and 32gb card",
+          "full hd dash cam with wide angle lens",
+          "wifi dash camera with video download app",
+          "dash camera with usb car charger included",
+          "car dash camera with screen and night vision",
+          "dash cam for recording up to 4 lanes",
+          "black dash camera with built in wifi"
+        ]
+      }
+    },
+    "07": {
+      "reference_tag": "",
+      "amazon_aplus_content": {
+        "seller_or_brand_story": "ROAV by ANKER designs practical in-car technology focused on dependable performance, straightforward use, and thoughtful everyday functionality. With features that support clear recording, app-connected access, and reliable operation across changing driving conditions, the brand emphasizes useful design and product quality for daily drivers.",
+        "feature_section_1": {
+          "headline": "Clear Front-Road Recording",
+          "supporting_text": "Full HD 1080P recording at 30FPS helps capture detailed driving footage for commuting, road trips, and routine daily travel. The 145° wide-angle lens records up to 4 lanes of traffic, giving drivers a broader forward view."
+        },
+        "feature_section_2": {
+          "headline": "Stronger Visibility in Low Light",
+          "supporting_text": "The SONY Exmor IMX323 sensor works with WDR Superior Night Vision, an F1.8 lens, and 6 glass lens elements to improve clarity in darker conditions. This helps support more usable footage when driving at night or in low-light environments."
+        },
+        "feature_section_3": {
+          "headline": "Automatic Incident Detection",
+          "supporting_text": "A built-in G-Sensor monitors sudden stops and collisions, then starts recording when impact events occur. This added responsiveness helps preserve important footage when unexpected driving situations happen."
+        },
+        "feature_section_4": {
+          "headline": "Convenient Access and Daily Use",
+          "supporting_text": "Built-in Wi-Fi connects the dash camera to the Roav app for reviewing, downloading, and sharing videos without added complexity. A 2.4-inch illuminated screen, included 32GB card, and included Anker 2-port USB car charger support straightforward everyday setup and operation."
+        }
+      }
+    },
+    "08": {
+      "reference_tag": "",
+      "technical_specifications": {
+        "Brand": "ROAV by ANKER",
+        "Product Name": "DASHCAM C1",
+        "Model": "R2110",
+        "Color": "Black",
+        "Attributes": {
+          "Product Category": "Dash Camera",
+          "Chipset": "Novatek NT96658",
+          "Wi-Fi": "Built-in",
+          "Sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
+          "Motion Sensor": "G-Sensor",
+          "Video Resolution": "1080P",
+          "Frame Rate": "30FPS",
+          "Video Dimensions": "1920×1080",
+          "Night Vision": "WDR Superior Night Vision",
+          "Operating Temperature Range": "14°F to 149°F",
+          "Screen Size": "2.4\"",
+          "Screen Type": "Illuminated",
+          "Lens Aperture": "F1.8",
+          "Lens Elements": "6 high-quality glass elements",
+          "Viewing Angle": "145°",
+          "Battery": "470mAh Li-polymer battery",
+          "App Availability": "App Store or Google Play",
+          "Lane Coverage": "Up to 4 lanes of traffic",
+          "Collision Recording Trigger": "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+          "App Functions": "Review, download, and share videos via the Roav app",
+          "Included Memory Card Capacity": "32GB",
+          "Product Type": "Dash camera",
+          "Dominant Color": "Black",
+          "Materials": "Matte and glossy plastic, glass lens cover",
+          "Shape Description": "Compact angular body with a rectangular main housing, rounded side arm/end caps, protruding lens barrel, and a top-mounted bracket",
+          "Proportions": "Taller than deep on the display-facing view; compact and block-like with a short projecting lens on the lens-facing view",
+          "Relative Dimensions": "Screen occupies much of one face; lens is smaller than the body and protrudes from the lower front; top bracket is broad and flat relative to the main housing"
+        }
+      },
+      "package_contents": [
+        "DashCam C1",
+        "Anker 2-Port USB car charger",
+        "Micro-USB charging cable",
+        "32GB card",
+        "Owner's Manual"
+      ]
+    },
+    "09": {
+      "reference_tag": "",
+      "customer_faq": [
+        {
+          "question": "What does this dash camera record?",
+          "answer": "It records front-road video in 1080P at 30FPS with a 1920×1080 resolution."
+        },
+        {
+          "question": "Can I view or download videos without removing the camera?",
+          "answer": "Yes. The dash camera has built-in Wi-Fi and works with the Roav app, which lets you review, download, and share videos."
+        },
+        {
+          "question": "How wide is the camera’s field of view?",
+          "answer": "It has a 145° wide-angle view, which is described as recording up to 4 lanes of traffic."
+        },
+        {
+          "question": "Does it automatically save footage during a sudden stop or collision?",
+          "answer": "Yes. It includes a G-Sensor (gravity sensor) that monitors sudden stops or collisions and starts recording when impact events occur."
+        },
+        {
+          "question": "What comes in the box?",
+          "answer": "The package includes the DashCam C1, an Anker 2-Port USB car charger, a Micro-USB charging cable, a 32GB card, and the Owner’s Manual."
+        }
+      ]
+    },
+    "10": {
+      "reference_tag": "",
+      "social_media_posts": [
+        {
+          "post_number": 1,
+          "caption_title": "Missed the moment that matters?",
+          "caption_text": "When a sudden stop happens, details matter. DASHCAM C1 uses a built-in G-Sensor to start recording during sudden stops or collisions, helping you keep important driving footage when you need it most.",
+          "tags": [
+            "dash camera",
+            "g-sensor recording",
+            "incident footage",
+            "car safety",
+            "front-road recording"
+          ],
+          "hashtags": [
+            "#DashCam",
+            "#CarCamera",
+            "#GSensor",
+            "#DrivingFootage",
+            "#RoadSafety",
+            "#DashcamC1",
+            "#RoavByAnker",
+            "#IncidentRecording"
+          ]
+        },
+        {
+          "post_number": 2,
+          "caption_title": "Low-light driving can make footage harder to trust",
+          "caption_text": "Night driving is challenging enough without unclear video. DASHCAM C1 combines a SONY Exmor IMX323 sensor, WDR Superior Night Vision, and an F1.8 lens to support clearer recording in darker conditions.",
+          "tags": [
+            "night vision dash cam",
+            "sony sensor",
+            "1080p recording",
+            "low light driving",
+            "wide angle lens"
+          ],
+          "hashtags": [
+            "#NightVision",
+            "#DashCamera",
+            "#SonyExmor",
+            "#1080P",
+            "#CarTech",
+            "#LowLightDriving",
+            "#RoadRecording",
+            "#WiFiDashCam"
+          ]
+        },
+        {
+          "post_number": 3,
+          "caption_title": "Want quick access to your videos without extra hassle?",
+          "caption_text": "For commuting, road trips, and daily driving, DASHCAM C1 records in 1080P with a 145° wide-angle view and built-in Wi-Fi. Use the Roav app to review, download, and share footage more easily.",
+          "tags": [
+            "wifi dash camera",
+            "roav app",
+            "daily driving",
+            "road trip essentials",
+            "wide angle recording"
+          ],
+          "hashtags": [
+            "#WiFiDashCam",
+            "#RoavApp",
+            "#DailyDriving",
+            "#RoadTripReady",
+            "#1080PDashCam",
+            "#WideAngleView",
+            "#CarRecorder",
+            "#DriveWithConfidence"
+          ]
+        }
+      ]
+    },
+    "11": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 1,
+        "image_type": "Hero Product Image",
+        "buyer_question": "What is this product?",
+        "layout_description": "Centered vertical hero composition on a pure white background. Show the ROAV by ANKER DASHCAM C1 dash camera as the dominant subject, fully visible, in a realistic elevated three-quarter product angle that clearly presents the main body, screen side, lens structure, top mounting bracket, bottom mounting joint, and front control buttons. Arrange included accessories neatly around or just below the product without clutter: Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual. Maintain approximately 85% frame fill with the product as the primary focus and accessories secondary.",
+        "headline_text": "N/A",
+        "supporting_text": "N/A",
+        "visual_design_direction": "Professional Amazon main image with strict marketplace compliance. Pure white RGB 255,255,255 background, no text or graphics, realistic studio product photography, soft professional lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, accurate black matte and glossy plastic materials with glass lens cover, clean vertical 9:16 composition, product centered and dominant, entire product fully visible, accessories included only if shown cleanly and proportionally.",
+        "image_generation_prompt": "Create a realistic Amazon hero product image for a black ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas with a pure white RGB 255,255,255 background. Show the actual product only with included accessories: DashCam C1, Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual. The dash camera must be centered and dominant, filling about 85% of the frame, with the entire product fully visible. Use an elevated three-quarter product shot that accurately represents the compact angular body, rectangular main housing, rounded side arm/end caps, protruding lens barrel, top-mounted bracket, bottom mounting joint, display screen, front control buttons, side circular panel/button, and subtle brand/logo marking. Materials should appear realistic: black matte and glossy plastic with a glass lens cover. Use soft studio lighting with minimal diffuse shadows and controlled reflections, keeping the product crisp and professional. Arrange accessories neatly and proportionally around or below the camera without distracting from the main unit. No text, no icons, no badges, no graphics, no props, no packaging, no environmental background. Maintain a clean, high-end ecommerce product-photography look with accurate scale, realistic geometry, and faithful product appearance."
+      }
+    },
+    "13": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 2,
+        "image_type": "Core Benefit Image",
+        "buyer_question": "Why do I need this product?",
+        "layout_description": "Vertical feature-benefit composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in an elevated three-quarter angle, with the lens-facing side as the primary hero view and a smaller secondary inset or alternate angle that reveals the screen side for accurate product context. Surround the product with three clean infographic callouts that explain the main user benefits: clear 1080P front-road recording, stronger low-light visibility, and automatic incident capture. Use simple supporting icons or visual markers only for these real features, without clutter. Keep the product dominant in the center-upper portion of the frame, with benefit panels or callout zones arranged neatly around it and enough negative space for readability. Do not include any accessories that are not necessary to explain the benefit message.",
+        "headline_text": "Drive With Clear Evidence When It Matters",
+        "supporting_text": "1080P recording, enhanced night visibility, and automatic G-Sensor incident capture help document the road ahead with easier app-connected access.",
+        "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain strict visual consistency with the established product render: soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and standard product rendering perspective with minimal wide-angle distortion. Use a clean vertical 9:16 layout with crisp typography, restrained iconography, and high contrast text blocks that support readability without overpowering the product. Keep color usage neutral and modern, with subtle accent tones that complement the black product body. Ensure the dash camera remains accurately scaled and faithfully represented, with no exaggerated features, no lifestyle scene, and no non-included accessories or misleading visuals.",
+        "image_generation_prompt": "Create an Amazon secondary feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain the same visual style as the established product renders: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the screen side so the product is accurately represented. Design the image to answer the buyer question, 'Why do I need this product?' Include professional text overlays and infographic callouts for three real core benefits only: 1) clear 1080P front-road recording, 2) enhanced low-light visibility using the SONY Exmor IMX323 sensor with WDR Superior Night Vision, and 3) automatic incident capture using the built-in G-Sensor during sudden stops or collisions. Include a concise headline reading 'Drive With Clear Evidence When It Matters' and supporting text reading '1080P recording, enhanced night visibility, and automatic G-Sensor incident capture help document the road ahead with easier app-connected access.' Use clean icons or visual markers to support each benefit, but keep the product as the dominant focal point. No fake features, no environmental driving scene, no packaging, no extra accessories beyond the product itself unless essential for accurate representation, and no clutter. Make the overall composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+      }
+    },
+    "15": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 3,
+        "image_type": "Problem Solution Image",
+        "buyer_question": "What problem does this product solve?",
+        "layout_description": "Vertical problem-solution infographic composition on a clean light gray studio background. Place the ROAV by ANKER DASHCAM C1 large and clearly visible in the center-right or upper-center of the frame in a realistic elevated three-quarter angle, showing the lens-facing side as the main hero view and a smaller secondary inset showing the screen side for accurate product context. On the left or lower portion, organize three concise problem-to-solution callout panels with simple icons and short explanatory text: missed incident details, poor night visibility, and limited road coverage. Connect each problem panel to the corresponding real product feature: automatic G-Sensor recording during sudden stops or collisions, SONY Exmor IMX323 sensor with WDR Superior Night Vision and F1.8 lens, and 145° wide-angle recording up to 4 lanes. Keep the product dominant and the messaging clean, with enough negative space for readability and no unnecessary accessories.",
+        "headline_text": "Capture Critical Driving Moments More Reliably",
+        "supporting_text": "Helps solve missed incident footage, unclear low-light recording, and narrow road coverage with automatic impact recording, enhanced night visibility, and a 145° wide-angle view.",
+        "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain visual consistency with the established product renders using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks. Keep the color palette neutral and modern so the black product remains the focal point. Ensure all graphics represent only real features documented in the workflow state. Do not depict non-included accessories, fake UI, lifestyle scenes, or exaggerated performance claims.",
+        "image_generation_prompt": "Create an Amazon secondary problem-solution feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain the same visual style as the established product renders: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the screen side for accurate representation. Design the image to answer the buyer question, 'What problem does this product solve?' Use a polished infographic layout with three problem-to-solution callouts: 1) missed incident details solved by the built-in G-Sensor that starts recording during sudden stops or collisions, 2) unclear low-light footage solved by the SONY Exmor IMX323 sensor, WDR Superior Night Vision, and F1.8 lens, and 3) narrow road visibility solved by the 145-degree wide-angle view that records up to 4 lanes of traffic. Include a headline reading 'Capture Critical Driving Moments More Reliably' and supporting text reading 'Helps solve missed incident footage, unclear low-light recording, and narrow road coverage with automatic impact recording, enhanced night visibility, and a 145° wide-angle view.' Use clean icons or visual markers for each problem-solution pair, keep the product as the dominant focal point, and ensure all messaging reflects only real documented features. No fake features, no environmental driving scene, no packaging, no extra accessories, and no clutter. Make the composition conversion-focused, readable, and consistent with premium Amazon listing graphics."
+      }
+    },
+    "17": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 4,
+        "image_type": "Lifestyle Use Image",
+        "buyer_question": "When would I use this product?",
+        "layout_description": "Vertical real-world use composition showing the ROAV by ANKER DASHCAM C1 installed inside a vehicle during everyday driving use. Place the dash camera clearly visible near the upper windshield area with the top mounting bracket attached, shown in a realistic three-quarter angle that keeps the product recognizable while also revealing the road-use context. Show a clean interior driving scene that suggests common use moments such as commuting, road trips, city driving, highway driving, or routine daily travel, with the road ahead visible through the windshield. Include subtle infographic callouts or clean text zones that connect the usage moments to real product functions such as front-road recording, app-connected video access, wide-angle road coverage, and low-light support. Keep the product prominent and accurately scaled, with enough negative space for readable messaging and no non-included accessories beyond the product and included in-box items if shown.",
+        "headline_text": "Built for Everyday Driving Moments",
+        "supporting_text": "Use it for commuting, road trips, daily driving, and low-light travel to capture the road ahead with 1080P recording, wide-angle coverage, and app-connected video access.",
+        "visual_design_direction": "Professional Amazon secondary lifestyle image with premium ecommerce infographic styling. Maintain visual consistency with the established product render using soft studio-influenced lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that do not overpower the product. The vehicle interior and road scene should feel realistic and polished, not cinematic or exaggerated. Keep color usage neutral and modern so the black dash camera remains the focal point. Ensure the product is clearly visible, accurately represented, and shown only with real documented features. Do not depict fake UI, non-included accessories, misleading performance claims, or unrelated props.",
+        "image_generation_prompt": "Create an Amazon secondary lifestyle use image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'When would I use this product?' Show the black dash camera realistically installed near the upper windshield inside a car, with the top mounting bracket attached and the product clearly visible in an accurate three-quarter angle. Maintain faithful product geometry: compact angular body, rectangular main housing, rounded side arm or end caps, protruding lens barrel, display side, front control buttons, bottom mounting joint, and subtle brand marking. Use a polished real-world driving context that suggests typical use cases such as commuting, road trips, daily driving, highway driving, city driving, or low-light travel, with a realistic road view visible through the windshield. Keep the dash camera as the dominant focal product while showing enough of the car interior to establish real-world use. Include professional text overlays and clean infographic callouts tied only to real product features: 1080P front-road recording, 145-degree wide-angle coverage up to 4 lanes, built-in Wi-Fi with Roav app support for reviewing, downloading, and sharing videos, and enhanced low-light support from the SONY Exmor IMX323 sensor with WDR Superior Night Vision. Include a concise headline reading 'Built for Everyday Driving Moments' and supporting text reading 'Use it for commuting, road trips, daily driving, and low-light travel to capture the road ahead with 1080P recording, wide-angle coverage, and app-connected video access.' Maintain consistent styling with prior product images using soft controlled lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate scale, and minimal lens distortion. No fake features, no packaging, no extra accessories not included, no clutter, and no exaggerated lifestyle drama. Make the overall composition premium, realistic, readable, and conversion-focused."
+      }
+    },
+    "19": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 5,
+        "image_type": "Technology Feature Image",
+        "buyer_question": "What technology makes it better?",
+        "layout_description": "Vertical technology-focused infographic composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens-facing side, with a smaller secondary inset or alternate angle showing the display side for accurate product context. Keep the product dominant in the center-upper or center-right portion of the frame. Arrange four clean technology callout zones around the product with simple icons and concise explanatory text for real documented technologies: built-in Wi-Fi with Roav app support, SONY Exmor IMX323 sensor, WDR Superior Night Vision with F1.8 lens and 6 glass elements, and built-in G-Sensor collision detection. Maintain enough negative space for readable messaging and keep the product accurately scaled and fully recognizable.",
+        "headline_text": "Technology That Supports Smarter Recording",
+        "supporting_text": "Built-in Wi-Fi, SONY Exmor IMX323 imaging, WDR night visibility, and G-Sensor incident detection work together to improve recording clarity, access, and response on the road.",
+        "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain visual consistency with the established product render using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that support readability without overpowering the product. Keep the palette neutral and modern so the black dash camera remains the focal point. Ensure all graphics reflect only real features documented in the workflow state. Do not depict fake UI, non-included accessories, lifestyle scenes, or exaggerated performance claims.",
+        "image_generation_prompt": "Create an Amazon secondary technology feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'What technology makes it better?' Use a clean light gray studio-style background and maintain the same established render style: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the display side for accurate representation. Include professional text overlays and infographic callouts for four real technology features only: 1) built-in Wi-Fi with Roav app support for reviewing, downloading, and sharing videos, 2) SONY Exmor IMX323 sensor for image capture, 3) WDR Superior Night Vision supported by an F1.8 lens with 6 high-quality glass elements for stronger low-light visibility, and 4) built-in G-Sensor that starts recording during sudden stops or collisions. Include a concise headline reading 'Technology That Supports Smarter Recording' and supporting text reading 'Built-in Wi-Fi, SONY Exmor IMX323 imaging, WDR night visibility, and G-Sensor incident detection work together to improve recording clarity, access, and response on the road.' Use clean icons or visual markers for each technology, keep the product as the dominant focal point, and ensure all messaging reflects only real documented features. No fake features, no packaging, no extra accessories, no environmental driving scene, and no clutter. Make the composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+      }
+    },
+    "21": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 6,
+        "image_type": "Ease of Use / Installation Image",
+        "buyer_question": "How easy is it to install or use?",
+        "layout_description": "Vertical installation and ease-of-use infographic composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, with the product mounted near the upper windshield area using its top mounting bracket so the installation position is immediately understandable. Include a smaller secondary inset showing the screen side for accurate product context and on-device usability. Arrange three clean step-by-step callout panels around the product with simple icons and short text to communicate straightforward setup and use: mount the dash camera near the windshield, connect power using the included Micro-USB charging cable and Anker 2-Port USB car charger, and connect to built-in Wi-Fi to review, download, and share videos in the Roav app. Keep the product dominant, the included accessories limited to the charger and cable only, and maintain enough negative space for clear readability.",
+        "headline_text": "Simple Setup for Everyday Driving",
+        "supporting_text": "Mount it, connect the included charger, and use built-in Wi-Fi with the Roav app to review, download, and share footage with less hassle.",
+        "visual_design_direction": "Professional Amazon secondary infographic image with premium ecommerce styling. Maintain visual consistency with the established product render using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and a standard product rendering perspective with minimal wide-angle distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that support readability without overpowering the product. Keep the palette neutral and modern so the black dash camera remains the focal point. Ensure all graphics reflect only documented features and included items: top mounting bracket, built-in Wi-Fi, Roav app support, Micro-USB charging cable, and Anker 2-Port USB car charger. Do not depict fake UI, extra accessories, packaging, or misleading installation hardware.",
+        "image_generation_prompt": "Create an Amazon secondary ease-of-use and installation image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'How easy is it to install or use?' Use a clean light gray studio-style background and maintain the same established render style: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the black dash camera large and clearly visible, realistically mounted near the upper windshield area with the top mounting bracket attached, in a recognizable three-quarter angle. Include a smaller secondary inset or alternate angle showing the screen side for accurate representation. Add clean professional text overlays and step-by-step infographic callouts for three real setup and use actions only: 1) mount the dash camera near the windshield using the integrated top mounting bracket, 2) connect power using the included Micro-USB charging cable and included Anker 2-Port USB car charger, and 3) connect to the dash camera’s built-in Wi-Fi and use the Roav app to review, download, and share videos. Include a concise headline reading 'Simple Setup for Everyday Driving' and supporting text reading 'Mount it, connect the included charger, and use built-in Wi-Fi with the Roav app to review, download, and share footage with less hassle.' Use simple icons or visual markers for each step, keep the product as the dominant focal point, and show only included accessories relevant to setup. No fake features, no packaging, no extra accessories, no exaggerated installation hardware, no clutter, and no misleading app interface. Make the composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+      }
+    },
+    "23": {
+      "reference_tag": "",
+      "image_strategy": {
+        "image_number": 7,
+        "image_type": "Specifications Infographic",
+        "buyer_question": "What specifications matter?",
+        "layout_description": "Vertical specifications infographic on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, using the lens-facing side as the primary hero view with a smaller secondary inset showing the display side for accurate context. Place the product in the upper-center or center-right of the frame. Arrange six clean specification callout panels around the product with simple icons and short labels for real documented details: 1080P 30FPS video, SONY Exmor IMX323 sensor, 145° viewing angle, WDR Superior Night Vision, built-in Wi-Fi with app support, and 2.4-inch illuminated screen. Keep the product dominant, accurately scaled, and fully recognizable with enough negative space for readability.",
+        "headline_text": "Key Specs for Smarter Road Recording",
+        "supporting_text": "1080P 30FPS video, SONY Exmor IMX323 imaging, 145° coverage, WDR night visibility, built-in Wi-Fi, and a 2.4-inch screen support clear everyday front-road recording.",
+        "visual_design_direction": "Professional Amazon secondary infographic image with premium ecommerce styling. Maintain consistent soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, neutral modern colors, and high-contrast text blocks. Show only real documented features and no non-included accessories.",
+        "image_generation_prompt": "Create an Amazon secondary specifications infographic for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain consistent soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset showing the display side for accurate representation. Design the image to answer the buyer question, 'What specifications matter?' Include professional text overlays and clean infographic callouts for these real specifications only: 1080P 30FPS video recording at 1920×1080, SONY Exmor IMX323 sensor, 145-degree viewing angle, WDR Superior Night Vision, built-in Wi-Fi with Roav app support, and 2.4-inch illuminated screen. Include the headline 'Key Specs for Smarter Road Recording' and supporting text '1080P 30FPS video, SONY Exmor IMX323 imaging, 145° coverage, WDR night visibility, built-in Wi-Fi, and a 2.4-inch screen support clear everyday front-road recording.' Keep the product as the dominant focal point. No fake features, no packaging, no extra accessories, no environmental driving scene, and no clutter."
+      }
     }
   },
   "input_fingerprint": {
@@ -88,7 +479,7 @@
   },
   "prompt_01A": {
     "reference_tag": "",
-    "product_category": "Dash Cam",
+    "product_category": "Dash Camera",
     "product_profile": {
       "brand": "ROAV by ANKER",
       "product_name": "DASHCAM C1",
@@ -97,36 +488,39 @@
     },
     "core_features": [
       "Built-In Wi-Fi With App Support",
-      "ANKER 2-Port USB Car Charger",
-      "Exmor IMX 323 Advanced SONY Sensor",
+      "ANKER 2-Port USB Car Charger included",
+      "Exmor IMX323 Advanced SONY Sensor",
       "FHD 1080P Crystal-Clear Definition",
-      "SD Free 32GB Card",
-      "SONY Exmor IMX323 sensor has Nighthawk Vision™ to clearly capture speeding license plates — especially at night.",
-      "145° wide-angle view simultaneously records up to 4 lanes of traffic.",
-      "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur.",
-      "Connect to DashCam's Wi-Fi to seamlessly review, download, and share videos via the Roav app."
+      "SD Free 32GB Card included",
+      "Nighthawk Vision to capture license plates at night",
+      "145° wide-angle view records up to 4 lanes of traffic",
+      "Gravity sensor starts recording during sudden stops or collisions",
+      "Roav app support for reviewing, downloading, and sharing videos"
     ],
     "attributes": {
       "chipset": "Novatek NT96658",
       "wifi": "Built-in",
       "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
       "motion_sensor": "G-Sensor",
-      "video_resolution": "1080P 30FPS (1920×1080)",
+      "video_resolution": "1080P",
+      "frame_rate": "30FPS",
+      "video_dimensions": "1920×1080",
       "night_vision": "WDR Superior Night Vision",
-      "operating_temperature": "14°F to 149°F",
+      "operating_temperature_range": "14°F to 149°F",
       "screen_size": "2.4\"",
-      "lens": "F1.8 with 6 high-quality glass elements and 145° viewing angle",
-      "battery": "470mAh Li-polymer battery capable of operating in high and low temperatures",
-      "app_support": "Roav Dashcam app",
-      "app_availability": "App Store or Google Play",
+      "screen_type": "Illuminated",
+      "lens_aperture": "F1.8",
+      "lens_elements": "6 high-quality glass elements",
       "viewing_angle": "145°",
-      "lane_coverage": "Up to 4 lanes of traffic"
+      "battery": "470mAh Li-polymer battery",
+      "app_availability": "App Store or Google Play"
     },
     "additional_attributes": {
-      "recording_trigger": "Sudden stops or collisions",
-      "collision_monitoring": "Gravity sensor monitors and instantly starts recording",
-      "video_sharing": "Review, download, and share videos via the Roav app",
-      "included_memory_card_capacity": "32GB"
+      "lane_coverage": "Up to 4 lanes of traffic",
+      "collision_recording_trigger": "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+      "app_functions": "Review, download, and share videos via the Roav app",
+      "included_memory_card_capacity": "32GB",
+      "image_sources_reviewed": "Unconfirmed"
     },
     "package_contents": [
       "DashCam C1",
@@ -135,13 +529,13 @@
       "32GB card",
       "Owner's Manual"
     ],
-    "product_summary": "ROAV by ANKER DASHCAM C1 (Model R2110) in Black is a dash cam with built-in Wi-Fi and app support, featuring a SONY Exmor IMX323 sensor, Novatek NT96658 chipset, FHD 1080P recording at 30FPS, WDR superior night vision, a 145° wide-angle view, G-sensor collision detection, a 2.4\" illuminated screen, and a 470mAh Li-polymer battery. Package contents include the DashCam C1, Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual."
+    "product_summary": "ROAV by ANKER DASHCAM C1 (Model R2110) is a black dash camera with built-in Wi-Fi, app support, SONY Exmor IMX323 sensor, 1080P 30FPS recording, WDR Superior Night Vision, 145° viewing angle, G-Sensor collision recording, 2.4\" illuminated screen, and a 470mAh Li-polymer battery. Package includes a 32GB card, Anker 2-Port USB car charger, Micro-USB charging cable, and Owner's Manual."
   },
-  "last_completed_step": "01A",
-  "updated_at": "2026-04-23T00:01:38Z",
+  "last_completed_step": "23",
+  "updated_at": "2026-04-23T01:53:42Z",
   "dataset": {
     "reference_tag": "",
-    "product_category": "Dash Cam",
+    "product_category": "Dash Camera",
     "product_profile": {
       "brand": "ROAV by ANKER",
       "product_name": "DASHCAM C1",
@@ -150,36 +544,39 @@
     },
     "core_features": [
       "Built-In Wi-Fi With App Support",
-      "ANKER 2-Port USB Car Charger",
-      "Exmor IMX 323 Advanced SONY Sensor",
+      "ANKER 2-Port USB Car Charger included",
+      "Exmor IMX323 Advanced SONY Sensor",
       "FHD 1080P Crystal-Clear Definition",
-      "SD Free 32GB Card",
-      "SONY Exmor IMX323 sensor has Nighthawk Vision™ to clearly capture speeding license plates — especially at night.",
-      "145° wide-angle view simultaneously records up to 4 lanes of traffic.",
-      "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur.",
-      "Connect to DashCam's Wi-Fi to seamlessly review, download, and share videos via the Roav app."
+      "SD Free 32GB Card included",
+      "Nighthawk Vision to capture license plates at night",
+      "145° wide-angle view records up to 4 lanes of traffic",
+      "Gravity sensor starts recording during sudden stops or collisions",
+      "Roav app support for reviewing, downloading, and sharing videos"
     ],
     "attributes": {
       "chipset": "Novatek NT96658",
       "wifi": "Built-in",
       "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
       "motion_sensor": "G-Sensor",
-      "video_resolution": "1080P 30FPS (1920×1080)",
+      "video_resolution": "1080P",
+      "frame_rate": "30FPS",
+      "video_dimensions": "1920×1080",
       "night_vision": "WDR Superior Night Vision",
-      "operating_temperature": "14°F to 149°F",
+      "operating_temperature_range": "14°F to 149°F",
       "screen_size": "2.4\"",
-      "lens": "F1.8 with 6 high-quality glass elements and 145° viewing angle",
-      "battery": "470mAh Li-polymer battery capable of operating in high and low temperatures",
-      "app_support": "Roav Dashcam app",
-      "app_availability": "App Store or Google Play",
+      "screen_type": "Illuminated",
+      "lens_aperture": "F1.8",
+      "lens_elements": "6 high-quality glass elements",
       "viewing_angle": "145°",
-      "lane_coverage": "Up to 4 lanes of traffic"
+      "battery": "470mAh Li-polymer battery",
+      "app_availability": "App Store or Google Play"
     },
     "additional_attributes": {
-      "recording_trigger": "Sudden stops or collisions",
-      "collision_monitoring": "Gravity sensor monitors and instantly starts recording",
-      "video_sharing": "Review, download, and share videos via the Roav app",
-      "included_memory_card_capacity": "32GB"
+      "lane_coverage": "Up to 4 lanes of traffic",
+      "collision_recording_trigger": "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+      "app_functions": "Review, download, and share videos via the Roav app",
+      "included_memory_card_capacity": "32GB",
+      "image_sources_reviewed": "Unconfirmed"
     },
     "package_contents": [
       "DashCam C1",
@@ -188,6 +585,517 @@
       "32GB card",
       "Owner's Manual"
     ],
-    "product_summary": "ROAV by ANKER DASHCAM C1 (Model R2110) in Black is a dash cam with built-in Wi-Fi and app support, featuring a SONY Exmor IMX323 sensor, Novatek NT96658 chipset, FHD 1080P recording at 30FPS, WDR superior night vision, a 145° wide-angle view, G-sensor collision detection, a 2.4\" illuminated screen, and a 470mAh Li-polymer battery. Package contents include the DashCam C1, Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual."
+    "product_summary": "ROAV by ANKER DASHCAM C1 (Model R2110) is a black dash camera with built-in Wi-Fi, app support, SONY Exmor IMX323 sensor, 1080P 30FPS recording, WDR Superior Night Vision, 145° viewing angle, G-Sensor collision recording, 2.4\" illuminated screen, and a 470mAh Li-polymer battery. Package includes a 32GB card, Anker 2-Port USB car charger, Micro-USB charging cable, and Owner's Manual."
+  },
+  "prompt_01B": {
+    "image_views": {
+      "front_3q_left": "Image showing the display side of the dash camera at a three-quarter angle, with the screen facing forward and the left side panel visible.",
+      "front_3q_right": "Image showing the lens side of the dash camera at a three-quarter angle, with the camera lens facing forward and the right side panel visible.",
+      "rear_3q": "",
+      "left_side": "",
+      "right_side": "",
+      "top_view": "",
+      "bottom_view": "",
+      "detail_closeup": "",
+      "accessories_layout": ""
+    },
+    "visual_identity": {
+      "product_type": "Dash camera",
+      "dominant_color": "Black",
+      "materials": "Matte and glossy plastic, glass lens cover",
+      "primary_components": [
+        "Display screen",
+        "Camera lens",
+        "Top mounting bracket",
+        "Side circular panel/button",
+        "Bottom mounting joint",
+        "Front control buttons",
+        "Brand/logo marking"
+      ]
+    },
+    "object_layout_map": {
+      "component_positions": {
+        "display_screen": "Centered on the display-facing side, occupying the upper-middle front surface.",
+        "camera_lens": "Centered near the lower front of the lens-facing side, protruding outward.",
+        "top_mounting_bracket": "Mounted on the top center of the main body.",
+        "side_circular_panel_button": "Located on the side arm/end cap area of the body.",
+        "bottom_mounting_joint": "Positioned beneath the main body.",
+        "front_control_buttons": "Aligned horizontally below the display screen.",
+        "logo_marking": "Placed above the display on the display-facing side; feature labels appear near the lens on the lens-facing side."
+      }
+    },
+    "lighting_profile": {
+      "lighting_type": "Soft studio lighting",
+      "shadow_behavior": "Minimal, diffuse shadows beneath and around the product",
+      "reflection_style": "Controlled reflections with mild highlights on curved glossy edges and lens surfaces"
+    },
+    "camera_profile": {
+      "camera_angle": "Elevated three-quarter product shot",
+      "orientation": "Portrait-oriented product render on a light gray background",
+      "lens_style": "Standard product rendering perspective with minimal wide-angle distortion"
+    },
+    "product_geometry": {
+      "shape_description": "Compact angular body with a rectangular main housing, rounded side arm/end caps, protruding lens barrel, and a top-mounted bracket",
+      "proportions": "Taller than deep on the display-facing view; compact and block-like with a short projecting lens on the lens-facing view",
+      "relative_dimensions": "Screen occupies much of one face; lens is smaller than the body and protrudes from the lower front; top bracket is broad and flat relative to the main housing"
+    }
+  },
+  "visual_grounding": {
+    "image_views": {
+      "front_3q_left": "Image showing the display side of the dash camera at a three-quarter angle, with the screen facing forward and the left side panel visible.",
+      "front_3q_right": "Image showing the lens side of the dash camera at a three-quarter angle, with the camera lens facing forward and the right side panel visible.",
+      "rear_3q": "",
+      "left_side": "",
+      "right_side": "",
+      "top_view": "",
+      "bottom_view": "",
+      "detail_closeup": "",
+      "accessories_layout": ""
+    },
+    "visual_identity": {
+      "product_type": "Dash camera",
+      "dominant_color": "Black",
+      "materials": "Matte and glossy plastic, glass lens cover",
+      "primary_components": [
+        "Display screen",
+        "Camera lens",
+        "Top mounting bracket",
+        "Side circular panel/button",
+        "Bottom mounting joint",
+        "Front control buttons",
+        "Brand/logo marking"
+      ]
+    },
+    "object_layout_map": {
+      "component_positions": {
+        "display_screen": "Centered on the display-facing side, occupying the upper-middle front surface.",
+        "camera_lens": "Centered near the lower front of the lens-facing side, protruding outward.",
+        "top_mounting_bracket": "Mounted on the top center of the main body.",
+        "side_circular_panel_button": "Located on the side arm/end cap area of the body.",
+        "bottom_mounting_joint": "Positioned beneath the main body.",
+        "front_control_buttons": "Aligned horizontally below the display screen.",
+        "logo_marking": "Placed above the display on the display-facing side; feature labels appear near the lens on the lens-facing side."
+      }
+    },
+    "lighting_profile": {
+      "lighting_type": "Soft studio lighting",
+      "shadow_behavior": "Minimal, diffuse shadows beneath and around the product",
+      "reflection_style": "Controlled reflections with mild highlights on curved glossy edges and lens surfaces"
+    },
+    "camera_profile": {
+      "camera_angle": "Elevated three-quarter product shot",
+      "orientation": "Portrait-oriented product render on a light gray background",
+      "lens_style": "Standard product rendering perspective with minimal wide-angle distortion"
+    },
+    "product_geometry": {
+      "shape_description": "Compact angular body with a rectangular main housing, rounded side arm/end caps, protruding lens barrel, and a top-mounted bracket",
+      "proportions": "Taller than deep on the display-facing view; compact and block-like with a short projecting lens on the lens-facing view",
+      "relative_dimensions": "Screen occupies much of one face; lens is smaller than the body and protrudes from the lower front; top bracket is broad and flat relative to the main housing"
+    }
+  },
+  "amazon_product_title": {
+    "reference_tag": "",
+    "amazon_product_title": "ROAV by ANKER Dash Camera DASHCAM C1 R2110 Black 1080P WiFi Sony Exmor IMX323 G Sensor 145 Degree Wide Angle WDR Night Vision with 32GB Card and USB Car Charger"
+  },
+  "amazon_bullet_points": {
+    "reference_tag": "",
+    "amazon_bullet_points": [
+      "CLEAR 1080P RECORDING — Captures full HD 1920×1080 video at 30FPS for detailed everyday driving footage.",
+      "ENHANCED NIGHT VISIBILITY — SONY Exmor IMX323 sensor with WDR Superior Night Vision helps record clearer footage and license plates in low light.",
+      "WIDE ROAD COVERAGE — 145° wide-angle lens records up to 4 lanes of traffic to capture more of the road ahead.",
+      "AUTOMATIC INCIDENT CAPTURE — Built-in G-Sensor detects sudden stops or collisions and starts recording when impact events occur.",
+      "EASY VIDEO ACCESS — Built-in Wi-Fi connects to the Roav app for reviewing, downloading, and sharing footage from your dash cam."
+    ]
+  },
+  "amazon_product_description": {
+    "reference_tag": "",
+    "amazon_product_description": "ROAV by ANKER DASHCAM C1 (Model R2110) is a compact black dash camera designed for drivers who want dependable front-road recording with convenient access to their footage. It records in full HD 1080P at 30FPS, helping capture clear everyday driving video for commuting, road trips, and routine parking situations. The 145° wide-angle lens covers up to 4 lanes of traffic, giving you a broader view of the road ahead.\n\nFor low-light driving, the SONY Exmor IMX323 sensor works with WDR Superior Night Vision and an F1.8 lens with 6 high-quality glass elements to improve visibility in darker conditions. The built-in G-Sensor automatically starts recording when sudden stops or collisions occur, supporting incident documentation when it matters most.\n\nBuilt-in Wi-Fi lets you connect the dash camera to the Roav app so you can review, download, and share videos without removing the device. The 2.4\" illuminated screen also makes on-device viewing more accessible. With its compact housing, top-mounted bracket, and straightforward control layout, the DASHCAM C1 is suited for drivers looking for practical recording, app-based convenience, and consistent performance. The package includes the DashCam C1, 32GB card, Anker 2-Port USB car charger, Micro-USB charging cable, and Owner’s Manual."
+  },
+  "amazon_backend_search_terms": {
+    "reference_tag": "",
+    "amazon_backend_search_terms": "automobile vehicle dashboard dvr windshield recorder surveillance monitor accident evidence crash security onboard windscreen motorist"
+  },
+  "customer_search_intent_keywords": {
+    "reference_tag": "",
+    "customer_search_intent_keywords": {
+      "generic_searches": [
+        "dash camera",
+        "car dash camera",
+        "1080p dash camera",
+        "wifi dash camera",
+        "wide angle dash camera",
+        "front recording dash camera",
+        "car camera recorder",
+        "dashboard camera for car"
+      ],
+      "feature_searches": [
+        "1080p wifi dash camera",
+        "dash camera with app support",
+        "dash camera with sony sensor",
+        "dash camera with g sensor",
+        "dash camera with night vision",
+        "145 degree wide angle dash camera",
+        "dash camera with 32gb card",
+        "dash camera with usb car charger",
+        "dash camera with 2.4 inch screen",
+        "full hd dash cam 30fps"
+      ],
+      "problem_solution_searches": [
+        "dash camera for recording accidents",
+        "dash cam for collision recording",
+        "dash camera for capturing license plates at night",
+        "dash camera for low light driving",
+        "dash camera for incident evidence",
+        "dash cam with automatic recording on impact",
+        "car camera for safer driving records",
+        "dash camera for clear night footage"
+      ],
+      "use_case_searches": [
+        "dash camera for commuting",
+        "dash cam for road trips",
+        "dash camera for daily driving",
+        "dash camera for highway driving",
+        "dash camera for city driving",
+        "dash camera for parking situations",
+        "dash camera for rideshare drivers",
+        "dash camera for drivers wanting app video access"
+      ],
+      "long_tail_buyer_searches": [
+        "1080p dash camera with wifi and app",
+        "dash camera with sony exmor imx323 sensor",
+        "145 degree dash camera with night vision",
+        "dash camera with g sensor and 32gb card",
+        "full hd dash cam with wide angle lens",
+        "wifi dash camera with video download app",
+        "dash camera with usb car charger included",
+        "car dash camera with screen and night vision",
+        "dash cam for recording up to 4 lanes",
+        "black dash camera with built in wifi"
+      ]
+    }
+  },
+  "amazon_aplus_content": {
+    "reference_tag": "",
+    "amazon_aplus_content": {
+      "seller_or_brand_story": "ROAV by ANKER designs practical in-car technology focused on dependable performance, straightforward use, and thoughtful everyday functionality. With features that support clear recording, app-connected access, and reliable operation across changing driving conditions, the brand emphasizes useful design and product quality for daily drivers.",
+      "feature_section_1": {
+        "headline": "Clear Front-Road Recording",
+        "supporting_text": "Full HD 1080P recording at 30FPS helps capture detailed driving footage for commuting, road trips, and routine daily travel. The 145° wide-angle lens records up to 4 lanes of traffic, giving drivers a broader forward view."
+      },
+      "feature_section_2": {
+        "headline": "Stronger Visibility in Low Light",
+        "supporting_text": "The SONY Exmor IMX323 sensor works with WDR Superior Night Vision, an F1.8 lens, and 6 glass lens elements to improve clarity in darker conditions. This helps support more usable footage when driving at night or in low-light environments."
+      },
+      "feature_section_3": {
+        "headline": "Automatic Incident Detection",
+        "supporting_text": "A built-in G-Sensor monitors sudden stops and collisions, then starts recording when impact events occur. This added responsiveness helps preserve important footage when unexpected driving situations happen."
+      },
+      "feature_section_4": {
+        "headline": "Convenient Access and Daily Use",
+        "supporting_text": "Built-in Wi-Fi connects the dash camera to the Roav app for reviewing, downloading, and sharing videos without added complexity. A 2.4-inch illuminated screen, included 32GB card, and included Anker 2-port USB car charger support straightforward everyday setup and operation."
+      }
+    }
+  },
+  "technical_specifications": {
+    "reference_tag": "",
+    "technical_specifications": {
+      "Brand": "ROAV by ANKER",
+      "Product Name": "DASHCAM C1",
+      "Model": "R2110",
+      "Color": "Black",
+      "Attributes": {
+        "Product Category": "Dash Camera",
+        "Chipset": "Novatek NT96658",
+        "Wi-Fi": "Built-in",
+        "Sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)",
+        "Motion Sensor": "G-Sensor",
+        "Video Resolution": "1080P",
+        "Frame Rate": "30FPS",
+        "Video Dimensions": "1920×1080",
+        "Night Vision": "WDR Superior Night Vision",
+        "Operating Temperature Range": "14°F to 149°F",
+        "Screen Size": "2.4\"",
+        "Screen Type": "Illuminated",
+        "Lens Aperture": "F1.8",
+        "Lens Elements": "6 high-quality glass elements",
+        "Viewing Angle": "145°",
+        "Battery": "470mAh Li-polymer battery",
+        "App Availability": "App Store or Google Play",
+        "Lane Coverage": "Up to 4 lanes of traffic",
+        "Collision Recording Trigger": "Gravity sensor monitors and instantly starts recording when sudden stops or collisions occur",
+        "App Functions": "Review, download, and share videos via the Roav app",
+        "Included Memory Card Capacity": "32GB",
+        "Product Type": "Dash camera",
+        "Dominant Color": "Black",
+        "Materials": "Matte and glossy plastic, glass lens cover",
+        "Shape Description": "Compact angular body with a rectangular main housing, rounded side arm/end caps, protruding lens barrel, and a top-mounted bracket",
+        "Proportions": "Taller than deep on the display-facing view; compact and block-like with a short projecting lens on the lens-facing view",
+        "Relative Dimensions": "Screen occupies much of one face; lens is smaller than the body and protrudes from the lower front; top bracket is broad and flat relative to the main housing"
+      }
+    },
+    "package_contents": [
+      "DashCam C1",
+      "Anker 2-Port USB car charger",
+      "Micro-USB charging cable",
+      "32GB card",
+      "Owner's Manual"
+    ]
+  },
+  "customer_faq": {
+    "reference_tag": "",
+    "customer_faq": [
+      {
+        "question": "What does this dash camera record?",
+        "answer": "It records front-road video in 1080P at 30FPS with a 1920×1080 resolution."
+      },
+      {
+        "question": "Can I view or download videos without removing the camera?",
+        "answer": "Yes. The dash camera has built-in Wi-Fi and works with the Roav app, which lets you review, download, and share videos."
+      },
+      {
+        "question": "How wide is the camera’s field of view?",
+        "answer": "It has a 145° wide-angle view, which is described as recording up to 4 lanes of traffic."
+      },
+      {
+        "question": "Does it automatically save footage during a sudden stop or collision?",
+        "answer": "Yes. It includes a G-Sensor (gravity sensor) that monitors sudden stops or collisions and starts recording when impact events occur."
+      },
+      {
+        "question": "What comes in the box?",
+        "answer": "The package includes the DashCam C1, an Anker 2-Port USB car charger, a Micro-USB charging cable, a 32GB card, and the Owner’s Manual."
+      }
+    ]
+  },
+  "social_media_posts": {
+    "reference_tag": "",
+    "social_media_posts": [
+      {
+        "post_number": 1,
+        "caption_title": "Missed the moment that matters?",
+        "caption_text": "When a sudden stop happens, details matter. DASHCAM C1 uses a built-in G-Sensor to start recording during sudden stops or collisions, helping you keep important driving footage when you need it most.",
+        "tags": [
+          "dash camera",
+          "g-sensor recording",
+          "incident footage",
+          "car safety",
+          "front-road recording"
+        ],
+        "hashtags": [
+          "#DashCam",
+          "#CarCamera",
+          "#GSensor",
+          "#DrivingFootage",
+          "#RoadSafety",
+          "#DashcamC1",
+          "#RoavByAnker",
+          "#IncidentRecording"
+        ]
+      },
+      {
+        "post_number": 2,
+        "caption_title": "Low-light driving can make footage harder to trust",
+        "caption_text": "Night driving is challenging enough without unclear video. DASHCAM C1 combines a SONY Exmor IMX323 sensor, WDR Superior Night Vision, and an F1.8 lens to support clearer recording in darker conditions.",
+        "tags": [
+          "night vision dash cam",
+          "sony sensor",
+          "1080p recording",
+          "low light driving",
+          "wide angle lens"
+        ],
+        "hashtags": [
+          "#NightVision",
+          "#DashCamera",
+          "#SonyExmor",
+          "#1080P",
+          "#CarTech",
+          "#LowLightDriving",
+          "#RoadRecording",
+          "#WiFiDashCam"
+        ]
+      },
+      {
+        "post_number": 3,
+        "caption_title": "Want quick access to your videos without extra hassle?",
+        "caption_text": "For commuting, road trips, and daily driving, DASHCAM C1 records in 1080P with a 145° wide-angle view and built-in Wi-Fi. Use the Roav app to review, download, and share footage more easily.",
+        "tags": [
+          "wifi dash camera",
+          "roav app",
+          "daily driving",
+          "road trip essentials",
+          "wide angle recording"
+        ],
+        "hashtags": [
+          "#WiFiDashCam",
+          "#RoavApp",
+          "#DailyDriving",
+          "#RoadTripReady",
+          "#1080PDashCam",
+          "#WideAngleView",
+          "#CarRecorder",
+          "#DriveWithConfidence"
+        ]
+      }
+    ]
+  },
+  "image_strategy_1": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 1,
+      "image_type": "Hero Product Image",
+      "buyer_question": "What is this product?",
+      "layout_description": "Centered vertical hero composition on a pure white background. Show the ROAV by ANKER DASHCAM C1 dash camera as the dominant subject, fully visible, in a realistic elevated three-quarter product angle that clearly presents the main body, screen side, lens structure, top mounting bracket, bottom mounting joint, and front control buttons. Arrange included accessories neatly around or just below the product without clutter: Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual. Maintain approximately 85% frame fill with the product as the primary focus and accessories secondary.",
+      "headline_text": "N/A",
+      "supporting_text": "N/A",
+      "visual_design_direction": "Professional Amazon main image with strict marketplace compliance. Pure white RGB 255,255,255 background, no text or graphics, realistic studio product photography, soft professional lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, accurate black matte and glossy plastic materials with glass lens cover, clean vertical 9:16 composition, product centered and dominant, entire product fully visible, accessories included only if shown cleanly and proportionally.",
+      "image_generation_prompt": "Create a realistic Amazon hero product image for a black ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas with a pure white RGB 255,255,255 background. Show the actual product only with included accessories: DashCam C1, Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual. The dash camera must be centered and dominant, filling about 85% of the frame, with the entire product fully visible. Use an elevated three-quarter product shot that accurately represents the compact angular body, rectangular main housing, rounded side arm/end caps, protruding lens barrel, top-mounted bracket, bottom mounting joint, display screen, front control buttons, side circular panel/button, and subtle brand/logo marking. Materials should appear realistic: black matte and glossy plastic with a glass lens cover. Use soft studio lighting with minimal diffuse shadows and controlled reflections, keeping the product crisp and professional. Arrange accessories neatly and proportionally around or below the camera without distracting from the main unit. No text, no icons, no badges, no graphics, no props, no packaging, no environmental background. Maintain a clean, high-end ecommerce product-photography look with accurate scale, realistic geometry, and faithful product appearance."
+    }
+  },
+  "image_strategy": {
+    "image_number": 1,
+    "image_type": "Hero Product Image",
+    "buyer_question": "What is this product?",
+    "layout_description": "Centered vertical hero composition on a pure white background. Show the ROAV by ANKER DASHCAM C1 dash camera as the dominant subject, fully visible, in a realistic elevated three-quarter product angle that clearly presents the main body, screen side, lens structure, top mounting bracket, bottom mounting joint, and front control buttons. Arrange included accessories neatly around or just below the product without clutter: Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual. Maintain approximately 85% frame fill with the product as the primary focus and accessories secondary.",
+    "headline_text": "N/A",
+    "supporting_text": "N/A",
+    "visual_design_direction": "Professional Amazon main image with strict marketplace compliance. Pure white RGB 255,255,255 background, no text or graphics, realistic studio product photography, soft professional lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, accurate black matte and glossy plastic materials with glass lens cover, clean vertical 9:16 composition, product centered and dominant, entire product fully visible, accessories included only if shown cleanly and proportionally.",
+    "image_generation_prompt": "Create a realistic Amazon hero product image for a black ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas with a pure white RGB 255,255,255 background. Show the actual product only with included accessories: DashCam C1, Anker 2-Port USB car charger, Micro-USB charging cable, 32GB card, and Owner's Manual. The dash camera must be centered and dominant, filling about 85% of the frame, with the entire product fully visible. Use an elevated three-quarter product shot that accurately represents the compact angular body, rectangular main housing, rounded side arm/end caps, protruding lens barrel, top-mounted bracket, bottom mounting joint, display screen, front control buttons, side circular panel/button, and subtle brand/logo marking. Materials should appear realistic: black matte and glossy plastic with a glass lens cover. Use soft studio lighting with minimal diffuse shadows and controlled reflections, keeping the product crisp and professional. Arrange accessories neatly and proportionally around or below the camera without distracting from the main unit. No text, no icons, no badges, no graphics, no props, no packaging, no environmental background. Maintain a clean, high-end ecommerce product-photography look with accurate scale, realistic geometry, and faithful product appearance."
+  },
+  "image_strategy_2": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 2,
+      "image_type": "Core Benefit Image",
+      "buyer_question": "Why do I need this product?",
+      "layout_description": "Vertical feature-benefit composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in an elevated three-quarter angle, with the lens-facing side as the primary hero view and a smaller secondary inset or alternate angle that reveals the screen side for accurate product context. Surround the product with three clean infographic callouts that explain the main user benefits: clear 1080P front-road recording, stronger low-light visibility, and automatic incident capture. Use simple supporting icons or visual markers only for these real features, without clutter. Keep the product dominant in the center-upper portion of the frame, with benefit panels or callout zones arranged neatly around it and enough negative space for readability. Do not include any accessories that are not necessary to explain the benefit message.",
+      "headline_text": "Drive With Clear Evidence When It Matters",
+      "supporting_text": "1080P recording, enhanced night visibility, and automatic G-Sensor incident capture help document the road ahead with easier app-connected access.",
+      "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain strict visual consistency with the established product render: soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and standard product rendering perspective with minimal wide-angle distortion. Use a clean vertical 9:16 layout with crisp typography, restrained iconography, and high contrast text blocks that support readability without overpowering the product. Keep color usage neutral and modern, with subtle accent tones that complement the black product body. Ensure the dash camera remains accurately scaled and faithfully represented, with no exaggerated features, no lifestyle scene, and no non-included accessories or misleading visuals.",
+      "image_generation_prompt": "Create an Amazon secondary feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain the same visual style as the established product renders: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the screen side so the product is accurately represented. Design the image to answer the buyer question, 'Why do I need this product?' Include professional text overlays and infographic callouts for three real core benefits only: 1) clear 1080P front-road recording, 2) enhanced low-light visibility using the SONY Exmor IMX323 sensor with WDR Superior Night Vision, and 3) automatic incident capture using the built-in G-Sensor during sudden stops or collisions. Include a concise headline reading 'Drive With Clear Evidence When It Matters' and supporting text reading '1080P recording, enhanced night visibility, and automatic G-Sensor incident capture help document the road ahead with easier app-connected access.' Use clean icons or visual markers to support each benefit, but keep the product as the dominant focal point. No fake features, no environmental driving scene, no packaging, no extra accessories beyond the product itself unless essential for accurate representation, and no clutter. Make the overall composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+    }
+  },
+  "image_strategy_13": {
+    "image_number": 2,
+    "image_type": "Core Benefit Image",
+    "buyer_question": "Why do I need this product?",
+    "layout_description": "Vertical feature-benefit composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in an elevated three-quarter angle, with the lens-facing side as the primary hero view and a smaller secondary inset or alternate angle that reveals the screen side for accurate product context. Surround the product with three clean infographic callouts that explain the main user benefits: clear 1080P front-road recording, stronger low-light visibility, and automatic incident capture. Use simple supporting icons or visual markers only for these real features, without clutter. Keep the product dominant in the center-upper portion of the frame, with benefit panels or callout zones arranged neatly around it and enough negative space for readability. Do not include any accessories that are not necessary to explain the benefit message.",
+    "headline_text": "Drive With Clear Evidence When It Matters",
+    "supporting_text": "1080P recording, enhanced night visibility, and automatic G-Sensor incident capture help document the road ahead with easier app-connected access.",
+    "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain strict visual consistency with the established product render: soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and standard product rendering perspective with minimal wide-angle distortion. Use a clean vertical 9:16 layout with crisp typography, restrained iconography, and high contrast text blocks that support readability without overpowering the product. Keep color usage neutral and modern, with subtle accent tones that complement the black product body. Ensure the dash camera remains accurately scaled and faithfully represented, with no exaggerated features, no lifestyle scene, and no non-included accessories or misleading visuals.",
+    "image_generation_prompt": "Create an Amazon secondary feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain the same visual style as the established product renders: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the screen side so the product is accurately represented. Design the image to answer the buyer question, 'Why do I need this product?' Include professional text overlays and infographic callouts for three real core benefits only: 1) clear 1080P front-road recording, 2) enhanced low-light visibility using the SONY Exmor IMX323 sensor with WDR Superior Night Vision, and 3) automatic incident capture using the built-in G-Sensor during sudden stops or collisions. Include a concise headline reading 'Drive With Clear Evidence When It Matters' and supporting text reading '1080P recording, enhanced night visibility, and automatic G-Sensor incident capture help document the road ahead with easier app-connected access.' Use clean icons or visual markers to support each benefit, but keep the product as the dominant focal point. No fake features, no environmental driving scene, no packaging, no extra accessories beyond the product itself unless essential for accurate representation, and no clutter. Make the overall composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+  },
+  "image_strategy_3": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 3,
+      "image_type": "Problem Solution Image",
+      "buyer_question": "What problem does this product solve?",
+      "layout_description": "Vertical problem-solution infographic composition on a clean light gray studio background. Place the ROAV by ANKER DASHCAM C1 large and clearly visible in the center-right or upper-center of the frame in a realistic elevated three-quarter angle, showing the lens-facing side as the main hero view and a smaller secondary inset showing the screen side for accurate product context. On the left or lower portion, organize three concise problem-to-solution callout panels with simple icons and short explanatory text: missed incident details, poor night visibility, and limited road coverage. Connect each problem panel to the corresponding real product feature: automatic G-Sensor recording during sudden stops or collisions, SONY Exmor IMX323 sensor with WDR Superior Night Vision and F1.8 lens, and 145° wide-angle recording up to 4 lanes. Keep the product dominant and the messaging clean, with enough negative space for readability and no unnecessary accessories.",
+      "headline_text": "Capture Critical Driving Moments More Reliably",
+      "supporting_text": "Helps solve missed incident footage, unclear low-light recording, and narrow road coverage with automatic impact recording, enhanced night visibility, and a 145° wide-angle view.",
+      "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain visual consistency with the established product renders using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks. Keep the color palette neutral and modern so the black product remains the focal point. Ensure all graphics represent only real features documented in the workflow state. Do not depict non-included accessories, fake UI, lifestyle scenes, or exaggerated performance claims.",
+      "image_generation_prompt": "Create an Amazon secondary problem-solution feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain the same visual style as the established product renders: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the screen side for accurate representation. Design the image to answer the buyer question, 'What problem does this product solve?' Use a polished infographic layout with three problem-to-solution callouts: 1) missed incident details solved by the built-in G-Sensor that starts recording during sudden stops or collisions, 2) unclear low-light footage solved by the SONY Exmor IMX323 sensor, WDR Superior Night Vision, and F1.8 lens, and 3) narrow road visibility solved by the 145-degree wide-angle view that records up to 4 lanes of traffic. Include a headline reading 'Capture Critical Driving Moments More Reliably' and supporting text reading 'Helps solve missed incident footage, unclear low-light recording, and narrow road coverage with automatic impact recording, enhanced night visibility, and a 145° wide-angle view.' Use clean icons or visual markers for each problem-solution pair, keep the product as the dominant focal point, and ensure all messaging reflects only real documented features. No fake features, no environmental driving scene, no packaging, no extra accessories, and no clutter. Make the composition conversion-focused, readable, and consistent with premium Amazon listing graphics."
+    }
+  },
+  "image_strategy_15": {
+    "image_number": 3,
+    "image_type": "Problem Solution Image",
+    "buyer_question": "What problem does this product solve?",
+    "layout_description": "Vertical problem-solution infographic composition on a clean light gray studio background. Place the ROAV by ANKER DASHCAM C1 large and clearly visible in the center-right or upper-center of the frame in a realistic elevated three-quarter angle, showing the lens-facing side as the main hero view and a smaller secondary inset showing the screen side for accurate product context. On the left or lower portion, organize three concise problem-to-solution callout panels with simple icons and short explanatory text: missed incident details, poor night visibility, and limited road coverage. Connect each problem panel to the corresponding real product feature: automatic G-Sensor recording during sudden stops or collisions, SONY Exmor IMX323 sensor with WDR Superior Night Vision and F1.8 lens, and 145° wide-angle recording up to 4 lanes. Keep the product dominant and the messaging clean, with enough negative space for readability and no unnecessary accessories.",
+    "headline_text": "Capture Critical Driving Moments More Reliably",
+    "supporting_text": "Helps solve missed incident footage, unclear low-light recording, and narrow road coverage with automatic impact recording, enhanced night visibility, and a 145° wide-angle view.",
+    "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain visual consistency with the established product renders using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks. Keep the color palette neutral and modern so the black product remains the focal point. Ensure all graphics represent only real features documented in the workflow state. Do not depict non-included accessories, fake UI, lifestyle scenes, or exaggerated performance claims.",
+    "image_generation_prompt": "Create an Amazon secondary problem-solution feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain the same visual style as the established product renders: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the screen side for accurate representation. Design the image to answer the buyer question, 'What problem does this product solve?' Use a polished infographic layout with three problem-to-solution callouts: 1) missed incident details solved by the built-in G-Sensor that starts recording during sudden stops or collisions, 2) unclear low-light footage solved by the SONY Exmor IMX323 sensor, WDR Superior Night Vision, and F1.8 lens, and 3) narrow road visibility solved by the 145-degree wide-angle view that records up to 4 lanes of traffic. Include a headline reading 'Capture Critical Driving Moments More Reliably' and supporting text reading 'Helps solve missed incident footage, unclear low-light recording, and narrow road coverage with automatic impact recording, enhanced night visibility, and a 145° wide-angle view.' Use clean icons or visual markers for each problem-solution pair, keep the product as the dominant focal point, and ensure all messaging reflects only real documented features. No fake features, no environmental driving scene, no packaging, no extra accessories, and no clutter. Make the composition conversion-focused, readable, and consistent with premium Amazon listing graphics."
+  },
+  "image_strategy_4": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 4,
+      "image_type": "Lifestyle Use Image",
+      "buyer_question": "When would I use this product?",
+      "layout_description": "Vertical real-world use composition showing the ROAV by ANKER DASHCAM C1 installed inside a vehicle during everyday driving use. Place the dash camera clearly visible near the upper windshield area with the top mounting bracket attached, shown in a realistic three-quarter angle that keeps the product recognizable while also revealing the road-use context. Show a clean interior driving scene that suggests common use moments such as commuting, road trips, city driving, highway driving, or routine daily travel, with the road ahead visible through the windshield. Include subtle infographic callouts or clean text zones that connect the usage moments to real product functions such as front-road recording, app-connected video access, wide-angle road coverage, and low-light support. Keep the product prominent and accurately scaled, with enough negative space for readable messaging and no non-included accessories beyond the product and included in-box items if shown.",
+      "headline_text": "Built for Everyday Driving Moments",
+      "supporting_text": "Use it for commuting, road trips, daily driving, and low-light travel to capture the road ahead with 1080P recording, wide-angle coverage, and app-connected video access.",
+      "visual_design_direction": "Professional Amazon secondary lifestyle image with premium ecommerce infographic styling. Maintain visual consistency with the established product render using soft studio-influenced lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that do not overpower the product. The vehicle interior and road scene should feel realistic and polished, not cinematic or exaggerated. Keep color usage neutral and modern so the black dash camera remains the focal point. Ensure the product is clearly visible, accurately represented, and shown only with real documented features. Do not depict fake UI, non-included accessories, misleading performance claims, or unrelated props.",
+      "image_generation_prompt": "Create an Amazon secondary lifestyle use image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'When would I use this product?' Show the black dash camera realistically installed near the upper windshield inside a car, with the top mounting bracket attached and the product clearly visible in an accurate three-quarter angle. Maintain faithful product geometry: compact angular body, rectangular main housing, rounded side arm or end caps, protruding lens barrel, display side, front control buttons, bottom mounting joint, and subtle brand marking. Use a polished real-world driving context that suggests typical use cases such as commuting, road trips, daily driving, highway driving, city driving, or low-light travel, with a realistic road view visible through the windshield. Keep the dash camera as the dominant focal product while showing enough of the car interior to establish real-world use. Include professional text overlays and clean infographic callouts tied only to real product features: 1080P front-road recording, 145-degree wide-angle coverage up to 4 lanes, built-in Wi-Fi with Roav app support for reviewing, downloading, and sharing videos, and enhanced low-light support from the SONY Exmor IMX323 sensor with WDR Superior Night Vision. Include a concise headline reading 'Built for Everyday Driving Moments' and supporting text reading 'Use it for commuting, road trips, daily driving, and low-light travel to capture the road ahead with 1080P recording, wide-angle coverage, and app-connected video access.' Maintain consistent styling with prior product images using soft controlled lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate scale, and minimal lens distortion. No fake features, no packaging, no extra accessories not included, no clutter, and no exaggerated lifestyle drama. Make the overall composition premium, realistic, readable, and conversion-focused."
+    }
+  },
+  "image_strategy_17": {
+    "image_number": 4,
+    "image_type": "Lifestyle Use Image",
+    "buyer_question": "When would I use this product?",
+    "layout_description": "Vertical real-world use composition showing the ROAV by ANKER DASHCAM C1 installed inside a vehicle during everyday driving use. Place the dash camera clearly visible near the upper windshield area with the top mounting bracket attached, shown in a realistic three-quarter angle that keeps the product recognizable while also revealing the road-use context. Show a clean interior driving scene that suggests common use moments such as commuting, road trips, city driving, highway driving, or routine daily travel, with the road ahead visible through the windshield. Include subtle infographic callouts or clean text zones that connect the usage moments to real product functions such as front-road recording, app-connected video access, wide-angle road coverage, and low-light support. Keep the product prominent and accurately scaled, with enough negative space for readable messaging and no non-included accessories beyond the product and included in-box items if shown.",
+    "headline_text": "Built for Everyday Driving Moments",
+    "supporting_text": "Use it for commuting, road trips, daily driving, and low-light travel to capture the road ahead with 1080P recording, wide-angle coverage, and app-connected video access.",
+    "visual_design_direction": "Professional Amazon secondary lifestyle image with premium ecommerce infographic styling. Maintain visual consistency with the established product render using soft studio-influenced lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that do not overpower the product. The vehicle interior and road scene should feel realistic and polished, not cinematic or exaggerated. Keep color usage neutral and modern so the black dash camera remains the focal point. Ensure the product is clearly visible, accurately represented, and shown only with real documented features. Do not depict fake UI, non-included accessories, misleading performance claims, or unrelated props.",
+    "image_generation_prompt": "Create an Amazon secondary lifestyle use image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'When would I use this product?' Show the black dash camera realistically installed near the upper windshield inside a car, with the top mounting bracket attached and the product clearly visible in an accurate three-quarter angle. Maintain faithful product geometry: compact angular body, rectangular main housing, rounded side arm or end caps, protruding lens barrel, display side, front control buttons, bottom mounting joint, and subtle brand marking. Use a polished real-world driving context that suggests typical use cases such as commuting, road trips, daily driving, highway driving, city driving, or low-light travel, with a realistic road view visible through the windshield. Keep the dash camera as the dominant focal product while showing enough of the car interior to establish real-world use. Include professional text overlays and clean infographic callouts tied only to real product features: 1080P front-road recording, 145-degree wide-angle coverage up to 4 lanes, built-in Wi-Fi with Roav app support for reviewing, downloading, and sharing videos, and enhanced low-light support from the SONY Exmor IMX323 sensor with WDR Superior Night Vision. Include a concise headline reading 'Built for Everyday Driving Moments' and supporting text reading 'Use it for commuting, road trips, daily driving, and low-light travel to capture the road ahead with 1080P recording, wide-angle coverage, and app-connected video access.' Maintain consistent styling with prior product images using soft controlled lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate scale, and minimal lens distortion. No fake features, no packaging, no extra accessories not included, no clutter, and no exaggerated lifestyle drama. Make the overall composition premium, realistic, readable, and conversion-focused."
+  },
+  "image_strategy_5": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 5,
+      "image_type": "Technology Feature Image",
+      "buyer_question": "What technology makes it better?",
+      "layout_description": "Vertical technology-focused infographic composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens-facing side, with a smaller secondary inset or alternate angle showing the display side for accurate product context. Keep the product dominant in the center-upper or center-right portion of the frame. Arrange four clean technology callout zones around the product with simple icons and concise explanatory text for real documented technologies: built-in Wi-Fi with Roav app support, SONY Exmor IMX323 sensor, WDR Superior Night Vision with F1.8 lens and 6 glass elements, and built-in G-Sensor collision detection. Maintain enough negative space for readable messaging and keep the product accurately scaled and fully recognizable.",
+      "headline_text": "Technology That Supports Smarter Recording",
+      "supporting_text": "Built-in Wi-Fi, SONY Exmor IMX323 imaging, WDR night visibility, and G-Sensor incident detection work together to improve recording clarity, access, and response on the road.",
+      "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain visual consistency with the established product render using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that support readability without overpowering the product. Keep the palette neutral and modern so the black dash camera remains the focal point. Ensure all graphics reflect only real features documented in the workflow state. Do not depict fake UI, non-included accessories, lifestyle scenes, or exaggerated performance claims.",
+      "image_generation_prompt": "Create an Amazon secondary technology feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'What technology makes it better?' Use a clean light gray studio-style background and maintain the same established render style: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the display side for accurate representation. Include professional text overlays and infographic callouts for four real technology features only: 1) built-in Wi-Fi with Roav app support for reviewing, downloading, and sharing videos, 2) SONY Exmor IMX323 sensor for image capture, 3) WDR Superior Night Vision supported by an F1.8 lens with 6 high-quality glass elements for stronger low-light visibility, and 4) built-in G-Sensor that starts recording during sudden stops or collisions. Include a concise headline reading 'Technology That Supports Smarter Recording' and supporting text reading 'Built-in Wi-Fi, SONY Exmor IMX323 imaging, WDR night visibility, and G-Sensor incident detection work together to improve recording clarity, access, and response on the road.' Use clean icons or visual markers for each technology, keep the product as the dominant focal point, and ensure all messaging reflects only real documented features. No fake features, no packaging, no extra accessories, no environmental driving scene, and no clutter. Make the composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+    }
+  },
+  "image_strategy_19": {
+    "image_number": 5,
+    "image_type": "Technology Feature Image",
+    "buyer_question": "What technology makes it better?",
+    "layout_description": "Vertical technology-focused infographic composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens-facing side, with a smaller secondary inset or alternate angle showing the display side for accurate product context. Keep the product dominant in the center-upper or center-right portion of the frame. Arrange four clean technology callout zones around the product with simple icons and concise explanatory text for real documented technologies: built-in Wi-Fi with Roav app support, SONY Exmor IMX323 sensor, WDR Superior Night Vision with F1.8 lens and 6 glass elements, and built-in G-Sensor collision detection. Maintain enough negative space for readable messaging and keep the product accurately scaled and fully recognizable.",
+    "headline_text": "Technology That Supports Smarter Recording",
+    "supporting_text": "Built-in Wi-Fi, SONY Exmor IMX323 imaging, WDR night visibility, and G-Sensor incident detection work together to improve recording clarity, access, and response on the road.",
+    "visual_design_direction": "Professional Amazon secondary image with premium ecommerce infographic styling. Maintain visual consistency with the established product render using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that support readability without overpowering the product. Keep the palette neutral and modern so the black dash camera remains the focal point. Ensure all graphics reflect only real features documented in the workflow state. Do not depict fake UI, non-included accessories, lifestyle scenes, or exaggerated performance claims.",
+    "image_generation_prompt": "Create an Amazon secondary technology feature image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'What technology makes it better?' Use a clean light gray studio-style background and maintain the same established render style: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset or alternate angle showing the display side for accurate representation. Include professional text overlays and infographic callouts for four real technology features only: 1) built-in Wi-Fi with Roav app support for reviewing, downloading, and sharing videos, 2) SONY Exmor IMX323 sensor for image capture, 3) WDR Superior Night Vision supported by an F1.8 lens with 6 high-quality glass elements for stronger low-light visibility, and 4) built-in G-Sensor that starts recording during sudden stops or collisions. Include a concise headline reading 'Technology That Supports Smarter Recording' and supporting text reading 'Built-in Wi-Fi, SONY Exmor IMX323 imaging, WDR night visibility, and G-Sensor incident detection work together to improve recording clarity, access, and response on the road.' Use clean icons or visual markers for each technology, keep the product as the dominant focal point, and ensure all messaging reflects only real documented features. No fake features, no packaging, no extra accessories, no environmental driving scene, and no clutter. Make the composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+  },
+  "image_strategy_6": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 6,
+      "image_type": "Ease of Use / Installation Image",
+      "buyer_question": "How easy is it to install or use?",
+      "layout_description": "Vertical installation and ease-of-use infographic composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, with the product mounted near the upper windshield area using its top mounting bracket so the installation position is immediately understandable. Include a smaller secondary inset showing the screen side for accurate product context and on-device usability. Arrange three clean step-by-step callout panels around the product with simple icons and short text to communicate straightforward setup and use: mount the dash camera near the windshield, connect power using the included Micro-USB charging cable and Anker 2-Port USB car charger, and connect to built-in Wi-Fi to review, download, and share videos in the Roav app. Keep the product dominant, the included accessories limited to the charger and cable only, and maintain enough negative space for clear readability.",
+      "headline_text": "Simple Setup for Everyday Driving",
+      "supporting_text": "Mount it, connect the included charger, and use built-in Wi-Fi with the Roav app to review, download, and share footage with less hassle.",
+      "visual_design_direction": "Professional Amazon secondary infographic image with premium ecommerce styling. Maintain visual consistency with the established product render using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and a standard product rendering perspective with minimal wide-angle distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that support readability without overpowering the product. Keep the palette neutral and modern so the black dash camera remains the focal point. Ensure all graphics reflect only documented features and included items: top mounting bracket, built-in Wi-Fi, Roav app support, Micro-USB charging cable, and Anker 2-Port USB car charger. Do not depict fake UI, extra accessories, packaging, or misleading installation hardware.",
+      "image_generation_prompt": "Create an Amazon secondary ease-of-use and installation image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'How easy is it to install or use?' Use a clean light gray studio-style background and maintain the same established render style: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the black dash camera large and clearly visible, realistically mounted near the upper windshield area with the top mounting bracket attached, in a recognizable three-quarter angle. Include a smaller secondary inset or alternate angle showing the screen side for accurate representation. Add clean professional text overlays and step-by-step infographic callouts for three real setup and use actions only: 1) mount the dash camera near the windshield using the integrated top mounting bracket, 2) connect power using the included Micro-USB charging cable and included Anker 2-Port USB car charger, and 3) connect to the dash camera’s built-in Wi-Fi and use the Roav app to review, download, and share videos. Include a concise headline reading 'Simple Setup for Everyday Driving' and supporting text reading 'Mount it, connect the included charger, and use built-in Wi-Fi with the Roav app to review, download, and share footage with less hassle.' Use simple icons or visual markers for each step, keep the product as the dominant focal point, and show only included accessories relevant to setup. No fake features, no packaging, no extra accessories, no exaggerated installation hardware, no clutter, and no misleading app interface. Make the composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+    }
+  },
+  "image_strategy_21": {
+    "image_number": 6,
+    "image_type": "Ease of Use / Installation Image",
+    "buyer_question": "How easy is it to install or use?",
+    "layout_description": "Vertical installation and ease-of-use infographic composition on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, with the product mounted near the upper windshield area using its top mounting bracket so the installation position is immediately understandable. Include a smaller secondary inset showing the screen side for accurate product context and on-device usability. Arrange three clean step-by-step callout panels around the product with simple icons and short text to communicate straightforward setup and use: mount the dash camera near the windshield, connect power using the included Micro-USB charging cable and Anker 2-Port USB car charger, and connect to built-in Wi-Fi to review, download, and share videos in the Roav app. Keep the product dominant, the included accessories limited to the charger and cable only, and maintain enough negative space for clear readability.",
+    "headline_text": "Simple Setup for Everyday Driving",
+    "supporting_text": "Mount it, connect the included charger, and use built-in Wi-Fi with the Roav app to review, download, and share footage with less hassle.",
+    "visual_design_direction": "Professional Amazon secondary infographic image with premium ecommerce styling. Maintain visual consistency with the established product render using soft studio lighting, minimal diffuse shadows, controlled reflections on glossy edges and lens surfaces, realistic black matte and glossy plastic materials, and a standard product rendering perspective with minimal wide-angle distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, and high-contrast text blocks that support readability without overpowering the product. Keep the palette neutral and modern so the black dash camera remains the focal point. Ensure all graphics reflect only documented features and included items: top mounting bracket, built-in Wi-Fi, Roav app support, Micro-USB charging cable, and Anker 2-Port USB car charger. Do not depict fake UI, extra accessories, packaging, or misleading installation hardware.",
+    "image_generation_prompt": "Create an Amazon secondary ease-of-use and installation image for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Design the image to answer the buyer question, 'How easy is it to install or use?' Use a clean light gray studio-style background and maintain the same established render style: soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, glass lens cover, accurate product scale, and a standard product rendering perspective with minimal distortion. Show the black dash camera large and clearly visible, realistically mounted near the upper windshield area with the top mounting bracket attached, in a recognizable three-quarter angle. Include a smaller secondary inset or alternate angle showing the screen side for accurate representation. Add clean professional text overlays and step-by-step infographic callouts for three real setup and use actions only: 1) mount the dash camera near the windshield using the integrated top mounting bracket, 2) connect power using the included Micro-USB charging cable and included Anker 2-Port USB car charger, and 3) connect to the dash camera’s built-in Wi-Fi and use the Roav app to review, download, and share videos. Include a concise headline reading 'Simple Setup for Everyday Driving' and supporting text reading 'Mount it, connect the included charger, and use built-in Wi-Fi with the Roav app to review, download, and share footage with less hassle.' Use simple icons or visual markers for each step, keep the product as the dominant focal point, and show only included accessories relevant to setup. No fake features, no packaging, no extra accessories, no exaggerated installation hardware, no clutter, and no misleading app interface. Make the composition polished, readable, conversion-focused, and consistent with premium Amazon listing graphics."
+  },
+  "image_strategy_7": {
+    "reference_tag": "",
+    "image_strategy": {
+      "image_number": 7,
+      "image_type": "Specifications Infographic",
+      "buyer_question": "What specifications matter?",
+      "layout_description": "Vertical specifications infographic on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, using the lens-facing side as the primary hero view with a smaller secondary inset showing the display side for accurate context. Place the product in the upper-center or center-right of the frame. Arrange six clean specification callout panels around the product with simple icons and short labels for real documented details: 1080P 30FPS video, SONY Exmor IMX323 sensor, 145° viewing angle, WDR Superior Night Vision, built-in Wi-Fi with app support, and 2.4-inch illuminated screen. Keep the product dominant, accurately scaled, and fully recognizable with enough negative space for readability.",
+      "headline_text": "Key Specs for Smarter Road Recording",
+      "supporting_text": "1080P 30FPS video, SONY Exmor IMX323 imaging, 145° coverage, WDR night visibility, built-in Wi-Fi, and a 2.4-inch screen support clear everyday front-road recording.",
+      "visual_design_direction": "Professional Amazon secondary infographic image with premium ecommerce styling. Maintain consistent soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, neutral modern colors, and high-contrast text blocks. Show only real documented features and no non-included accessories.",
+      "image_generation_prompt": "Create an Amazon secondary specifications infographic for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain consistent soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset showing the display side for accurate representation. Design the image to answer the buyer question, 'What specifications matter?' Include professional text overlays and clean infographic callouts for these real specifications only: 1080P 30FPS video recording at 1920×1080, SONY Exmor IMX323 sensor, 145-degree viewing angle, WDR Superior Night Vision, built-in Wi-Fi with Roav app support, and 2.4-inch illuminated screen. Include the headline 'Key Specs for Smarter Road Recording' and supporting text '1080P 30FPS video, SONY Exmor IMX323 imaging, 145° coverage, WDR night visibility, built-in Wi-Fi, and a 2.4-inch screen support clear everyday front-road recording.' Keep the product as the dominant focal point. No fake features, no packaging, no extra accessories, no environmental driving scene, and no clutter."
+    }
+  },
+  "image_strategy_23": {
+    "image_number": 7,
+    "image_type": "Specifications Infographic",
+    "buyer_question": "What specifications matter?",
+    "layout_description": "Vertical specifications infographic on a clean light gray studio background. Show the ROAV by ANKER DASHCAM C1 large and clearly visible in a realistic elevated three-quarter angle, using the lens-facing side as the primary hero view with a smaller secondary inset showing the display side for accurate context. Place the product in the upper-center or center-right of the frame. Arrange six clean specification callout panels around the product with simple icons and short labels for real documented details: 1080P 30FPS video, SONY Exmor IMX323 sensor, 145° viewing angle, WDR Superior Night Vision, built-in Wi-Fi with app support, and 2.4-inch illuminated screen. Keep the product dominant, accurately scaled, and fully recognizable with enough negative space for readability.",
+    "headline_text": "Key Specs for Smarter Road Recording",
+    "supporting_text": "1080P 30FPS video, SONY Exmor IMX323 imaging, 145° coverage, WDR night visibility, built-in Wi-Fi, and a 2.4-inch screen support clear everyday front-road recording.",
+    "visual_design_direction": "Professional Amazon secondary infographic image with premium ecommerce styling. Maintain consistent soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Use a clean 1080x1920 vertical layout with crisp typography, restrained iconography, neutral modern colors, and high-contrast text blocks. Show only real documented features and no non-included accessories.",
+    "image_generation_prompt": "Create an Amazon secondary specifications infographic for the ROAV by ANKER DASHCAM C1 dash camera, model R2110, in a vertical 1080x1920 canvas. Use a clean light gray studio-style background and maintain consistent soft studio lighting, minimal diffuse shadows, controlled reflections, realistic black matte and glossy plastic materials, accurate glass lens appearance, and a standard product rendering perspective with minimal distortion. Show the dash camera large and clearly visible in a realistic elevated three-quarter angle, primarily highlighting the lens side, with a smaller secondary inset showing the display side for accurate representation. Design the image to answer the buyer question, 'What specifications matter?' Include professional text overlays and clean infographic callouts for these real specifications only: 1080P 30FPS video recording at 1920×1080, SONY Exmor IMX323 sensor, 145-degree viewing angle, WDR Superior Night Vision, built-in Wi-Fi with Roav app support, and 2.4-inch illuminated screen. Include the headline 'Key Specs for Smarter Road Recording' and supporting text '1080P 30FPS video, SONY Exmor IMX323 imaging, 145° coverage, WDR night visibility, built-in Wi-Fi, and a 2.4-inch screen support clear everyday front-road recording.' Keep the product as the dominant focal point. No fake features, no packaging, no extra accessories, no environmental driving scene, and no clutter."
   }
 }
