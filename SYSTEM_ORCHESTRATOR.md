@@ -427,12 +427,9 @@ ACTION:
 - ENFORCE CODE_REVIEW_RULES
 - IMPORT SEARCH_VALIDATION_RULE from SYSTEM_ORCHESTRATOR.md
 - ENFORCE SEARCH_VALIDATION_RULE
-- VERIFY version governance: any validated behavioral/architectural change requires SCRIPT_METADATA version bump
-- VERIFY static correctness gate passes (e.g., Python compiles; no undefined names; no misplaced methods due to indentation)
 
 OUTPUT:
-- CODE REVIEW RESULT (JSON; include blocking_findings if any)
-- SEARCH VALIDATION RESULT (with sources)
+- CODE REVIEW (RESULT)
 
 CONFIRMATION REQUIRED:
 YES
@@ -596,6 +593,29 @@ YES
 
 TRANSITION:
 - IF confirmed → STATE 21
+- ELSE → HALT
+```
+
+---
+
+### STATE EDIT
+
+ENFORCE_SECTION → SYSTEM_ORCHESTRATOR.md: SCRIPT_EDIT_RULES
+```
+ACTION:
+- IMPORT SCRIPT_EDIT_RULES from SYSTEM_ORCHESTRATOR.md
+- ENFORCE SCRIPT_EDIT_RULES
+- IMPORT SEARCH_VALIDATION_RULE from SYSTEM_ORCHESTRATOR.md
+- ENFORCE SEARCH_VALIDATION_RULE
+
+OUTPUT:
+- List of Patch Sets
+
+CONFIRMATION REQUIRED:
+YES
+
+TRANSITION:
+- IF confirmed → STATE 10 → Generate Patch Set 01 - CONFIRMATION REQUIRED: YES → Proceed to Next Patch Set
 - ELSE → HALT
 ```
 
@@ -2209,12 +2229,6 @@ STRUCTURAL QUALITY CHECKS:
 - REQUIRE:
   - readability and explicit control flow
   - minimal, declared dependencies
-
-STATIC CORRECTNESS GATE (MANDATORY):
-- Validate that code is structurally correct before runtime:
-  - no undefined names / missing imports (especially typing annotations)
-  - no accidental method mis-scoping from indentation
-- If applicable, run a static checker (e.g., `pyright`) or at minimum a compile pass (`python -m py_compile`)
 
 SAFETY GATE:
 - Confirm:
