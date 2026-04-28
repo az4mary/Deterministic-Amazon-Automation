@@ -42,7 +42,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 SCRIPT_METADATA: Dict[str, Any] = {
     "script_id": "SCRIPT_003",
     "name": "amazon_listing_markdown_exporter",
-    "version": "1.1",
+    "version": "1.0",
     "category": "PROCESSOR",
     "input_schema": "workflow_state_v1",
     "output_schema": "amazon_listing_copy_paste_markdown_v1",
