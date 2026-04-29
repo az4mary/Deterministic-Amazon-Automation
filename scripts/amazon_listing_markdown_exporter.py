@@ -614,11 +614,10 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
 def main(argv: Optional[List[str]] = None) -> int:
     args = parse_args(argv)
 
-    trace_id = uuid.uuid4().hex
-    span_id = uuid.uuid4().hex[:16]
-
     input_path = Path(args.input)
     output_path = Path(args.output)
+
+    trace_id, span_id = derive_trace_context(input_path, output_path)
 
     try:
         log_event(
