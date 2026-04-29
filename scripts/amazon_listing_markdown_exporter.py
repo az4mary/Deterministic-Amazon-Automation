@@ -55,6 +55,29 @@ DEFAULT_INPUT_PATH = Path("output") / "workflow_state.json"
 DEFAULT_OUTPUT_PATH = Path("output") / "amazon_listing_copy_paste.md"
 
 
+def derive_trace_context(input_path: Path, output_path: Path) -> Tuple[str, str]:
+    """
+    Derive deterministic trace/span identifiers from stable execution identity.
+
+    This removes runtime randomness while preserving trace correlation fields.
+    Same script metadata + same declared input/output paths produce the same
+    trace_id and span_id across repeated runs.
+    """
+    seed = "|".join(
+        [
+            SCRIPT_METADATA["script_id"],
+            SCRIPT_METADATA["name"],
+            SCRIPT_METADATA["version"],
+            input_path.as_posix(),
+            output_path.as_posix(),
+        ]
+    )
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    trace_id = digest[:32]
+    span_id = digest[32:48]
+    return trace_id, span_id
+
+
 class ExporterError(Exception):
     """Controlled fail-fast exception for deterministic script termination."""
 
