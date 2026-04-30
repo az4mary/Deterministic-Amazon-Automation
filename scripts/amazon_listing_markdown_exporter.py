@@ -683,6 +683,14 @@ def validate_extracted_sections(sections: List[Tuple[str, Any]]) -> None:
         fail_fast(
             "AMAZON_FIELDS_MISSING",
             "No extractable Amazon listing fields found.",
+            field="amazon_listing_sections",
+            expected="at least one extracted Amazon listing section",
+            actual="section_count=0",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="validate_extracted_sections:not sections",
+            snippet="if not sections",
+            input_reference="workflow_state.outputs",
+            pipeline_stage="TRANSFORMATION",
         )
 
     required_titles = {
@@ -699,6 +707,14 @@ def validate_extracted_sections(sections: List[Tuple[str, Any]]) -> None:
         fail_fast(
             "AMAZON_REQUIRED_FIELDS_MISSING",
             "Required Amazon listing fields missing: " + ", ".join(missing),
+            field="required_amazon_listing_sections",
+            expected=", ".join(sorted(required_titles)),
+            actual="missing=" + ", ".join(missing),
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="validate_extracted_sections:missing_required_titles",
+            snippet="missing = sorted(required_titles - present_titles)",
+            input_reference="workflow_state.outputs",
+            pipeline_stage="TRANSFORMATION",
         )
 
 
