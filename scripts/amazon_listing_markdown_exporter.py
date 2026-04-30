@@ -205,18 +205,42 @@ def load_workflow_state(input_path: Path) -> Dict[str, Any]:
         fail_fast(
             "INPUT_FILE_NOT_FOUND",
             f"Required workflow_state.json does not exist: {input_path}",
+            field="input_path",
+            expected="existing JSON file",
+            actual=f"missing path: {input_path}",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="load_workflow_state:input_path.exists",
+            snippet="if not input_path.exists()",
+            input_reference=str(input_path),
+            pipeline_stage="INGESTION",
         )
 
     if not input_path.is_file():
         fail_fast(
             "INPUT_PATH_NOT_FILE",
             f"Input path exists but is not a file: {input_path}",
+            field="input_path",
+            expected="file path",
+            actual=f"non-file path: {input_path}",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="load_workflow_state:input_path.is_file",
+            snippet="if not input_path.is_file()",
+            input_reference=str(input_path),
+            pipeline_stage="INGESTION",
         )
 
     if input_path.stat().st_size == 0:
         fail_fast(
             "INVALID_WORKFLOW_JSON",
             f"Input JSON file is empty: {input_path}",
+            field="input_file_size",
+            expected="non-empty JSON file",
+            actual="0 bytes",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="load_workflow_state:input_path.stat().st_size",
+            snippet="if input_path.stat().st_size == 0",
+            input_reference=str(input_path),
+            pipeline_stage="VALIDATION",
         )
 
     try:
@@ -226,18 +250,42 @@ def load_workflow_state(input_path: Path) -> Dict[str, Any]:
         fail_fast(
             "INVALID_WORKFLOW_JSON",
             f"Input JSON is malformed at line {exc.lineno}, column {exc.colno}: {exc.msg}",
+            field="workflow_state_json",
+            expected="valid JSON object",
+            actual=f"line={exc.lineno}, column={exc.colno}, message={exc.msg}",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="load_workflow_state:json.load",
+            snippet="data = json.load(file)",
+            input_reference=str(input_path),
+            pipeline_stage="VALIDATION",
         )
 
     if not isinstance(data, dict):
         fail_fast(
             "INVALID_WORKFLOW_JSON",
             "workflow_state.json root must be a JSON object.",
+            field="workflow_state_root",
+            expected="dict",
+            actual=type(data).__name__,
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="load_workflow_state:isinstance(data, dict)",
+            snippet="if not isinstance(data, dict)",
+            input_reference=str(input_path),
+            pipeline_stage="VALIDATION",
         )
 
     if not data:
         fail_fast(
             "INVALID_WORKFLOW_JSON",
             "workflow_state.json root object is empty.",
+            field="workflow_state_root",
+            expected="non-empty dict",
+            actual="empty dict",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="load_workflow_state:not data",
+            snippet="if not data",
+            input_reference=str(input_path),
+            pipeline_stage="VALIDATION",
         )
 
     return data
