@@ -639,12 +639,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         log_event(
             trace_id=trace_id,
             span_id=span_id,
-            event="INIT",
+            level="INFO",
+            message="INIT",
             stage="INGESTION",
             status="STARTED",
-            details={
+            progress_percent=0,
+            current_step=1,
+            total_steps=4,
+            context={
                 "input_path": str(input_path),
                 "output_path": str(output_path),
+                "operation": "load_workflow_state",
             },
         )
 
