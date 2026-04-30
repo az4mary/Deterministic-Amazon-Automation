@@ -882,6 +882,14 @@ def main(argv: Optional[List[str]] = None) -> int:
             context={
                 "error_code": "UNHANDLED_EXCEPTION",
                 "message": str(exc),
+                "field": "runtime",
+                "expected": "handled execution path",
+                "actual": exc.__class__.__name__,
+                "file": SCRIPT_METADATA["name"] + ".py",
+                "line": "main:unhandled_exception",
+                "snippet": "except Exception as exc",
+                "input": str(input_path),
+                "pipeline_stage": "FAILED",
                 "operation": "unhandled_exception",
             },
         )
