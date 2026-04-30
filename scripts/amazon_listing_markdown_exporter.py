@@ -173,8 +173,31 @@ def log_event(
     print(json.dumps(payload, ensure_ascii=False), file=sys.stderr)
 
 
-def fail_fast(error_code: str, message: str) -> None:
-    raise ExporterError(error_code, message)
+def fail_fast(
+    error_code: str,
+    message: str,
+    *,
+    field: str,
+    expected: str,
+    actual: Any,
+    file: str,
+    line: str,
+    snippet: str,
+    input_reference: str,
+    pipeline_stage: str,
+) -> None:
+    raise ExporterError(
+        error_code,
+        message,
+        field=field,
+        expected=expected,
+        actual=actual,
+        file=file,
+        line=line,
+        snippet=snippet,
+        input_reference=input_reference,
+        pipeline_stage=pipeline_stage,
+    )
 
 
 def load_workflow_state(input_path: Path) -> Dict[str, Any]:
