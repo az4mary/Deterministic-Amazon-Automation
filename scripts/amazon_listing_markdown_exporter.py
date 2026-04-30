@@ -727,6 +727,14 @@ def write_markdown_output(output_path: Path, markdown: str) -> None:
         fail_fast(
             "OUTPUT_WRITE_FAILED",
             f"Failed to write Markdown output file: {output_path} ({exc})",
+            field="output_path",
+            expected="writable Markdown output path",
+            actual=f"{exc.__class__.__name__}: {exc}",
+            file=SCRIPT_METADATA["name"] + ".py",
+            line="write_markdown_output:output_path.write_text",
+            snippet='output_path.write_text(markdown, encoding="utf-8")',
+            input_reference=str(output_path),
+            pipeline_stage="OUTPUT",
         )
 
 
