@@ -701,12 +701,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         log_event(
             trace_id=trace_id,
             span_id=span_id,
-            event="COMPLETED",
+            level="INFO",
+            message="COMPLETED",
             stage="OUTPUT",
             status="SUCCESS",
-            details={
+            progress_percent=100,
+            current_step=4,
+            total_steps=4,
+            duration_ms=0,
+            context={
                 "output_path": str(output_path),
                 "bytes_written": output_path.stat().st_size,
+                "operation": "write_markdown_output",
             },
         )
 
