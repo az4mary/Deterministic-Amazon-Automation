@@ -81,10 +81,46 @@ def derive_trace_context(input_path: Path, output_path: Path) -> Tuple[str, str]
 class ExporterError(Exception):
     """Controlled fail-fast exception for deterministic script termination."""
 
-    def __init__(self, error_code: str, message: str) -> None:
+    def __init__(
+        self,
+        error_code: str,
+        message: str,
+        *,
+        field: str,
+        expected: str,
+        actual: Any,
+        file: str,
+        line: str,
+        snippet: str,
+        input_reference: str,
+        pipeline_stage: str,
+    ) -> None:
         super().__init__(message)
         self.error_code = error_code
         self.message = message
+        self.field = field
+        self.expected = expected
+        self.actual = actual
+        self.file = file
+        self.line = line
+        self.snippet = snippet
+        self.input_reference = input_reference
+        self.pipeline_stage = pipeline_stage
+
+    def to_log_context(self, operation: str) -> Dict[str, Any]:
+        return {
+            "error_code": self.error_code,
+            "message": self.message,
+            "field": self.field,
+            "expected": self.expected,
+            "actual": self.actual,
+            "file": self.file,
+            "line": self.line,
+            "snippet": self.snippet,
+            "input": self.input_reference,
+            "pipeline_stage": self.pipeline_stage,
+            "operation": operation,
+        }
 
 
 def utc_now_iso() -> str:
