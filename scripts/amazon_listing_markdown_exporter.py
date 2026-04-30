@@ -744,12 +744,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         log_event(
             trace_id=trace_id,
             span_id=span_id,
-            event="FAILED",
-            stage="UNHANDLED_EXCEPTION",
+            level="ERROR",
+            message="FAILED",
+            stage="FAILED",
             status="ERROR",
-            details={
+            progress_percent=100,
+            current_step=4,
+            total_steps=4,
+            duration_ms=0,
+            context={
                 "error_code": "UNHANDLED_EXCEPTION",
                 "message": str(exc),
+                "operation": "unhandled_exception",
             },
         )
         print(f"UNHANDLED_EXCEPTION: {exc}", file=sys.stderr)
