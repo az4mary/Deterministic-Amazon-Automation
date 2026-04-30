@@ -677,10 +677,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         log_event(
             trace_id=trace_id,
             span_id=span_id,
-            event="PROCESSING",
+            level="INFO",
+            message="PROCESSING",
             stage="TRANSFORMATION",
             status="SUCCESS",
-            details={"section_count": len(sections)},
+            progress_percent=75,
+            current_step=3,
+            total_steps=4,
+            context={
+                "section_count": len(sections),
+                "operation": "render_markdown_document",
+            },
         )
 
         markdown = render_markdown_document(
