@@ -91,32 +91,48 @@ def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+DETERMINISTIC_LOG_TIMESTAMP = "1970-01-01T00:00:00Z"
+
+
 def log_event(
     *,
     trace_id: str,
     span_id: str,
-    event: str,
+    level: str,
+    message: str,
     stage: str,
     status: str,
-    details: Optional[Dict[str, Any]] = None,
+    progress_percent: int,
+    current_step: int,
+    total_steps: int,
+    context: Optional[Dict[str, Any]] = None,
+    duration_ms: Optional[int] = None,
+    output_hash: Optional[str] = None,
 ) -> None:
     """
-    Emit structured JSON logs to stderr.
+    Emit structured JSON logs to stderr using one stable schema.
 
     Logging is separated from the Markdown artifact so the output file remains
-    clean and copy/paste-friendly.
+    clean and copy/paste-friendly. The timestamp is deterministic to preserve
+    identical log sequences for identical inputs.
     """
     payload = {
-        "timestamp": utc_now_iso(),
+        "timestamp": DETERMINISTIC_LOG_TIMESTAMP,
+        "level": level,
+        "message": message,
+        "service": SCRIPT_METADATA["name"],
         "trace_id": trace_id,
         "span_id": span_id,
         "script_id": SCRIPT_METADATA["script_id"],
-        "script_name": SCRIPT_METADATA["name"],
         "category": SCRIPT_METADATA["category"],
-        "event": event,
         "stage": stage,
         "status": status,
-        "details": details or {},
+        "progress_percent": progress_percent,
+        "current_step": current_step,
+        "total_steps": total_steps,
+        "duration_ms": duration_ms,
+        "output_hash": output_hash,
+        "context": context or {},
     }
     print(json.dumps(payload, ensure_ascii=False), file=sys.stderr)
 
