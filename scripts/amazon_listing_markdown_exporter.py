@@ -658,10 +658,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         log_event(
             trace_id=trace_id,
             span_id=span_id,
-            event="VALIDATED",
+            level="INFO",
+            message="VALIDATED",
             stage="VALIDATION",
             status="SUCCESS",
-            details={"input_path": str(input_path)},
+            progress_percent=25,
+            current_step=2,
+            total_steps=4,
+            context={
+                "input_path": str(input_path),
+                "operation": "validate_input_json",
+            },
         )
 
         sections = collect_core_sections(state)
