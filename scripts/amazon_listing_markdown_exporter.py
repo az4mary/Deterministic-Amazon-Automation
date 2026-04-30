@@ -723,12 +723,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         log_event(
             trace_id=trace_id,
             span_id=span_id,
-            event="FAILED",
-            stage="FAIL_FAST",
+            level="ERROR",
+            message="FAILED",
+            stage="FAILED",
             status="ERROR",
-            details={
+            progress_percent=100,
+            current_step=4,
+            total_steps=4,
+            duration_ms=0,
+            context={
                 "error_code": exc.error_code,
                 "message": exc.message,
+                "operation": "controlled_fail_fast",
             },
         )
         print(f"{exc.error_code}: {exc.message}", file=sys.stderr)
