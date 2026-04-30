@@ -862,11 +862,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             current_step=4,
             total_steps=4,
             duration_ms=0,
-            context={
-                "error_code": exc.error_code,
-                "message": exc.message,
-                "operation": "controlled_fail_fast",
-            },
+            context=exc.to_log_context("controlled_fail_fast"),
         )
         print(f"{exc.error_code}: {exc.message}", file=sys.stderr)
         return 1
