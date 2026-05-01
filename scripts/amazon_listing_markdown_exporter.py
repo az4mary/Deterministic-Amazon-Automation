@@ -77,6 +77,13 @@ def derive_trace_context(input_path: Path, output_path: Path) -> Tuple[str, str]
     return trace_id, span_id
 
 
+def compute_content_hash(content: str) -> str:
+    """
+    Compute a deterministic SHA-256 hash for terminal output verification.
+    """
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
 class ExporterError(Exception):
     """Controlled fail-fast exception for deterministic script termination."""
 
