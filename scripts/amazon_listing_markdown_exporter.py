@@ -826,6 +826,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             input_path=input_path,
             sections=sections,
         )
+        output_hash = compute_content_hash(markdown)
 
         write_markdown_output(output_path, markdown)
 
@@ -840,6 +841,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             current_step=4,
             total_steps=4,
             duration_ms=0,
+            output_hash=output_hash,
             context={
                 "output_path": str(output_path),
                 "bytes_written": output_path.stat().st_size,
