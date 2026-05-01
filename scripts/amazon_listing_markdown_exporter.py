@@ -637,8 +637,6 @@ def render_markdown_document(
         "",
         "## Export Metadata",
         "",
-        f"**Generated At UTC:** {utc_now_iso()}",
-        "",
         f"**Source File:** `{input_path.as_posix()}`",
         "",
         f"**Workflow Trace ID:** `{trace_id}`",
