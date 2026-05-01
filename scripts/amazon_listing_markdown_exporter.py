@@ -122,10 +122,6 @@ class ExporterError(Exception):
         }
 
 
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
-
-
 DETERMINISTIC_LOG_TIMESTAMP = "1970-01-01T00:00:00Z"
 
 
