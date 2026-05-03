@@ -68,6 +68,54 @@ DETERMINISTIC_TIME_BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 TEXT_STEP_WAIT_SECONDS = int(os.getenv("TEXT_STEP_WAIT_SECONDS", "0"))
 IMAGE_STEP_WAIT_SECONDS = int(os.getenv("IMAGE_STEP_WAIT_SECONDS", "0"))
 
+IMAGE_PROMPT_STEP_IDS = {"11", "13", "15", "17", "19", "21", "23"}
+IMAGE_GENERATION_STEP_IDS = {"12", "14", "16", "18", "20", "22", "24"}
+
+IMAGE_TASKS: Dict[str, Dict[str, Any]] = {
+    "11": {
+        "image_number": 1,
+        "image_type": "Hero Product Image",
+        "buyer_question": "What is this product?",
+        "focus": "product identity, visual accuracy, included accessories, Amazon hero image compliance",
+    },
+    "13": {
+        "image_number": 2,
+        "image_type": "Core Benefit Image",
+        "buyer_question": "Why do I need it?",
+        "focus": "top customer-facing benefits and product value",
+    },
+    "15": {
+        "image_number": 3,
+        "image_type": "Problem Solution Image",
+        "buyer_question": "What problem does this product solve?",
+        "focus": "problem-to-solution mapping using verified features only",
+    },
+    "17": {
+        "image_number": 4,
+        "image_type": "Lifestyle Use Image",
+        "buyer_question": "When would I use it?",
+        "focus": "realistic use cases and safe lifestyle context",
+    },
+    "19": {
+        "image_number": 5,
+        "image_type": "Technology Feature Image",
+        "buyer_question": "What technology makes it better?",
+        "focus": "verified technical capabilities only",
+    },
+    "21": {
+        "image_number": 6,
+        "image_type": "Ease of Use / Installation Image",
+        "buyer_question": "How easy is it to install or use?",
+        "focus": "setup steps, included setup accessories, user workflow",
+    },
+    "23": {
+        "image_number": 7,
+        "image_type": "Specifications Infographic",
+        "buyer_question": "What specifications matter?",
+        "focus": "most relevant verified specifications for purchase decision",
+    },
+}
+
 
 @dataclass(frozen=True)
 class Step:
