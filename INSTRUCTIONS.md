@@ -7,7 +7,7 @@ ACTION:
 
 - Perform actual Dry-run locally.
 - Implement `PATCH_SET_02` in manageable segment based on your capability.
-- Commit per PATCH and not per PATCH_SET to remote github codex_branch
+- Commit per PATCH and not per PATCH_SET to remote github codex_branch. Do NOT patch local files
 - Find `PATCH_SET_02` below.
 - Send `PATCH_SET_02` COMPLETION REPORT
 
