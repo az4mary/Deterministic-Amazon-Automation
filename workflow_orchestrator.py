@@ -8,15 +8,18 @@ import json
 import logging
 import os
 import re
+import inspect
+import linecache
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from openai import OpenAI
+from playwright.sync_api import sync_playwright
 
 SCRIPT_METADATA = {
     "script_id": "SCRIPT_002",
@@ -26,11 +29,11 @@ SCRIPT_METADATA = {
     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
     "output_schema": "workflow_state.json + generated artifacts under output/",
     "dependencies": [],
-    "external_libraries": ["openai"],
+    "external_libraries": ["openai", "playwright"],
     "status": "ACTIVE",
 }
 
-ROOT = Path(r"C:\Users\HP\Documents\Obsidian\test\PROJECTS")
+ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 PROMPTS_DIR = ROOT / "docs" / "prompts"
 OUTPUT_DIR = ROOT / "output"
@@ -42,16 +45,22 @@ RAW_TEXT_PATH = DATA_DIR / "raw_product_input.txt"
 
 TEXT_MODEL = os.getenv("OPENAI_TEXT_MODEL", "gpt-5.4")
 IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
+EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "browser").lower()
+BROWSER_CDP_URL = os.getenv("BROWSER_CDP_URL", "http://localhost:9222")
+BROWSER_CHAT_URL = os.getenv("BROWSER_CHAT_URL", "https://chatgpt.com/")
+BROWSER_ACTION_TIMEOUT_MS = int(os.getenv("BROWSER_ACTION_TIMEOUT_MS", "120000"))
 
-TRACE_ID = str(uuid.uuid4())
+TRACE_ID = ""
 SPAN_COUNTER = 0
 RUN_START_TIME = 0.0
 TERMINAL_EVENT_EMITTED = False
+LAST_PROGRESS_PERCENT = -1
+LOG_SEQUENCE = 0
+SYNTHETIC_DURATION_MS = 0
+DETERMINISTIC_TIME_BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
 TEXT_STEP_WAIT_SECONDS = 600
 IMAGE_STEP_WAIT_SECONDS = 900
-
-client = OpenAI()
 
 
 @dataclass(frozen=True)
@@ -68,6 +77,146 @@ def next_span_id() -> str:
     global SPAN_COUNTER
     SPAN_COUNTER += 1
     return f"{SPAN_COUNTER:06d}"
+
+
+class PromptExecutionAdapter:
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
+    def __init__(self, client: OpenAI) -> None:
+        self.client = client
+
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        response = self.client.responses.create(
+            model=TEXT_MODEL,
+            input=build_text_input(state, prompt_text),
+            text={"format": {"type": "json_schema", "json_schema": {"name": f"step_{step_id}", "schema": schema, "strict": True}}},
+            temperature=0,
+        )
+        raw = getattr(response, "output_text", "") or ""
+        if not raw.strip():
+            fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty output.")
+        return parse_response_json(raw)
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        response = self.client.responses.create(
+            model=IMAGE_MODEL,
+            input=prompt,
+            tools=[{"type": "image_generation"}],
+            tool_choice={"type": "image_generation"},
+        )
+        image_data = [
+            output.result
+            for output in response.output
+            if getattr(output, "type", None) == "image_generation_call"
+        ]
+        revised_prompt = None
+        for output in response.output:
+            if getattr(output, "type", None) == "image_generation_call":
+                revised_prompt = getattr(output, "revised_prompt", None)
+                break
+        if not image_data:
+            fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
+        return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
+
+
+class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
+    def __init__(self, cdp_url: str, chat_url: str, action_timeout_ms: int, image_fallback: PromptExecutionAdapter) -> None:
+        self.cdp_url = cdp_url
+        self.chat_url = chat_url
+        self.action_timeout_ms = action_timeout_ms
+        self.image_fallback = image_fallback
+        self._playwright = None
+        self._browser = None
+        self._context = None
+
+    def _page(self):
+        if self._browser is None:
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
+            self._context = self._browser.contexts[0] if self._browser.contexts else self._browser.new_context()
+        page = self._context.pages[0] if self._context.pages else self._context.new_page()
+        page.bring_to_front()
+        if self.chat_url and self.chat_url not in (page.url or ""):
+            page.goto(self.chat_url, wait_until="domcontentloaded")
+        return page
+
+    def _input_box(self, page):
+        try:
+            box = page.get_by_role("textbox").first
+            box.wait_for(timeout=self.action_timeout_ms)
+            return box
+        except Exception:
+            box = page.locator('[contenteditable="true"]').first
+            box.wait_for(timeout=self.action_timeout_ms)
+            return box
+
+    def send_prompt(self, page, payload: str) -> str:
+        before_count = page.locator("[data-message-author-role='assistant']").count()
+        box = self._input_box(page)
+
+        try:
+            box.fill(payload)
+        except Exception:
+            box.click()
+            box.type(payload, delay=20)
+
+        page.keyboard.press("Enter")
+
+        page.wait_for_function(
+            """([selector, beforeCount]) => document.querySelectorAll(selector).length > beforeCount""",
+            arg=["[data-message-author-role='assistant']", before_count],
+            timeout=self.action_timeout_ms,
+        )
+
+        assistant = page.locator("[data-message-author-role='assistant']").last
+        assistant.wait_for(timeout=self.action_timeout_ms)
+        page.wait_for_timeout(1000)
+        return assistant.inner_text(timeout=self.action_timeout_ms).strip()
+
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        page = self._page()
+        payload = build_text_input(state, prompt_text)
+        response_text = self.send_prompt(page, payload)
+        if not response_text:
+            fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
+        return parse_response_json(response_text)
+
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        return self.image_fallback.execute_image(prompt, size=size)
+
+
+client: Optional[OpenAI] = None
+EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
+
+
+def get_execution_adapter() -> PromptExecutionAdapter:
+    global client, EXECUTION_ADAPTER
+    if EXECUTION_ADAPTER is None:
+        if EXECUTION_BACKEND == "browser":
+            if client is None:
+                client = OpenAI()
+            EXECUTION_ADAPTER = BrowserPromptExecutionAdapter(
+                BROWSER_CDP_URL,
+                BROWSER_CHAT_URL,
+                BROWSER_ACTION_TIMEOUT_MS,
+                OpenAIPromptExecutionAdapter(client),
+            )
+        else:
+            if client is None:
+                client = OpenAI()
+            EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
+    return EXECUTION_ADAPTER
+
+
+def build_deterministic_trace_id(raw_text_hash: str, image_hashes: List[str]) -> str:
+    payload = "|".join([raw_text_hash, *image_hashes, SCRIPT_METADATA["script_id"]])
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
 
 
 def json_log(
@@ -106,8 +255,9 @@ def json_log(
             actual=str(args),
         )
 
+    global LOG_SEQUENCE
     record: Dict[str, Any] = {
-        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "timestamp": (DETERMINISTIC_TIME_BASE + timedelta(seconds=LOG_SEQUENCE)).isoformat().replace("+00:00", "Z"),
         "level": level,
         "message": message,
         "service": "workflow_orchestrator",
@@ -132,8 +282,11 @@ def json_log(
     with (LOG_DIR / "execution.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
+    LOG_SEQUENCE += 1
+
 
 def emit_lifecycle_event(stage: str, status: str, message: str, progress_percent: int, current_step: int, total_steps: int) -> None:
+    validate_progress_percent(progress_percent, current_step, total_steps)
     json_log(
         level="INFO",
         message=message,
@@ -151,7 +304,7 @@ def emit_terminal_event(status: str, message: str, output_hash: str, context: Op
     if TERMINAL_EVENT_EMITTED:
         return
 
-    duration_ms = int((time.time() - RUN_START_TIME) * 1000) if RUN_START_TIME else 0
+    duration_ms = SYNTHETIC_DURATION_MS
     json_log(
         level="INFO" if status == "SUCCESS" else "ERROR",
         message=message,
@@ -164,35 +317,89 @@ def emit_terminal_event(status: str, message: str, output_hash: str, context: Op
     TERMINAL_EVENT_EMITTED = True
 
 
+def validate_progress_percent(progress_percent: int, current_step: int, total_steps: int) -> None:
+    global LAST_PROGRESS_PERCENT
+
+    if not isinstance(progress_percent, int):
+        fail(
+            "PROGRESS_TYPE_INVALID",
+            "progress_percent must be an integer.",
+            field="progress_percent",
+            expected="int",
+            actual=type(progress_percent).__name__,
+            stage="PROCESSING",
+        )
+
+    if progress_percent < 0 or progress_percent > 100:
+        fail(
+            "PROGRESS_RANGE_INVALID",
+            "progress_percent must be between 0 and 100.",
+            field="progress_percent",
+            expected="0..100",
+            actual=str(progress_percent),
+            stage="PROCESSING",
+        )
+
+    if progress_percent < LAST_PROGRESS_PERCENT:
+        fail(
+            "PROGRESS_NON_MONOTONIC",
+            "progress_percent must be monotonic.",
+            field="progress_percent",
+            expected=f">= {LAST_PROGRESS_PERCENT}",
+            actual=str(progress_percent),
+            stage="PROCESSING",
+        )
+
+    if current_step < 0 or total_steps <= 0 or current_step > total_steps:
+        fail(
+            "PROGRESS_STEP_INVALID",
+            "current_step/total_steps are outside valid bounds.",
+            field="current_step",
+            expected=f"0 <= current_step <= total_steps and total_steps > 0",
+            actual=f"current_step={current_step}, total_steps={total_steps}",
+            stage="PROCESSING",
+        )
+
+    LAST_PROGRESS_PERCENT = progress_percent
+
+
 def fail(code: str, message: str, field: str = "", expected: str = "", actual: str = "", stage: str = "VALIDATION") -> None:
+    caller = inspect.currentframe().f_back if inspect.currentframe() and inspect.currentframe().f_back else None
+    file_path = str(Path(caller.f_code.co_filename)) if caller else ""
+    line_no = int(caller.f_lineno) if caller else 0
+    snippet = linecache.getline(file_path, line_no).strip() if file_path and line_no else ""
+
+    error_context = {
+        "error_code": code,
+        "field": field,
+        "expected": expected,
+        "actual": actual,
+        "file": file_path,
+        "line": line_no,
+        "snippet": snippet,
+    }
+
     json_log(
         level="ERROR",
         message=message,
         stage=stage,
         status="FAILED",
-        context={
-            "error_code": code,
-            "field": field,
-            "expected": expected,
-            "actual": actual,
-        },
+        context=error_context,
     )
     emit_terminal_event(
         status="FAILED",
         message=message,
         output_hash="",
-        context={
-            "error_code": code,
-            "field": field,
-            "expected": expected,
-            "actual": actual,
-        },
+        context=error_context,
     )
     raise SystemExit(json.dumps({
         "error_code": code,
         "field": field,
         "expected": expected,
         "actual": actual,
+        "file": file_path,
+        "line": line_no,
+        "snippet": snippet,
         "trace_id": TRACE_ID
     }))
 
@@ -640,43 +847,20 @@ def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:
     )
 
 
+def build_model_context_for_step(state: Dict[str, Any], step_id: str) -> Dict[str, Any]:
+    return state
+
+
 def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
     json_log("step_start", step_id=step_id, kind="text")
-    response = client.responses.create(
-        model=TEXT_MODEL,
-        input=build_text_input(state, prompt_text),
-        text={"format": {"type": "json_schema", "json_schema": {"name": f"step_{step_id}", "schema": schema, "strict": True}}},
-        temperature=0,
-    )
-    raw = getattr(response, "output_text", "") or ""
-    if not raw.strip():
-        fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty output.")
-    parsed = parse_response_json(raw)
+    parsed = get_execution_adapter().execute_text(step_id, prompt_text, schema, state)
     json_log("step_end", step_id=step_id, kind="text", output_keys=list(parsed.keys()))
     return parsed
 
 
 def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
     json_log("step_start", kind="image_generation", size=size)
-    response = client.responses.create(
-        model=IMAGE_MODEL,
-        input=prompt,
-        tools=[{"type": "image_generation"}],
-        tool_choice={"type": "image_generation"},
-    )
-    image_data = [
-        output.result
-        for output in response.output
-        if getattr(output, "type", None) == "image_generation_call"
-    ]
-    revised_prompt = None
-    for output in response.output:
-        if getattr(output, "type", None) == "image_generation_call":
-            revised_prompt = getattr(output, "revised_prompt", None)
-            break
-    if not image_data:
-        fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
-    return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
+    return get_execution_adapter().execute_image(prompt, size=size)
 
 
 def save_image(image_base64: str, name: str) -> str:
@@ -703,10 +887,14 @@ def deterministic_style_lock() -> Dict[str, str]:
 
 
 def apply_step_wait(step_kind: str) -> None:
+    global SYNTHETIC_DURATION_MS
+
     if step_kind == "text":
         time.sleep(TEXT_STEP_WAIT_SECONDS)
+        SYNTHETIC_DURATION_MS += TEXT_STEP_WAIT_SECONDS * 1000
     elif step_kind == "image_generate":
         time.sleep(IMAGE_STEP_WAIT_SECONDS)
+        SYNTHETIC_DURATION_MS += IMAGE_STEP_WAIT_SECONDS * 1000
 
 
 STEP_PLAN: List[Step] = [
@@ -742,7 +930,8 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
     if step.kind == "text":
         prompt_text = read_prompt_file(step.step_id)
         schema = step.schema_builder(state) if step.schema_builder else {}
-        output = call_text_step(step.step_id, prompt_text, schema, state)
+        model_context = build_model_context_for_step(state, step.step_id)
+        output = call_text_step(step.step_id, prompt_text, schema, model_context)
         update_state_with_prompt(state, step.step_id, output, step.output_key)
 
         # Promote key outputs for downstream prompts.
@@ -802,8 +991,13 @@ def validate_initial_inputs() -> None:
 
 
 def main() -> None:
-    global RUN_START_TIME
+    global RUN_START_TIME, LOG_SEQUENCE, SYNTHETIC_DURATION_MS, TERMINAL_EVENT_EMITTED, LAST_PROGRESS_PERCENT, SPAN_COUNTER
     RUN_START_TIME = time.time()
+    LOG_SEQUENCE = 0
+    SYNTHETIC_DURATION_MS = 0
+    TERMINAL_EVENT_EMITTED = False
+    LAST_PROGRESS_PERCENT = -1
+    SPAN_COUNTER = 0
 
     parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
     parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
@@ -811,6 +1005,18 @@ def main() -> None:
     args = parser.parse_args()
 
     ensure_dirs()
+
+    state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
+    state.setdefault("reference_tag", "")
+    state.setdefault("outputs", {})
+
+    validate_initial_inputs()
+
+    raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
+    image_hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in read_source_images()]
+
+    global TRACE_ID
+    TRACE_ID = build_deterministic_trace_id(raw_text_hash, image_hashes)
 
     emit_lifecycle_event(
         stage="INIT",
@@ -821,8 +1027,6 @@ def main() -> None:
         total_steps=len(STEP_PLAN),
     )
 
-    validate_initial_inputs()
-
     emit_lifecycle_event(
         stage="VALIDATED",
         status="COMPLETED",
@@ -831,13 +1035,6 @@ def main() -> None:
         current_step=0,
         total_steps=len(STEP_PLAN),
     )
-
-    state = load_json(STATE_PATH) if args.resume and STATE_PATH.exists() else workflow_state_init()
-    state.setdefault("reference_tag", "")
-    state.setdefault("outputs", {})
-
-    raw_text_hash = hashlib.sha256(RAW_TEXT_PATH.read_bytes()).hexdigest()
-    image_hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in read_source_images()]
 
     state["input_fingerprint"] = {
         "raw_text_sha256": raw_text_hash,
@@ -864,7 +1061,8 @@ def main() -> None:
         if args.stop_after and step.step_id == args.stop_after:
             break
         run_step(step, state)
-        progress_percent = int((idx / len(STEP_PLAN)) * 100)
+        progress_percent = min(100, int((idx / len(STEP_PLAN)) * 100))
+        validate_progress_percent(progress_percent, idx, len(STEP_PLAN))
         json_log(
             level="INFO",
             message=f"Completed step {step.step_id}",
