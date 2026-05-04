@@ -1613,7 +1613,8 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
     if step.kind == "text":
         prompt_text = read_prompt_file(step.step_id)
         schema = build_schema()
-        output = call_text_step(step.step_id, prompt_text, schema, state)
+        model_context = build_model_context_for_step(state, step.step_id)
+        output = call_text_step(step.step_id, prompt_text, schema, model_context)
         update_state_with_prompt(state, step.step_id, output, step.output_key)
 
         # Promote key outputs for downstream prompts.
