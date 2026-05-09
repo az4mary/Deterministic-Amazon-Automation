@@ -1472,7 +1472,7 @@ def build_image_generation_context(state: Dict[str, Any], step_id: str) -> Dict[
     return {
         "reference_tag": state.get("reference_tag", ""),
         "image_task": {
-            "image_number": int(step_id) // 2,
+            "image_number": (int(step_id) - 10) // 2,
             "image_type": strategy.get("image_type", ""),
             "buyer_question": strategy.get("buyer_question", ""),
         },
@@ -1661,7 +1661,7 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
         output = {
             "reference_tag": state["reference_tag"],
             "generated_image": {
-                "image_number": int(step.step_id) // 2,
+                "image_number": (int(step.step_id) - 10) // 2,
                 "image_type": strategy["image_type"],
                 "image_generation_prompt": prompt,
                 "saved_path": saved_path,
