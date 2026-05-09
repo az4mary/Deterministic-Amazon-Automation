@@ -1646,12 +1646,13 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
             apply_step_wait(step.kind)
             return
 
-        # Use the immediately preceding image strategy prompt stored in state.
-        prev_strategy_key = f"image_strategy_{int(step.step_id) - 1}"
-        strategy = state.get(prev_strategy_key) or state.get("image_strategy")
-        if not strategy:
-            fail("MISSING_IMAGE_STRATEGY", f"No image strategy found for image generation step {step.step_id}")
-        prompt = strategy["image_generation_prompt"]
+        generation_context = build_image_generation_context(state, step.step_id)
+        prompt = generation_context["image_generation_prompt"]
+        strategy = {
+            "image_type": generation_context["image_task"]["image_type"],
+            "buyer_question": generation_context["image_task"]["buyer_question"],
+            "image_generation_prompt": prompt,
+        }
 
         result = call_image_generation(prompt)
         image_filename = f"image_{step.step_id}.png"
