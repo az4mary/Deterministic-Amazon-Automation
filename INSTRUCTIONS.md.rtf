@@ -1,0 +1,665 @@
+{\rtf1\ansi\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}{\f2\fnil\fcharset1 Cambria Math;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont2\mwrapIndent1440 }\viewkind4\uc1 
+\pard\f0\fs22\lang1033 **Github cloned into Local** **-** D:\\PROJECTS\\GITHUB\\az4mary\\Deterministic-Amazon-Automation-codex_branch\par
+**Github:** {{\field{\*\fldinst{HYPERLINK https://github.com/az4mary/Deterministic-Amazon-Automation.git }}{\fldrslt{https://github.com/az4mary/Deterministic-Amazon-Automation.git\ul0\cf0}}}}\f0\fs22  \par
+**Branch:** codex_branch\par
+**File:** workflow_orchestrator.py\par
+\par
+ACTION:\par
+\par
+- Perform actual Dry-run locally.\par
+- Implement `PATCH_SET_02` in manageable segment based on your capability.\par
+- Commit per PATCH and not per PATCH_SET to remote github codex_branch. Do NOT patch local files\par
+- Find `PATCH_SET_02` below.\par
+- Send `PATCH_SET_02` COMPLETION REPORT\par
+\par
+**DRY-RUN EXPECTATION:**\par
+\par
+```json\par
+\{\par
+  "patch_id": "PATCH_XXA",\par
+  "expected_match_count": 1,\par
+  "expected_replacement_count": 1,\par
+  "halt_if_match_count_is_not": 1\par
+\}\par
+```\par
+\par
+VALIDATED DECISION:\par
+\par
+- `PATCH_SET_02` will solve PROMPT 11\f1\endash 24 by adding one centralized routing layer:\par
+    - image prompt steps `11,13,15,17,19,21,23` receive slim `IMAGE_CONTEXT_JSON`\par
+    - image generation steps `12,14,16,18,20,22,24` use only the prior `image_generation_prompt`, slim strategy context, and separately attached reference images\par
+- No manual one-off patching per image prompt.\par
+- No full `workflow_state.json` sent to image prompt/generation steps after this patch.\par
+\par
+OUTPUT:\par
+\par
+## PATCH_SET_02 \emdash  Centralized image context router\par
+\par
+### PATCH_02A \emdash  Add image step constants and task metadata\par
+\par
+**FIND**\par
+\par
+```python\par
+TEXT_STEP_WAIT_SECONDS = int(os.getenv("TEXT_STEP_WAIT_SECONDS", "0"))\par
+IMAGE_STEP_WAIT_SECONDS = int(os.getenv("IMAGE_STEP_WAIT_SECONDS", "0"))\par
+```\par
+\par
+**REPLACE WITH**\par
+\par
+```python\par
+TEXT_STEP_WAIT_SECONDS = int(os.getenv("TEXT_STEP_WAIT_SECONDS", "0"))\par
+IMAGE_STEP_WAIT_SECONDS = int(os.getenv("IMAGE_STEP_WAIT_SECONDS", "0"))\par
+\par
+IMAGE_PROMPT_STEP_IDS = \{"11", "13", "15", "17", "19", "21", "23"\}\par
+IMAGE_GENERATION_STEP_IDS = \{"12", "14", "16", "18", "20", "22", "24"\}\par
+\par
+IMAGE_TASKS: Dict[str, Dict[str, Any]] = \{\par
+    "11": \{\par
+        "image_number": 1,\par
+        "image_type": "Hero Product Image",\par
+        "buyer_question": "What is this product?",\par
+        "focus": "product identity, visual accuracy, included accessories, Amazon hero image compliance",\par
+    \},\par
+    "13": \{\par
+        "image_number": 2,\par
+        "image_type": "Core Benefit Image",\par
+        "buyer_question": "Why do I need it?",\par
+        "focus": "top customer-facing benefits and product value",\par
+    \},\par
+    "15": \{\par
+        "image_number": 3,\par
+        "image_type": "Problem Solution Image",\par
+        "buyer_question": "What problem does this product solve?",\par
+        "focus": "problem-to-solution mapping using verified features only",\par
+    \},\par
+    "17": \{\par
+        "image_number": 4,\par
+        "image_type": "Lifestyle Use Image",\par
+        "buyer_question": "When would I use it?",\par
+        "focus": "realistic use cases and safe lifestyle context",\par
+    \},\par
+    "19": \{\par
+        "image_number": 5,\par
+        "image_type": "Technology Feature Image",\par
+        "buyer_question": "What technology makes it better?",\par
+        "focus": "verified technical capabilities only",\par
+    \},\par
+    "21": \{\par
+        "image_number": 6,\par
+        "image_type": "Ease of Use / Installation Image",\par
+        "buyer_question": "How easy is it to install or use?",\par
+        "focus": "setup steps, included setup accessories, user workflow",\par
+    \},\par
+    "23": \{\par
+        "image_number": 7,\par
+        "image_type": "Specifications Infographic",\par
+        "buyer_question": "What specifications matter?",\par
+        "focus": "most relevant verified specifications for purchase decision",\par
+    \},\par
+\}\par
+```\par
+\par
+---\par
+\par
+### PATCH_02B \emdash  Add slim image context helper functions\par
+\par
+**FIND**\par
+\par
+```python\par
+def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:\par
+    compact_state = json.dumps(state, ensure_ascii=False, indent=2)\par
+    return (\par
+        f"WORKFLOW_STATE_JSON:\\n\{compact_state\}\\n\\n"\par
+        f"INSTRUCTIONS:\\n\{prompt_text\}\\n\\n"\par
+        f"OUTPUT RULES:\\nReturn only valid JSON."\par
+    )\par
+```\par
+\par
+**REPLACE WITH**\par
+\par
+```python\par
+def pick_visual_attributes(product_data: Dict[str, Any]) -> Dict[str, Any]:\par
+    attributes = product_data.get("attributes", \{\})\par
+    additional = product_data.get("additional_attributes", \{\})\par
+    if not isinstance(attributes, dict):\par
+        attributes = \{\}\par
+    if not isinstance(additional, dict):\par
+        additional = \{\}\par
+\par
+    visual_keywords = \{\par
+        "color",\par
+        "material",\par
+        "materials",\par
+        "screen",\par
+        "display",\par
+        "lens",\par
+        "viewing",\par
+        "angle",\par
+        "size",\par
+        "dimensions",\par
+        "shape",\par
+        "mount",\par
+        "bracket",\par
+        "accessory",\par
+        "accessories",\par
+        "included",\par
+        "app",\par
+        "wifi",\par
+        "wi-fi",\par
+        "sensor",\par
+        "night",\par
+        "resolution",\par
+        "frame",\par
+        "coverage",\par
+        "installation",\par
+        "setup",\par
+    \}\par
+\par
+    selected: Dict[str, Any] = \{\}\par
+    for source in (attributes, additional):\par
+        for key, value in source.items():\par
+            key_text = str(key).lower()\par
+            if any(token in key_text for token in visual_keywords):\par
+                selected[key] = value\par
+    return selected\par
+\par
+def get_extraction_output(state: Dict[str, Any], step_id: str) -> Dict[str, Any]:\par
+    outputs = state.get("outputs", \{\})\par
+    if isinstance(outputs, dict) and isinstance(outputs.get(step_id), dict):\par
+        return outputs[step_id]\par
+    promoted_key = "prompt_01A" if step_id == "01A" else "prompt_01B"\par
+    promoted = state.get(promoted_key)\par
+    if isinstance(promoted, dict):\par
+        return promoted\par
+    return \{\}\par
+\par
+def build_image_prompt_context(state: Dict[str, Any], step_id: str) -> Dict[str, Any]:\par
+    product_data = get_extraction_output(state, "01A")\par
+    visual_data = get_extraction_output(state, "01B")\par
+    image_task = IMAGE_TASKS.get(step_id)\par
+    if image_task is None:\par
+        fail(\par
+            "IMAGE_CONTEXT_STEP_INVALID",\par
+            f"No image task metadata exists for step \{step_id\}.",\par
+            field="step_id",\par
+            expected="one of IMAGE_PROMPT_STEP_IDS",\par
+            actual=step_id,\par
+        )\par
+\par
+    product_profile = product_data.get("product_profile", \{\})\par
+    if not isinstance(product_profile, dict):\par
+        product_profile = \{\}\par
+\par
+    context: Dict[str, Any] = \{\par
+        "reference_tag": state.get("reference_tag", ""),\par
+        "image_task": image_task,\par
+        "product_identity": \{\par
+            "product_category": product_data.get("product_category", ""),\par
+            "brand": product_profile.get("brand", ""),\par
+            "product_name": product_profile.get("product_name", ""),\par
+            "model": product_profile.get("model", ""),\par
+            "color": product_profile.get("color", ""),\par
+        \},\par
+        "included_accessories": product_data.get("package_contents", []),\par
+        "visual_grounding": \{\par
+            "visual_identity": visual_data.get("visual_identity", \{\}),\par
+            "object_layout_map": visual_data.get("object_layout_map", \{\}),\par
+            "product_geometry": visual_data.get("product_geometry", \{\}),\par
+            "image_views": visual_data.get("image_views", \{\}),\par
+        \},\par
+        "style_guidance": \{\par
+            "lighting_profile": visual_data.get("lighting_profile", \{\}),\par
+            "camera_profile": visual_data.get("camera_profile", \{\}),\par
+            "image_style_lock": state.get("image_style_lock", \{\}),\par
+        \},\par
+        "visual_attribute_subset": pick_visual_attributes(product_data),\par
+        "feature_subset": product_data.get("core_features", []),\par
+        "source_images": state.get("source_payload", \{\}).get("source_images", []),\par
+    \}\par
+\par
+    if step_id == "11":\par
+        context["amazon_rules"] = \{\par
+            "background": "pure white RGB 255,255,255",\par
+            "allowed_objects": "product and included accessories only",\par
+            "text_graphics": "none",\par
+            "frame_fill": "approximately 85%",\par
+            "visibility": "entire product visible",\par
+            "format": "1080x1920 vertical 9:16",\par
+        \}\par
+    else:\par
+        context["amazon_rules"] = \{\par
+            "product_visibility": "product must be clearly visible and accurately represented",\par
+            "text_graphics": "allowed only for verified features and secondary-image explanation",\par
+            "feature_accuracy": "graphics must represent real product features only",\par
+            "accessory_limit": "do not show accessories not included with the product",\par
+            "format": "1080x1920 vertical 9:16",\par
+        \}\par
+\par
+    return context\par
+\par
+def build_image_generation_context(state: Dict[str, Any], step_id: str) -> Dict[str, Any]:\par
+    previous_strategy_key = f"image_strategy_\{int(step_id) - 1\}"\par
+    strategy = state.get(previous_strategy_key) or state.get("image_strategy")\par
+    if not isinstance(strategy, dict):\par
+        fail(\par
+            "MISSING_IMAGE_STRATEGY",\par
+            f"No image strategy found for image generation step \{step_id\}",\par
+            field="image_strategy",\par
+            expected=previous_strategy_key,\par
+            actual=type(strategy).__name__,\par
+        )\par
+\par
+    product_data = get_extraction_output(state, "01A")\par
+    visual_data = get_extraction_output(state, "01B")\par
+\par
+    return \{\par
+        "reference_tag": state.get("reference_tag", ""),\par
+        "image_task": \{\par
+            "image_number": int(step_id) // 2,\par
+            "image_type": strategy.get("image_type", ""),\par
+            "buyer_question": strategy.get("buyer_question", ""),\par
+        \},\par
+        "image_generation_prompt": strategy.get("image_generation_prompt", ""),\par
+        "included_accessories": product_data.get("package_contents", []),\par
+        "visual_grounding": \{\par
+            "visual_identity": visual_data.get("visual_identity", \{\}),\par
+            "object_layout_map": visual_data.get("object_layout_map", \{\}),\par
+            "product_geometry": visual_data.get("product_geometry", \{\}),\par
+            "image_views": visual_data.get("image_views", \{\}),\par
+        \},\par
+        "style_lock": state.get("image_style_lock", deterministic_style_lock()),\par
+        "source_images": state.get("source_payload", \{\}).get("source_images", []),\par
+    \}\par
+\par
+def build_model_context_for_step(state: Dict[str, Any], step_id: str) -> Dict[str, Any]:\par
+    if step_id in IMAGE_PROMPT_STEP_IDS:\par
+        return \{\par
+            "context_type": "IMAGE_CONTEXT_JSON",\par
+            "image_context": build_image_prompt_context(state, step_id),\par
+        \}\par
+    return state\par
+\par
+def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:\par
+    context_label = "IMAGE_CONTEXT_JSON" if state.get("context_type") == "IMAGE_CONTEXT_JSON" else "WORKFLOW_STATE_JSON"\par
+    compact_state = json.dumps(state, ensure_ascii=False, indent=2)\par
+    return (\par
+        f"\{context_label\}:\\n\{compact_state\}\\n\\n"\par
+        f"INSTRUCTIONS:\\n\{prompt_text\}\\n\\n"\par
+        f"OUTPUT RULES:\\nReturn only valid JSON."\par
+    )\par
+```\par
+\par
+---\par
+\par
+### PATCH_02C \emdash  Route image prompt steps through slim context\par
+\par
+**FIND**\par
+\par
+```python\par
+        prompt_text = read_prompt_file(step.step_id)\par
+        schema = build_schema()\par
+        output = call_text_step(step.step_id, prompt_text, schema, state)\par
+        update_state_with_prompt(state, step.step_id, output, step.output_key)\par
+```\par
+\par
+**REPLACE WITH**\par
+\par
+```python\par
+        prompt_text = read_prompt_file(step.step_id)\par
+        schema = build_schema()\par
+        model_context = build_model_context_for_step(state, step.step_id)\par
+        output = call_text_step(step.step_id, prompt_text, schema, model_context)\par
+        update_state_with_prompt(state, step.step_id, output, step.output_key)\par
+```\par
+\par
+---\par
+\par
+### PATCH_02D \emdash  Use image generation context inside image generation steps\par
+\par
+**FIND**\par
+\par
+```python\par
+        # Use the immediately preceding image strategy prompt stored in state.\par
+        prev_strategy_key = f"image_strategy_\{int(step.step_id) - 1\}"\par
+        strategy = state.get(prev_strategy_key) or state.get("image_strategy")\par
+        if not strategy:\par
+            fail("MISSING_IMAGE_STRATEGY", f"No image strategy found for image generation step \{step.step_id\}")\par
+        prompt = strategy["image_generation_prompt"]\par
+\par
+        result = call_image_generation(prompt)\par
+```\par
+\par
+**REPLACE WITH**\par
+\par
+```python\par
+        generation_context = build_image_generation_context(state, step.step_id)\par
+        prompt = generation_context["image_generation_prompt"]\par
+        strategy = \{\par
+            "image_type": generation_context["image_task"]["image_type"],\par
+            "buyer_question": generation_context["image_task"]["buyer_question"],\par
+            "image_generation_prompt": prompt,\par
+        \}\par
+\par
+        result = call_image_generation(prompt)\par
+```\par
+\par
+## PATCH_02F \emdash  Correct image-generation step-to-image-number mapping\par
+\par
+Use a **single-step, in-process unit dry-run** for `PATCH_02D`. Do **not** run the whole workflow.\par
+\par
+The focused dry-run should prove exactly one behavior:\par
+\par
+> Step `12` obtains its prompt from `build_image_generation_context(state, step.step_id)` and passes that prompt to `call_image_generation(...)`.\par
+> \par
+\par
+Python\rquote s `unittest.mock` supports replacing callables and asserting call behavior, which is the correct mechanism here because the test should avoid real browser/API calls and file writes. ([Python documentation](https://docs.python.org/3/library/unittest.mock.html?utm_source=chatgpt.com))\par
+\par
+## Focused dry-run: `PATCH_02D`\par
+\par
+### Scope\par
+\par
+```json\par
+\{\par
+  "patch_id": "PATCH_02D",\par
+  "dry_run_scope": "single image_generate step only",\par
+  "target_step": "12",\par
+  "workflow_steps_executed": ["12"],\par
+  "browser_calls_allowed": false,\par
+  "api_calls_allowed": false,\par
+  "filesystem_writes_allowed": false\par
+\}\par
+```\par
+\par
+## Test objective\par
+\par
+```json\par
+\{\par
+  "objective": "Validate that image generation step 12 uses build_image_generation_context() as the source of image_generation_prompt.",\par
+  "expected_behavior": "run_step(Step('12', 'image_generate', ...)) calls call_image_generation() exactly once with the prompt returned by build_image_generation_context()."\par
+\}\par
+```\par
+\par
+## Required fixtures\par
+\par
+Use a minimal synthetic `state`:\par
+\par
+```python\par
+state = \{\par
+    "reference_tag": "DRY_RUN_REF",\par
+    "outputs": \{\par
+        "01A": \{\par
+            "package_contents": ["Product", "Accessory"]\par
+        \},\par
+        "01B": \{\par
+            "visual_identity": \{\},\par
+            "object_layout_map": \{\},\par
+            "product_geometry": \{\},\par
+            "image_views": \{\}\par
+        \}\par
+    \},\par
+    "image_strategy": \{\par
+        "image_type": "Hero Product Image",\par
+        "buyer_question": "What is this product?",\par
+        "image_generation_prompt": "DRY RUN PROMPT FROM STRATEGY"\par
+    \},\par
+    "image_style_lock": \{\},\par
+    "source_payload": \{\par
+        "source_images": ["DRY_RUN_REFERENCE_IMAGE.png"]\par
+    \}\par
+\}\par
+```\par
+\par
+## Required mocks\par
+\par
+Mock these functions:\par
+\par
+```json\par
+\{\par
+  "call_image_generation": "return fake base64 image result and capture prompt argument",\par
+  "save_image": "return fake saved path, no file write",\par
+  "save_json_atomic": "no-op",\par
+  "apply_step_wait": "no-op"\par
+\}\par
+```\par
+\par
+Also set:\par
+\par
+```powershell\par
+$env:SKIP_IMAGES="0"\par
+$env:OPENAI_API_KEY="dry-run-key"\par
+```\par
+\par
+Reason: the step should enter the image generation branch but not call the real API because `call_image_generation` is mocked.\par
+\par
+## Exact dry-run script\par
+\par
+Run this from the repo root:\par
+\par
+```powershell\par
+python - <<'PY'\par
+import base64\par
+from unittest.mock import patch\par
+import workflow_orchestrator as w\par
+\par
+state = \{\par
+    "reference_tag": "DRY_RUN_REF",\par
+    "outputs": \{\par
+        "01A": \{\par
+            "package_contents": ["Product", "Accessory"]\par
+        \},\par
+        "01B": \{\par
+            "visual_identity": \{\},\par
+            "object_layout_map": \{\},\par
+            "product_geometry": \{\},\par
+            "image_views": \{\}\par
+        \}\par
+    \},\par
+    "image_strategy": \{\par
+        "image_type": "Hero Product Image",\par
+        "buyer_question": "What is this product?",\par
+        "image_generation_prompt": "DRY RUN PROMPT FROM STRATEGY"\par
+    \},\par
+    "image_style_lock": \{\},\par
+    "source_payload": \{\par
+        "source_images": ["DRY_RUN_REFERENCE_IMAGE.png"]\par
+    \}\par
+\}\par
+\par
+step = w.Step("12", "image_generate", None, "generated_image_1", None)\par
+\par
+fake_image_result = \{\par
+    "image_base64": base64.b64encode(b"dry-run-image").decode("utf-8"),\par
+    "revised_prompt": None\par
+\}\par
+\par
+called = \{\}\par
+\par
+def fake_call_image_generation(prompt, size="1024x1536"):\par
+    called["prompt"] = prompt\par
+    called["size"] = size\par
+    return fake_image_result\par
+\par
+with patch.dict(w.os.environ, \{"OPENAI_API_KEY": "dry-run-key", "SKIP_IMAGES": "0"\}), \\\par
+     patch.object(w, "call_image_generation", side_effect=fake_call_image_generation), \\\par
+     patch.object(w, "save_image", return_value="DRY_RUN_NO_FILE_WRITE/image_12.png") as save_image_mock, \\\par
+     patch.object(w, "save_json_atomic", return_value=None), \\\par
+     patch.object(w, "apply_step_wait", return_value=None):\par
+    w.run_step(step, state)\par
+\par
+assert called["prompt"] == "DRY RUN PROMPT FROM STRATEGY", called\par
+assert state["generated_image_1"]["generated_image"]["image_generation_prompt"] == "DRY RUN PROMPT FROM STRATEGY"\par
+assert state["generated_image_1"]["generated_image"]["image_type"] == "Hero Product Image"\par
+assert state["generated_image_1"]["generated_image"]["saved_path"] == "DRY_RUN_NO_FILE_WRITE/image_12.png"\par
+assert save_image_mock.call_count == 1\par
+\par
+print("PATCH_02D_TARGETED_DRY_RUN_OK")\par
+print("step=12")\par
+print(f"called_prompt=\{called['prompt']\}")\par
+print(f"image_type=\{state['generated_image_1']['generated_image']['image_type']\}")\par
+print(f"saved_path=\{state['generated_image_1']['generated_image']['saved_path']\}")\par
+PY\par
+```\par
+\par
+## Expected output\par
+\par
+```\par
+PATCH_02D_TARGETED_DRY_RUN_OK\par
+step=12\par
+called_prompt=DRY RUN PROMPT FROM STRATEGY\par
+image_type=Hero Product Image\par
+saved_path=DRY_RUN_NO_FILE_WRITE/image_12.png\par
+```\par
+\par
+## Explicit non-goals\par
+\par
+This dry-run must **not** validate:\par
+\par
+```json\par
+[\par
+  "browser adapter",\par
+  "OpenAI API",\par
+  "actual image generation",\par
+  "full workflow progression",\par
+  "prompt 11 generation",\par
+  "workflow_state.json write behavior",\par
+  "image_prompts.json export"\par
+]\par
+```\par
+\par
+## Pass/fail criteria\par
+\par
+```json\par
+\{\par
+  "pass_if": [\par
+    "call_image_generation called exactly once",\par
+    "call_image_generation receives DRY RUN PROMPT FROM STRATEGY",\par
+    "state.generated_image_1.generated_image.image_generation_prompt equals DRY RUN PROMPT FROM STRATEGY",\par
+    "save_image is mocked and called exactly once",\par
+    "no browser/API call occurs",\par
+    "no workflow output files are written"\par
+  ],\par
+  "fail_if": [\par
+    "call_image_generation is not called",\par
+    "prompt comes from full workflow_state instead of build_image_generation_context",\par
+    "real OpenAI client is initialized",\par
+    "real browser is opened",\par
+    "save_json_atomic writes to disk"\par
+  ]\par
+\}\par
+```\par
+\par
+One note: this focused test is also sufficient to expose the unrelated image-number bug you already found. Fix that with `PATCH_02F`, then run the same focused dry-run again and assert image number maps `12 \f2\u8594?\f0  1`.\f1\lang1033\par
+\par
+### DRY-RUN EXPECTATION\par
+\par
+```json\par
+\{\par
+  "patch_id": "PATCH_02F",\par
+  "expected_match_count": 2,\par
+  "expected_replacement_count": 2,\par
+  "halt_if_match_count_is_not": 2\par
+\}\par
+```\par
+\par
+### FIND\par
+\par
+```python\par
+"image_number": int(step_id) // 2,\par
+```\par
+\par
+### REPLACE WITH\par
+\par
+```python\par
+"image_number": (int(step_id) - 10) // 2,\par
+```\par
+\par
+### FIND\par
+\par
+```python\par
+"image_number": int(step.step_id) // 2,\par
+```\par
+\par
+### REPLACE WITH\par
+\par
+```python\par
+"image_number": (int(step.step_id) - 10) // 2,\par
+```\par
+\par
+After `PATCH_02F`, run:\par
+\par
+```powershell\par
+python -m py_compile workflow_orchestrator.py\par
+```\par
+\par
+Then proceed with `PATCH_02E` validation.\par
+\par
+---\par
+\par
+### PATCH_02E \emdash  Validation commands\par
+\par
+Run:\par
+\par
+```powershell\par
+python -m py_compile workflow_orchestrator.py\par
+python workflow_orchestrator.py --stop-after 11\par
+```\par
+\par
+Expected result:\par
+\par
+```json\par
+\{\par
+  "py_compile": "PASS",\par
+  "stop_after_11": "PASS",\par
+  "expected_behavior": [\par
+    "Steps 01A through 10 use WORKFLOW_STATE_JSON",\par
+    "Step 11 uses IMAGE_CONTEXT_JSON",\par
+    "workflow_state.json remains full persisted source of truth",\par
+    "image_prompts.json remains generated from persisted image_strategy outputs"\par
+  ]\par
+\}\par
+```\par
+\par
+CONFIRMATION REQUIRED:\par
+\par
+YES\par
+\par
+## PATCH_SET_02 VALIDATION CHECKPOINT\par
+\par
+```json\par
+\{\par
+  "patch_set_id": "PATCH_SET_02",\par
+  "expected_behavior": "Image prompt steps use slim IMAGE_CONTEXT_JSON, image generation steps use context-derived image_generation_prompt, and image generation numbering maps steps 12,14,16,18,20,22,24 to images 1,2,3,4,5,6,7.",\par
+  "expected_present": \{\par
+    "IMAGE_PROMPT_STEP_IDS": true,\par
+    "build_image_prompt_context": true,\par
+    "build_image_generation_context": true,\par
+    "build_model_context_for_step": true,\par
+    "\\"image_number\\": (int(step_id) - 10) // 2": true,\par
+    "\\"image_number\\": (int(step.step_id) - 10) // 2": true\par
+  \},\par
+  "expected_terminal_success_fields": [\par
+    "timestamp",\par
+    "level",\par
+    "status",\par
+    "trace_id",\par
+    "span_id",\par
+    "output_hash"\par
+  ],\par
+  "forbidden_changes": [\par
+    "Do not remove workflow_state.json persistence",\par
+    "Do not remove image_prompts.json export",\par
+    "Do not remove browser adapter",\par
+    "Do not send full workflow_state.json to image prompt steps",\par
+    "Do not attach reference images inside JSON payload",\par
+    "Do not change non-image text step behavior"\par
+  ]\par
+\}\par
+```\par
+\par
+CONFIRMATION REQUIRED:\par
+\par
+YES \emdash  confirm `PATCH_SET_02` completion to proceed to `PATCH_SET_03`.\f0\par
+}
+ 
