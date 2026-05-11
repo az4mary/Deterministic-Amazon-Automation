@@ -869,14 +869,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- product_identity
+- included_accessories
+- visual_grounding
 - visual_identity
+- object_layout_map
 - product_geometry
 - image_views
+- style_guidance
 - image_style_lock
+- visual_attribute_subset
+- feature_subset
+- amazon_rules
+- source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 2 of the Amazon listing.
@@ -1018,14 +1024,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- product_identity
+- included_accessories
+- visual_grounding
 - visual_identity
+- object_layout_map
 - product_geometry
 - image_views
+- style_guidance
 - image_style_lock
+- visual_attribute_subset
+- feature_subset
+- amazon_rules
+- source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 3 of the Amazon listing.
@@ -1167,14 +1179,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- product_identity
+- included_accessories
+- visual_grounding
 - visual_identity
+- object_layout_map
 - product_geometry
 - image_views
+- style_guidance
 - image_style_lock
+- visual_attribute_subset
+- feature_subset
+- amazon_rules
+- source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 4 of the Amazon listing.
@@ -1316,14 +1334,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- product_identity
+- included_accessories
+- visual_grounding
 - visual_identity
+- object_layout_map
 - product_geometry
 - image_views
+- style_guidance
 - image_style_lock
+- visual_attribute_subset
+- feature_subset
+- amazon_rules
+- source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 5 of the Amazon listing.
@@ -1465,14 +1489,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- product_identity
+- included_accessories
+- visual_grounding
 - visual_identity
+- object_layout_map
 - product_geometry
 - image_views
+- style_guidance
 - image_style_lock
+- visual_attribute_subset
+- feature_subset
+- amazon_rules
+- source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 6 of the Amazon listing.
@@ -1614,14 +1644,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- product_identity
+- included_accessories
+- visual_grounding
 - visual_identity
+- object_layout_map
 - product_geometry
 - image_views
+- style_guidance
 - image_style_lock
+- visual_attribute_subset
+- feature_subset
+- amazon_rules
+- source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 7 of the Amazon listing.
