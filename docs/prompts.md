@@ -702,7 +702,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -774,7 +774,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -862,7 +862,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -938,7 +938,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1011,7 +1011,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1087,7 +1087,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1160,7 +1160,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1236,7 +1236,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1309,7 +1309,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1385,7 +1385,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1458,7 +1458,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1534,7 +1534,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1607,7 +1607,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
@@ -1683,7 +1683,7 @@ Reference product images are attached separately through the browser/model workf
 Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
-The dataset includes:
+IMAGE_CONTEXT_JSON includes:
 - product_profile
 - attributes
 - additional_attributes
