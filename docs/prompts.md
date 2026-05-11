@@ -1142,7 +1142,7 @@ Aspect Ratio: 9:16
 Vertical composition
 
 **STYLE CONSISTENCY**
-Maintain the following parameters from workflow_state.json:
+Maintain the following parameters from IMAGE_CONTEXT_JSON.style_lock:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1297,7 +1297,7 @@ Aspect Ratio: 9:16
 Vertical composition
 
 **STYLE CONSISTENCY**
-Maintain the following parameters from workflow_state.json:
+Maintain the following parameters from IMAGE_CONTEXT_JSON.style_lock:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1452,7 +1452,7 @@ Aspect Ratio: 9:16
 Vertical composition
 
 **STYLE CONSISTENCY**
-Maintain the following parameters from workflow_state.json:
+Maintain the following parameters from IMAGE_CONTEXT_JSON.style_lock:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1607,7 +1607,7 @@ Aspect Ratio: 9:16
 Vertical composition
 
 **STYLE CONSISTENCY**
-Maintain the following parameters from workflow_state.json:
+Maintain the following parameters from IMAGE_CONTEXT_JSON.style_lock:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1762,7 +1762,7 @@ Aspect Ratio: 9:16
 Vertical composition
 
 **STYLE CONSISTENCY**
-Maintain the following parameters from workflow_state.json:
+Maintain the following parameters from IMAGE_CONTEXT_JSON.style_lock:
 - lighting
 - camera lens style
 - shadow behavior
