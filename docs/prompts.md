@@ -697,7 +697,9 @@ Do not suggest additional steps.
 **TASK:** Image 1 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -767,7 +769,9 @@ Do not suggest additional steps.
 **TASK:** Image 1 Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -853,7 +857,9 @@ Do not suggest additional steps.
 **TASK:** Image 2 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -927,7 +933,9 @@ Do not suggest additional steps.
 **TASK:** Image 2 Generation
 
 INPUT
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -998,7 +1006,9 @@ Do not suggest additional steps.
 **TASK:** Image 3 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1072,7 +1082,9 @@ OUTPUT FORMAT (JSON)
 **TASK:** Image 3 Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1143,7 +1155,9 @@ Do not suggest additional steps.
 **TASK:** Image 4 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1217,7 +1231,9 @@ OUTPUT FORMAT (JSON)
 **TASK:** Image 4 Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1288,7 +1304,9 @@ Do not suggest additional steps.
 **TASK:** Image 5 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1362,7 +1380,9 @@ OUTPUT FORMAT (JSON)
 **TASK:** Image 5 Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1433,7 +1453,9 @@ Do not suggest additional steps.
 **TASK:** Image 6 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1507,7 +1529,9 @@ OUTPUT FORMAT (JSON)
 **TASK:** Image 6 Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1578,7 +1602,9 @@ Do not suggest additional steps.
 **TASK:** Image 7 Prompt Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
@@ -1652,7 +1678,9 @@ OUTPUT FORMAT (JSON)
 **TASK:** Image 7 Generation
 
 **INPUT**
-Use the structured dataset contained in workflow_state.json.
+Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
+Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
+Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from workflow_state.json and preserved unchanged.
 
 The dataset includes:
