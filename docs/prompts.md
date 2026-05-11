@@ -909,7 +909,7 @@ Feature / Core Benefit Image
 - Vertical composition
 
 **STYLE CONSISTENCY**
-Use image_style_lock from workflow_state.json to maintain:
+Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1064,7 +1064,7 @@ IMAGE FORMAT
 - Vertical composition
 
 STYLE CONSISTENCY
-Use image_style_lock from workflow_state.json to maintain:
+Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1219,7 +1219,7 @@ IMAGE FORMAT
 - Vertical composition
 
 STYLE CONSISTENCY
-Use image_style_lock from workflow_state.json to maintain:
+Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1374,7 +1374,7 @@ IMAGE FORMAT
 - Vertical composition
 
 STYLE CONSISTENCY
-Use image_style_lock from workflow_state.json to maintain:
+Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1529,7 +1529,7 @@ IMAGE FORMAT
 - Vertical composition
 
 STYLE CONSISTENCY
-Use image_style_lock from workflow_state.json to maintain:
+Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - lighting
 - camera lens style
 - shadow behavior
@@ -1684,7 +1684,7 @@ IMAGE FORMAT
 - Vertical composition
 
 STYLE CONSISTENCY
-Use image_style_lock from workflow_state.json to maintain:
+Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - lighting
 - camera lens style
 - shadow behavior
