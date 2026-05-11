@@ -1106,16 +1106,16 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- image_generation_prompt
+- included_accessories
+- visual_grounding
 - visual_identity
 - object_layout_map
 - product_geometry
 - image_views
-- image_style_lock
-- image_strategy
+- style_lock
+- source_images
 
 **OBJECTIVE**
 Generate Image 3 for the Amazon listing using the prepared image strategy.
@@ -1261,16 +1261,16 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- image_generation_prompt
+- included_accessories
+- visual_grounding
 - visual_identity
 - object_layout_map
 - product_geometry
 - image_views
-- image_style_lock
-- image_strategy
+- style_lock
+- source_images
 
 **OBJECTIVE**
 Generate Image 4 for the Amazon listing using the prepared image strategy.
@@ -1416,16 +1416,16 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- image_generation_prompt
+- included_accessories
+- visual_grounding
 - visual_identity
 - object_layout_map
 - product_geometry
 - image_views
-- image_style_lock
-- image_strategy
+- style_lock
+- source_images
 
 **OBJECTIVE**
 Generate Image 5 for the Amazon listing using the prepared image strategy.
@@ -1571,16 +1571,16 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- image_generation_prompt
+- included_accessories
+- visual_grounding
 - visual_identity
 - object_layout_map
 - product_geometry
 - image_views
-- image_style_lock
-- image_strategy
+- style_lock
+- source_images
 
 **OBJECTIVE**
 Generate Image 6 for the Amazon listing using the prepared image strategy.
@@ -1726,16 +1726,16 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
-- core_features
+- image_task
+- image_generation_prompt
+- included_accessories
+- visual_grounding
 - visual_identity
 - object_layout_map
 - product_geometry
 - image_views
-- image_style_lock
-- image_strategy
+- style_lock
+- source_images
 
 **OBJECTIVE**
 Generate Image 7 for the Amazon listing using the prepared image strategy.
