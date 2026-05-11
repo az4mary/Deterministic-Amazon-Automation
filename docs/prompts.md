@@ -987,7 +987,7 @@ AMAZON IMAGE RULES
 - Vertical composition
 
 **STYLE CONSISTENCY**
-Use image_style_lock from workflow_state.json to maintain:
+Use style_lock from IMAGE_CONTEXT_JSON to maintain:
 - lighting
 - camera lens style
 - shadow behavior
