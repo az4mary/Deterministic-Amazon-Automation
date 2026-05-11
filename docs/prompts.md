@@ -703,15 +703,20 @@ Do not use or assume access to the full workflow_state.json.
 reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
-- product_profile
-- attributes
-- additional_attributes
+- product_identity
+- included_accessories
+- package_contents
+- visual_grounding
 - visual_identity
 - object_layout_map
 - lighting_profile
 - camera_profile
 - product_geometry
 - image_views
+- style_guidance
+- visual_attribute_subset
+- image_task
+- amazon_rules
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 1 of the Amazon listing.
