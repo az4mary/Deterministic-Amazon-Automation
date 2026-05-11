@@ -700,7 +700,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -772,7 +772,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -860,7 +860,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -936,7 +936,7 @@ INPUT
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1009,7 +1009,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1085,7 +1085,7 @@ OUTPUT FORMAT (JSON)
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1158,7 +1158,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1234,7 +1234,7 @@ OUTPUT FORMAT (JSON)
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1307,7 +1307,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1383,7 +1383,7 @@ OUTPUT FORMAT (JSON)
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1456,7 +1456,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1532,7 +1532,7 @@ OUTPUT FORMAT (JSON)
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1605,7 +1605,7 @@ Do not suggest additional steps.
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
@@ -1681,7 +1681,7 @@ OUTPUT FORMAT (JSON)
 Use only the IMAGE_CONTEXT_JSON supplied by the orchestrator for this step.
 Reference product images are attached separately through the browser/model workflow and are not embedded inside IMAGE_CONTEXT_JSON.
 Do not use or assume access to the full workflow_state.json.
-reference_tag must be read from workflow_state.json and preserved unchanged.
+reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 The dataset includes:
 - product_profile
