@@ -1711,7 +1711,8 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Deterministic workflow orchestrator")
     parser.add_argument("--resume", action="store_true", help="Resume from existing workflow_state.json")
-    parser.add_argument("--stop-after", default=None, help="Optional step id to stop after (e.g. 10)")
+    parser.add_argument("--stop-after", default=None, help="Run through the matching step id, then stop before the next step (e.g. 01A, 11)")
+    parser.add_argument("--stop-before", default=None, help="Stop before the matching step id without executing it (e.g. 01A, 11)")
     parser.add_argument("--restart-from", default=None, help="Restart execution from a specific step id (e.g. 01B)")
     parser.add_argument(
         "--enable-image-generation",
