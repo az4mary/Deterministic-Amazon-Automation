@@ -484,6 +484,16 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         assistant = page.locator("[data-message-author-role='assistant']").last
         assistant.wait_for(timeout=self.action_timeout_ms)
+        json_log(
+            level="DEBUG",
+            message="Browser assistant response detected",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "assistant_response_detected",
+                "assistant_count": page.locator("[data-message-author-role='assistant']").count(),
+            },
+        )
         # Wait for streaming to settle to avoid capturing partial (invalid) JSON.
         stable_required = 3
         stable_count = 0
