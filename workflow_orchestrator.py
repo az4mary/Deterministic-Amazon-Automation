@@ -991,6 +991,13 @@ def repair_common_json_glitches(json_text: str) -> str:
     # becomes:
     # "sensor": "SONY Exmor IMX323 (1/2.9 inches, 2.8µ pixel)"
     json_text = re.sub(r'(\d)"\s*,\s*(\d)', r"\1 inches, \2", json_text)
+
+    # Fix doubled terminal quote characters inside JSON string values, e.g.:
+    # "sensor_size":"1/2.9""
+    # becomes a valid JSON string containing the inch quote:
+    # "sensor_size":"1/2.9\""
+    json_text = re.sub(r'(?<=\d)""(?=\s*[,}\]])', r'\\""', json_text)
+
     return json_text
 
 
