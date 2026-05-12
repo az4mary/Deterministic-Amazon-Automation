@@ -340,22 +340,51 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
     def _input_box(self, page):
         selectors = [
+            "[contenteditable='true']",
             "textarea#prompt-textarea",
             "textarea[data-testid='prompt-textarea']",
-            "[contenteditable='true']",
+            "div[contenteditable='true']",
+            "[role='textbox']",
         ]
         last_exc: Optional[Exception] = None
+
         for sel in selectors:
             try:
                 box = page.locator(sel).first
-                box.wait_for(timeout=self.action_timeout_ms)
+                if box.count() == 0:
+                    continue
+                box.wait_for(state="visible", timeout=BROWSER_SELECTOR_TIMEOUT_MS)
                 if box.is_visible():
+                    json_log(
+                        level="DEBUG",
+                        message="Browser input selector matched",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={"operation": "input_selector_matched", "selector": sel},
+                    )
                     return box
             except Exception as e:
                 last_exc = e
-        if last_exc is not None:
-            raise last_exc
-        fail("SELECTOR_TIMEOUT", "Could not find ChatGPT input box.")
+                json_log(
+                    level="DEBUG",
+                    message="Browser input selector skipped",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "input_selector_skipped",
+                        "selector": sel,
+                        "error": str(e)[:300],
+                    },
+                )
+
+        fail(
+            "SELECTOR_TIMEOUT",
+            "Could not find ChatGPT input box.",
+            field="browser_input_box",
+            expected="visible contenteditable or textarea composer",
+            actual=f"url={getattr(page, 'url', '')}; last_error={last_exc}",
+            stage="PROCESSING",
+        )
 
     def send_prompt(self, page, payload: str) -> str:
         json_log(
