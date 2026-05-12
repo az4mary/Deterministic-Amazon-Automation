@@ -442,6 +442,17 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             page.wait_for_timeout(250)
 
         # Wait for a new assistant message to appear (response started).
+        json_log(
+            level="DEBUG",
+            message="Browser assistant response wait started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "assistant_response_wait_start",
+                "before_assistant_count": before_assistant_count,
+                "before_user_count": before_user_count,
+            },
+        )
         response_deadline = time.time() + (self.action_timeout_ms / 1000.0)
         while time.time() < response_deadline:
             assistant_count = page.locator("[data-message-author-role='assistant']").count()
