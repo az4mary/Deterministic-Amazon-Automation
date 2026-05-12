@@ -344,47 +344,95 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
     def _input_box(self, page):
         selectors = [
             "[contenteditable='true']",
-            "textarea#prompt-textarea",
-            "textarea[data-testid='prompt-textarea']",
             "div[contenteditable='true']",
             "[role='textbox']",
+            "div[role='textbox']",
+            "main [contenteditable='true']",
+            "form [contenteditable='true']",
+            "textarea#prompt-textarea",
+            "textarea[data-testid='prompt-textarea']",
         ]
         last_exc: Optional[Exception] = None
+        deadline = time.time() + (BROWSER_COMPOSER_READY_TIMEOUT_MS / 1000.0)
+        last_wait_log = 0.0
 
-        for sel in selectors:
-            try:
-                box = page.locator(sel).first
-                if box.count() == 0:
-                    continue
-                box.wait_for(state="visible", timeout=BROWSER_SELECTOR_TIMEOUT_MS)
-                if box.is_visible():
+        json_log(
+            level="DEBUG",
+            message="Browser input composer wait started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "input_composer_wait_start",
+                "url": getattr(page, "url", ""),
+                "timeout_ms": BROWSER_COMPOSER_READY_TIMEOUT_MS,
+            },
+        )
+
+        while time.time() < deadline:
+            saw_candidate = False
+
+            for sel in selectors:
+                try:
+                    box = page.locator(sel).first
+                    count = box.count()
+                    if count == 0:
+                        continue
+
+                    saw_candidate = True
+                    remaining_ms = max(250, int((deadline - time.time()) * 1000))
+                    wait_ms = min(BROWSER_SELECTOR_TIMEOUT_MS, remaining_ms)
+
+                    box.wait_for(state="visible", timeout=wait_ms)
+                    if box.is_visible():
+                        json_log(
+                            level="DEBUG",
+                            message="Browser input selector matched",
+                            stage="PROCESSING",
+                            status="IN_PROGRESS",
+                            context={
+                                "operation": "input_selector_matched",
+                                "selector": sel,
+                                "url": getattr(page, "url", ""),
+                            },
+                        )
+                        return box
+
+                except Exception as e:
+                    last_exc = e
                     json_log(
                         level="DEBUG",
-                        message="Browser input selector matched",
+                        message="Browser input selector skipped",
                         stage="PROCESSING",
                         status="IN_PROGRESS",
-                        context={"operation": "input_selector_matched", "selector": sel},
+                        context={
+                            "operation": "input_selector_skipped",
+                            "selector": sel,
+                            "error": str(e)[:300],
+                        },
                     )
-                    return box
-            except Exception as e:
-                last_exc = e
+
+            now = time.time()
+            if now - last_wait_log >= 2.0:
+                last_wait_log = now
                 json_log(
                     level="DEBUG",
-                    message="Browser input selector skipped",
+                    message="Browser input composer wait continuing",
                     stage="PROCESSING",
                     status="IN_PROGRESS",
                     context={
-                        "operation": "input_selector_skipped",
-                        "selector": sel,
-                        "error": str(e)[:300],
+                        "operation": "input_composer_wait_continue",
+                        "url": getattr(page, "url", ""),
+                        "saw_candidate": saw_candidate,
                     },
                 )
+
+            page.wait_for_timeout(BROWSER_SELECTOR_POLL_MS)
 
         fail(
             "SELECTOR_TIMEOUT",
             "Could not find ChatGPT input box.",
             field="browser_input_box",
-            expected="visible contenteditable or textarea composer",
+            expected="visible contenteditable, role textbox, or textarea composer before composer readiness timeout",
             actual=f"url={getattr(page, 'url', '')}; last_error={last_exc}",
             stage="PROCESSING",
         )
