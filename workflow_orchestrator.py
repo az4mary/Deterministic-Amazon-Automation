@@ -540,6 +540,16 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                 stable_count = 0
                 last_text = current
             page.wait_for_timeout(500)
+        json_log(
+            level="DEBUG",
+            message="Browser assistant response stabilization ended by deadline",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "assistant_response_stabilization_deadline",
+                "response_chars": len(last_text or ""),
+            },
+        )
         return last_text.strip()
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
