@@ -355,6 +355,13 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         fail("SELECTOR_TIMEOUT", "Could not find ChatGPT input box.")
 
     def send_prompt(self, page, payload: str) -> str:
+        json_log(
+            level="DEBUG",
+            message="Browser prompt send started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"operation": "send_prompt_start", "payload_chars": len(payload)},
+        )
         before_assistant_count = page.locator("[data-message-author-role='assistant']").count()
         before_user_count = page.locator("[data-message-author-role='user']").count()
         before_last_assistant_text = ""
