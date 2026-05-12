@@ -490,7 +490,21 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         return last_text.strip()
 
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        json_log(
+            level="DEBUG",
+            message="Browser text execution started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"step_id": step_id, "operation": "execute_text_start"},
+        )
         page = self._page()
+        json_log(
+            level="DEBUG",
+            message="Browser page ready",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"step_id": step_id, "operation": "browser_page_ready", "url": getattr(page, "url", "")},
+        )
         # By default: start a fresh chat for every prompt (same tab) to avoid context bleed.
         if os.getenv("BROWSER_NEW_CHAT_EACH_PROMPT", "1") == "1":
             self._start_new_chat(page)
