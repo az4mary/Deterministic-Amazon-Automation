@@ -518,6 +518,18 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         max_retries = int(os.getenv("BROWSER_JSON_RETRIES", "2"))
         payload = build_text_input(state, prompt_text)
+        json_log(
+            level="DEBUG",
+            message="Browser payload built",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "step_id": step_id,
+                "operation": "payload_built",
+                "payload_chars": len(payload),
+                "context_type": state.get("context_type", "WORKFLOW_STATE_JSON"),
+            },
+        )
 
         last_response = ""
         for attempt in range(max_retries + 1):
