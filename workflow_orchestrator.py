@@ -371,6 +371,13 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         except Exception:
             before_last_assistant_text = ""
         box = self._input_box(page)
+        json_log(
+            level="DEBUG",
+            message="Browser input box resolved",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"operation": "input_box_resolved"},
+        )
 
         box.click()
         try:
