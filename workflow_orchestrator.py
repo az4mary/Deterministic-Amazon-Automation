@@ -1822,8 +1822,17 @@ def main() -> None:
     for i in range(start_from, len(plan)):
         step = plan[i]
         current_step_number = i + 1
-        if args.stop_after and step.step_id == args.stop_after:
+
+        if args.stop_before and step.step_id == args.stop_before:
+            json_log(
+                level="INFO",
+                message=f"Stopped before step {step.step_id}",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={"step_id": step.step_id, "control": "stop_before"},
+            )
             break
+
         run_step(step, state)
         progress_percent = min(100, int((current_step_number / len(plan)) * 100))
         validate_progress_percent(progress_percent, current_step_number, len(plan))
@@ -1837,6 +1846,16 @@ def main() -> None:
             current_step=current_step_number,
             total_steps=len(plan),
         )
+
+        if args.stop_after and step.step_id == args.stop_after:
+            json_log(
+                level="INFO",
+                message=f"Stopped after step {step.step_id}",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={"step_id": step.step_id, "control": "stop_after"},
+            )
+            break
 
     save_json_atomic(STATE_PATH, state)
     write_image_prompts(state)
