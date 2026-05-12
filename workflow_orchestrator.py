@@ -419,6 +419,13 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         # Ensure the prompt is actually submitted (some UI states require clicking send
         # or using Ctrl+Enter).
+        json_log(
+            level="DEBUG",
+            message="Browser prompt submission attempted",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"operation": "prompt_submit_attempt"},
+        )
         page.keyboard.press("Enter")
         send_deadline = time.time() + 15.0
         ctrl_enter_tried = False
