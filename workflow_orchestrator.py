@@ -558,6 +558,24 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
             current = assistant.inner_text(timeout=self.action_timeout_ms).strip()
             if current:
+                if not assistant_response_ready(current):
+                    last_text = current
+                    stable_count = 0
+                    json_log(
+                        level="DEBUG",
+                        message="Browser assistant response not ready",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "assistant_response_not_ready",
+                            "response_chars": len(current),
+                            "response_excerpt": current[:120],
+                            "requires_json_candidate": BROWSER_REQUIRE_JSON_CANDIDATE,
+                        },
+                    )
+                    page.wait_for_timeout(500)
+                    continue
+
                 if current == last_text:
                     stable_count += 1
                     if stable_count >= stable_required:
