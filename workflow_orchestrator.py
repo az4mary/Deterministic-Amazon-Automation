@@ -1722,6 +1722,16 @@ def main() -> None:
     args = parser.parse_args()
 
     ensure_dirs()
+
+    if args.stop_after and args.stop_before:
+        fail(
+            "INVALID_ARGS",
+            "--stop-after and --stop-before cannot be used together.",
+            field="stop_controls",
+            expected="only one of --stop-after or --stop-before",
+            actual=f"stop_after={args.stop_after}, stop_before={args.stop_before}",
+        )
+
     if not args.resume:
         (LOG_DIR / "execution.jsonl").write_text("", encoding="utf-8")
 
