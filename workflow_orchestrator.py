@@ -533,13 +533,62 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         last_response = ""
         for attempt in range(max_retries + 1):
+            json_log(
+                level="DEBUG",
+                message="Browser JSON attempt started",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "step_id": step_id,
+                    "operation": "json_attempt_start",
+                    "attempt": attempt,
+                    "max_retries": max_retries,
+                },
+            )
             response_text = self.send_prompt(page, payload if attempt == 0 else _json_only_retry_prompt(step_id, schema, last_response))
             last_response = response_text
+            json_log(
+                level="DEBUG",
+                message="Browser response received",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "step_id": step_id,
+                    "operation": "browser_response_received",
+                    "attempt": attempt,
+                    "response_chars": len(response_text or ""),
+                },
+            )
             if not response_text:
                 fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
             parsed, err, excerpt = try_parse_response_json(response_text)
             if parsed is not None:
+                json_log(
+                    level="DEBUG",
+                    message="Browser response parsed as JSON",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "step_id": step_id,
+                        "operation": "json_parse_success",
+                        "attempt": attempt,
+                        "output_keys": list(parsed.keys()),
+                    },
+                )
                 return parsed
+            json_log(
+                level="DEBUG",
+                message="Browser response JSON parse failed",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "step_id": step_id,
+                    "operation": "json_parse_failed",
+                    "attempt": attempt,
+                    "error": err,
+                    "excerpt_chars": len(excerpt or ""),
+                },
+            )
             if attempt >= max_retries:
                 fail(
                     "MODEL_OUTPUT_NOT_JSON",
