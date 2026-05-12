@@ -497,10 +497,13 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             },
         )
         # Wait for streaming to settle to avoid capturing partial (invalid) JSON.
-        stable_required = 3
+        # This window starts only after an assistant response has been detected.
+        # It must be shorter than the full browser action timeout so malformed JSON
+        # can be captured, parsed, repaired, or retried instead of hanging at capture.
+        stable_required = BROWSER_RESPONSE_STABLE_REQUIRED
         stable_count = 0
         last_text = ""
-        deadline = time.time() + (self.action_timeout_ms / 1000.0)
+        deadline = time.time() + BROWSER_RESPONSE_STABILIZE_SECONDS
         while time.time() < deadline:
             # Expand collapsed assistant content if present.
             try:
