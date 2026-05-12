@@ -526,24 +526,25 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                 pass
 
             current = assistant.inner_text(timeout=self.action_timeout_ms).strip()
-            if current and current == last_text:
-                stable_count += 1
-                if stable_count >= stable_required:
-                    json_log(
-                        level="DEBUG",
-                        message="Browser assistant response stabilized",
-                        stage="PROCESSING",
-                        status="IN_PROGRESS",
-                        context={
-                            "operation": "assistant_response_stabilized",
-                            "response_chars": len(current),
-                            "stable_count": stable_count,
-                        },
-                    )
-                    return current
-            else:
-                stable_count = 0
-                last_text = current
+            if current:
+                if current == last_text:
+                    stable_count += 1
+                    if stable_count >= stable_required:
+                        json_log(
+                            level="DEBUG",
+                            message="Browser assistant response stabilized",
+                            stage="PROCESSING",
+                            status="IN_PROGRESS",
+                            context={
+                                "operation": "assistant_response_stabilized",
+                                "response_chars": len(current),
+                                "stable_count": stable_count,
+                            },
+                        )
+                        return current
+                else:
+                    stable_count = 0
+                    last_text = current
             page.wait_for_timeout(500)
         json_log(
             level="DEBUG",
