@@ -971,6 +971,38 @@ def normalize_json_text(text: str) -> str:
     return text.strip()
 
 
+def is_transient_assistant_text(text: str) -> bool:
+    stripped = (text or "").strip()
+    lowered = stripped.lower().strip(".… ")
+
+    if not stripped:
+        return True
+
+    if stripped.lstrip().startswith("{") or stripped.lstrip().startswith("["):
+        return False
+
+    transient_values = {
+        "thinking",
+        "thinking...",
+        "thinking…",
+    }
+
+    return lowered in transient_values
+
+
+def has_json_candidate(text: str) -> bool:
+    normalized = normalize_json_text(text or "")
+    return "{" in normalized and "}" in normalized
+
+
+def assistant_response_ready(text: str) -> bool:
+    if is_transient_assistant_text(text):
+        return False
+    if BROWSER_REQUIRE_JSON_CANDIDATE and not has_json_candidate(text):
+        return False
+    return True
+
+
 def repair_unescaped_quotes(json_text: str) -> str:
     """
     Best-effort repair for common browser-LLM failures where a quote character
