@@ -622,6 +622,8 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                             "response_chars": len(current),
                             "response_excerpt": current[:120],
                             "requires_json_candidate": BROWSER_REQUIRE_JSON_CANDIDATE,
+                            "requires_parseable_json": BROWSER_REQUIRE_PARSEABLE_JSON,
+                            "has_json_candidate": has_json_candidate(current),
                         },
                     )
                     page.wait_for_timeout(500)
