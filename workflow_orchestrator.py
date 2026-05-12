@@ -1069,6 +1069,10 @@ def assistant_response_ready(text: str) -> bool:
         return False
     if BROWSER_REQUIRE_JSON_CANDIDATE and not has_json_candidate(text):
         return False
+    if BROWSER_REQUIRE_PARSEABLE_JSON:
+        parsed, _err, _excerpt = try_parse_response_json(text)
+        if parsed is None:
+            return False
     return True
 
 
