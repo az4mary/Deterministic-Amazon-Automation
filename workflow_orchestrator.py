@@ -2116,6 +2116,7 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
                 "image_generation_prompt": prompt,
                 "saved_path": saved_path,
                 "revised_prompt": result.get("revised_prompt"),
+                "source_images_used": result.get("source_images_used", []),
             },
             "image_style_lock": deterministic_style_lock(),
         }
