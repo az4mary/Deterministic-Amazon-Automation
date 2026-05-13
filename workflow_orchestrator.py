@@ -170,7 +170,121 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
             fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty output.")
         return parse_response_json(raw)
 
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        source_images: List[str] = []
+        missing_images: List[str] = []
+
+        if isinstance(generation_context, dict):
+            raw_source_images = generation_context.get("source_images") or []
+            if isinstance(raw_source_images, list):
+                for item in raw_source_images:
+                    if not isinstance(item, str):
+                        continue
+                    path = Path(item)
+                    if path.exists() and path.is_file():
+                        source_images.append(str(path))
+                    else:
+                        missing_images.append(item)
+
+        if missing_images and IMAGE_REFERENCE_STRICT:
+            fail(
+                "IMAGE_REFERENCE_IMAGE_MISSING",
+                "One or more reference images listed in generation_context.source_images do not exist.",
+                field="generation_context.source_images",
+                expected="all listed reference image paths exist",
+                actual=json.dumps(missing_images, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        if isinstance(generation_context, dict) and IMAGE_REFERENCE_STRICT and not source_images:
+            fail(
+                "IMAGE_REFERENCE_IMAGES_NOT_AVAILABLE",
+                "Strict image generation requires source_images at the adapter boundary.",
+                field="generation_context.source_images",
+                expected="at least one existing reference image path",
+                actual=str(generation_context.get("source_images")),
+                stage="PROCESSING",
+            )
+
+        if source_images:
+            json_log(
+                level="INFO",
+                message="OpenAI image edit requested with reference images",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "openai_image_edit",
+                    "source_image_count": len(source_images),
+                    "image_model": IMAGE_MODEL,
+                    "size": size,
+                },
+            )
+
+            files = []
+            try:
+                for image_path in source_images:
+                    files.append(open(image_path, "rb"))
+
+                response = self.client.images.edit(
+                    model=IMAGE_MODEL,
+                    image=files,
+                    prompt=prompt,
+                    size=size,
+                    n=1,
+                )
+            finally:
+                for f in files:
+                    try:
+                        f.close()
+                    except Exception:
+                        pass
+
+            data = getattr(response, "data", None) or []
+            if not data:
+                fail("IMAGE_GENERATION_FAILED", "No image returned by image edit model.", stage="PROCESSING")
+
+            first = data[0]
+            image_base64 = getattr(first, "b64_json", None)
+            revised_prompt = getattr(first, "revised_prompt", None)
+
+            if isinstance(first, dict):
+                image_base64 = image_base64 or first.get("b64_json")
+                revised_prompt = revised_prompt or first.get("revised_prompt")
+
+            if not image_base64:
+                fail(
+                    "IMAGE_GENERATION_FAILED",
+                    "Image edit model returned no base64 image payload.",
+                    field="image_base64",
+                    expected="b64_json",
+                    actual=str(first)[:1000],
+                    stage="PROCESSING",
+                )
+
+            return {
+                "image_base64": image_base64,
+                "revised_prompt": revised_prompt,
+                "source_images_used": source_images,
+            }
+
+        json_log(
+            level="WARNING",
+            message="OpenAI image generation requested without reference images",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "openai_image_generate_without_references",
+                "image_model": IMAGE_MODEL,
+                "size": size,
+                "strict": IMAGE_REFERENCE_STRICT,
+            },
+        )
+
         response = self.client.responses.create(
             model=IMAGE_MODEL,
             input=prompt,
@@ -188,7 +302,7 @@ class OpenAIPromptExecutionAdapter(PromptExecutionAdapter):
                 revised_prompt = getattr(output, "revised_prompt", None)
                 break
         if not image_data:
-            fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
+            fail("IMAGE_GENERATION_FAILED", "No image returned by model.", stage="PROCESSING")
         return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
 
 
