@@ -2104,7 +2104,7 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
             "image_generation_prompt": prompt,
         }
 
-        result = call_image_generation(prompt)
+        result = call_image_generation(prompt, generation_context=generation_context)
         image_filename = f"image_{step.step_id}.png"
         saved_path = save_image(result["image_base64"], image_filename)
 
