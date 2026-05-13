@@ -145,7 +145,12 @@ class PromptExecutionAdapter:
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         raise NotImplementedError
 
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         raise NotImplementedError
 
 
