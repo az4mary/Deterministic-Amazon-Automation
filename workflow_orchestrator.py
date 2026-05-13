@@ -1065,6 +1065,94 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
     def _capture_latest_browser_generated_image_base64(self, page, before_assistant_count: int) -> str:
         deadline = time.time() + BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS
         last_assistant_excerpt = ""
+        last_diag_log = 0.0
+
+        def locator_key(locator) -> str:
+            try:
+                src = locator.get_attribute("src") or ""
+            except Exception:
+                src = ""
+            try:
+                alt = locator.get_attribute("alt") or ""
+            except Exception:
+                alt = ""
+            try:
+                box = locator.bounding_box() or {}
+            except Exception:
+                box = {}
+
+            # Do not store full data URLs in the baseline key; only a stable prefix.
+            if src.startswith("data:image"):
+                src_key = src[:120]
+            else:
+                src_key = src
+
+            return json.dumps(
+                {
+                    "src": src_key,
+                    "alt": alt[:120],
+                    "w": int(box.get("width", 0) or 0),
+                    "h": int(box.get("height", 0) or 0),
+                },
+                sort_keys=True,
+            )
+
+        def visible_large_enough(locator) -> bool:
+            try:
+                if not locator.is_visible():
+                    return False
+            except Exception:
+                return False
+
+            try:
+                box = locator.bounding_box() or {}
+            except Exception:
+                return False
+
+            width = float(box.get("width", 0) or 0)
+            height = float(box.get("height", 0) or 0)
+
+            # Skip icons, avatars, buttons, and uploaded-reference thumbnails.
+            return width >= 256 and height >= 256
+
+        def collect_candidate_locators():
+            locators = []
+
+            selectors = [
+                "[data-message-author-role='assistant'] img",
+                "[data-message-author-role='assistant'] picture img",
+                "[data-message-author-role='assistant'] canvas",
+                "[data-message-author-role='assistant'] [role='img']",
+                "article img",
+                "article picture img",
+                "article canvas",
+                "main img[src^='blob:']",
+                "main img[src^='data:image']",
+                "main img[src*='oaiusercontent']",
+                "main img[src*='oaidalleapiprodscus']",
+                "main img[src*='openai']",
+                "main canvas",
+                "[role='img']",
+            ]
+
+            for sel in selectors:
+                try:
+                    collection = page.locator(sel)
+                    count = min(collection.count(), 20)
+                    for idx in range(count):
+                        locators.append((sel, collection.nth(idx)))
+                except Exception:
+                    pass
+
+            return locators
+
+        baseline_keys = set()
+        for _sel, candidate in collect_candidate_locators():
+            try:
+                if visible_large_enough(candidate):
+                    baseline_keys.add(locator_key(candidate))
+            except Exception:
+                pass
 
         json_log(
             level="INFO",
@@ -1075,6 +1163,7 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
                 "operation": "browser_image_generation_wait_start",
                 "timeout_seconds": BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS,
                 "before_assistant_count": before_assistant_count,
+                "baseline_large_image_count": len(baseline_keys),
             },
         )
 
@@ -1082,56 +1171,102 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             assistant_count = page.locator("[data-message-author-role='assistant']").count()
 
             if assistant_count > before_assistant_count:
-                assistant = page.locator("[data-message-author-role='assistant']").last
-
                 try:
+                    assistant = page.locator("[data-message-author-role='assistant']").last
                     last_assistant_excerpt = assistant.inner_text(timeout=5000).strip()[:1000]
                 except Exception:
                     last_assistant_excerpt = ""
 
+            candidate_count = 0
+            visible_large_count = 0
+            skipped_baseline_count = 0
+
+            for selector, candidate in collect_candidate_locators():
+                candidate_count += 1
+
                 try:
-                    image_locator = assistant.locator("img").last
-                    if image_locator.count() and image_locator.is_visible():
-                        page.wait_for_timeout(1500)
+                    if not visible_large_enough(candidate):
+                        continue
 
+                    visible_large_count += 1
+                    key = locator_key(candidate)
+
+                    if key in baseline_keys:
+                        skipped_baseline_count += 1
+                        continue
+
+                    # Give the rendered asset a brief moment to finish loading.
+                    page.wait_for_timeout(1500)
+
+                    src = ""
+                    try:
+                        src = candidate.get_attribute("src") or ""
+                    except Exception:
                         src = ""
-                        try:
-                            src = image_locator.get_attribute("src") or ""
-                        except Exception:
-                            src = ""
 
-                        if src.startswith("data:image") and "," in src:
-                            image_base64 = src.split(",", 1)[1]
-                            json_log(
-                                level="INFO",
-                                message="Browser generated image captured from data URL",
-                                stage="PROCESSING",
-                                status="IN_PROGRESS",
-                                context={
-                                    "operation": "browser_generated_image_captured_data_url",
-                                    "assistant_count": assistant_count,
-                                    "image_base64_chars": len(image_base64),
-                                },
-                            )
-                            return image_base64
-
-                        screenshot_bytes = image_locator.screenshot(timeout=self.action_timeout_ms)
-                        image_base64 = base64.b64encode(screenshot_bytes).decode("ascii")
-
+                    if src.startswith("data:image") and "," in src:
+                        image_base64 = src.split(",", 1)[1]
                         json_log(
                             level="INFO",
-                            message="Browser generated image captured from rendered image",
+                            message="Browser generated image captured from data URL",
                             stage="PROCESSING",
                             status="IN_PROGRESS",
                             context={
-                                "operation": "browser_generated_image_captured_screenshot",
+                                "operation": "browser_generated_image_captured_data_url",
+                                "selector": selector,
                                 "assistant_count": assistant_count,
                                 "image_base64_chars": len(image_base64),
                             },
                         )
                         return image_base64
-                except Exception:
-                    pass
+
+                    screenshot_bytes = candidate.screenshot(timeout=self.action_timeout_ms)
+                    image_base64 = base64.b64encode(screenshot_bytes).decode("ascii")
+
+                    json_log(
+                        level="INFO",
+                        message="Browser generated image captured from candidate locator",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "browser_generated_image_captured_candidate_screenshot",
+                            "selector": selector,
+                            "assistant_count": assistant_count,
+                            "image_base64_chars": len(image_base64),
+                        },
+                    )
+                    return image_base64
+
+                except Exception as e:
+                    json_log(
+                        level="DEBUG",
+                        message="Browser generated image candidate skipped",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "browser_generated_image_candidate_skipped",
+                            "selector": selector,
+                            "error": str(e)[:300],
+                        },
+                    )
+
+            now = time.time()
+            if now - last_diag_log >= 10.0:
+                last_diag_log = now
+                json_log(
+                    level="DEBUG",
+                    message="Browser image generation capture scan continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "browser_image_capture_scan_continue",
+                        "assistant_count": assistant_count,
+                        "candidate_count": candidate_count,
+                        "visible_large_count": visible_large_count,
+                        "skipped_baseline_count": skipped_baseline_count,
+                        "last_assistant_excerpt": last_assistant_excerpt[:300],
+                    },
+                )
 
             try:
                 stop_btn = page.get_by_role("button", name=re.compile(r"stop generating", re.I)).first
@@ -1147,7 +1282,7 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             "BROWSER_IMAGE_GENERATION_TIMEOUT",
             "Timed out waiting for generated image in browser assistant response.",
             field="browser_generated_image",
-            expected="visible generated image in latest assistant message",
+            expected="visible generated image candidate captured from assistant/main image surface",
             actual=last_assistant_excerpt[:1000],
             stage="PROCESSING",
         )
