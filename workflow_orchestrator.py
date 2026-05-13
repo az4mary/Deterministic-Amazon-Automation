@@ -889,14 +889,23 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
         fail("MODEL_OUTPUT_NOT_JSON", "Model output is not valid JSON: exhausted retries.")
 
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if self.image_fallback is None:
             # Delay OpenAI client initialization until image generation is requested so
             # browser-backed text steps don't require OPENAI_API_KEY.
             if OpenAI is None:
                 fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
             self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
-        return self.image_fallback.execute_image(prompt, size=size)
+        return self.image_fallback.execute_image(
+            prompt,
+            size=size,
+            generation_context=generation_context,
+        )
 
 
 def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_response: str) -> str:
