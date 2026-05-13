@@ -1,449 +1,5 @@
 # INSTRUCTIONS
 
-- Proceeding with `PATCH_SET_10 — Image generation adapter context handoff`.
-- Targeting only the even-step image-generation adapter boundary.
-- First runtime target remains STEP `12`.
-
-This follows the uploaded controlling plan: the remaining gap is that `generation_context` is already built, but not handed to the image execution adapter.
-
-OpenAI’s current Image API supports image edits from one or more source images plus a prompt, and the Python API accepts a file or sequence of image files for GPT image models; GPT image models accept text and image inputs. This supports PATCH_SET_10’s adapter handoff design. ([OpenAI Developers](https://developers.openai.com/api/reference/resources/images/methods/edit/?utm_source=chatgpt.com))
-
----
-
-# PATCH_SET_10 — Image generation adapter context handoff
-
-## Scope
-
-Target file:
-
-```
-workflow_orchestrator.py
-```
-
-Do **not** modify:
-
-```json
-[
-  "docs/prompts.md",
-  "STEP 11 behavior",
-  "PROMPT 11 behavior",
-  "PATCH_SET_02 image prompt routing",
-  "PATCH_SET_03 prompt wording",
-  "normal text steps 01A-10"
-]
-```
-
----
-
-## PATCH_10A — Add strict reference-image handoff control
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10A",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
-```
-
-### REPLACE WITH
-
-```python
-IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
-IMAGE_REFERENCE_STRICT = os.getenv("IMAGE_REFERENCE_STRICT", "1") == "1"
-```
-
----
-
-## PATCH_10B — Extend base adapter image interface
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10B",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
-        raise NotImplementedError
-```
-
-### REPLACE WITH
-
-```python
-    def execute_image(
-        self,
-        prompt: str,
-        size: str = "1024x1536",
-        generation_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        raise NotImplementedError
-```
-
----
-
-## PATCH_10C — Replace OpenAI image adapter with context-aware implementation
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10C",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
-        response = self.client.responses.create(
-            model=IMAGE_MODEL,
-            input=prompt,
-            tools=[{"type": "image_generation"}],
-            tool_choice={"type": "image_generation"},
-        )
-        image_data = [
-            output.result
-            for output in response.output
-            if getattr(output, "type", None) == "image_generation_call"
-        ]
-        revised_prompt = None
-        for output in response.output:
-            if getattr(output, "type", None) == "image_generation_call":
-                revised_prompt = getattr(output, "revised_prompt", None)
-                break
-        if not image_data:
-            fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
-        return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
-```
-
-### REPLACE WITH
-
-```python
-    def execute_image(
-        self,
-        prompt: str,
-        size: str = "1024x1536",
-        generation_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        source_images: List[str] = []
-        missing_images: List[str] = []
-
-        if isinstance(generation_context, dict):
-            raw_source_images = generation_context.get("source_images") or []
-            if isinstance(raw_source_images, list):
-                for item in raw_source_images:
-                    if not isinstance(item, str):
-                        continue
-                    path = Path(item)
-                    if path.exists() and path.is_file():
-                        source_images.append(str(path))
-                    else:
-                        missing_images.append(item)
-
-        if missing_images and IMAGE_REFERENCE_STRICT:
-            fail(
-                "IMAGE_REFERENCE_IMAGE_MISSING",
-                "One or more reference images listed in generation_context.source_images do not exist.",
-                field="generation_context.source_images",
-                expected="all listed reference image paths exist",
-                actual=json.dumps(missing_images, ensure_ascii=False),
-                stage="PROCESSING",
-            )
-
-        if isinstance(generation_context, dict) and IMAGE_REFERENCE_STRICT and not source_images:
-            fail(
-                "IMAGE_REFERENCE_IMAGES_NOT_AVAILABLE",
-                "Strict image generation requires source_images at the adapter boundary.",
-                field="generation_context.source_images",
-                expected="at least one existing reference image path",
-                actual=str(generation_context.get("source_images")),
-                stage="PROCESSING",
-            )
-
-        if source_images:
-            json_log(
-                level="INFO",
-                message="OpenAI image edit requested with reference images",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "operation": "openai_image_edit",
-                    "source_image_count": len(source_images),
-                    "image_model": IMAGE_MODEL,
-                    "size": size,
-                },
-            )
-
-            files = []
-            try:
-                for image_path in source_images:
-                    files.append(open(image_path, "rb"))
-
-                response = self.client.images.edit(
-                    model=IMAGE_MODEL,
-                    image=files,
-                    prompt=prompt,
-                    size=size,
-                    n=1,
-                )
-            finally:
-                for f in files:
-                    try:
-                        f.close()
-                    except Exception:
-                        pass
-
-            data = getattr(response, "data", None) or []
-            if not data:
-                fail("IMAGE_GENERATION_FAILED", "No image returned by image edit model.", stage="PROCESSING")
-
-            first = data[0]
-            image_base64 = getattr(first, "b64_json", None)
-            revised_prompt = getattr(first, "revised_prompt", None)
-
-            if isinstance(first, dict):
-                image_base64 = image_base64 or first.get("b64_json")
-                revised_prompt = revised_prompt or first.get("revised_prompt")
-
-            if not image_base64:
-                fail(
-                    "IMAGE_GENERATION_FAILED",
-                    "Image edit model returned no base64 image payload.",
-                    field="image_base64",
-                    expected="b64_json",
-                    actual=str(first)[:1000],
-                    stage="PROCESSING",
-                )
-
-            return {
-                "image_base64": image_base64,
-                "revised_prompt": revised_prompt,
-                "source_images_used": source_images,
-            }
-
-        json_log(
-            level="WARNING",
-            message="OpenAI image generation requested without reference images",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "openai_image_generate_without_references",
-                "image_model": IMAGE_MODEL,
-                "size": size,
-                "strict": IMAGE_REFERENCE_STRICT,
-            },
-        )
-
-        response = self.client.responses.create(
-            model=IMAGE_MODEL,
-            input=prompt,
-            tools=[{"type": "image_generation"}],
-            tool_choice={"type": "image_generation"},
-        )
-        image_data = [
-            output.result
-            for output in response.output
-            if getattr(output, "type", None) == "image_generation_call"
-        ]
-        revised_prompt = None
-        for output in response.output:
-            if getattr(output, "type", None) == "image_generation_call":
-                revised_prompt = getattr(output, "revised_prompt", None)
-                break
-        if not image_data:
-            fail("IMAGE_GENERATION_FAILED", "No image returned by model.", stage="PROCESSING")
-        return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
-```
-
----
-
-## PATCH_10D — Extend browser adapter image interface and pass context to fallback
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10D",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
-        if self.image_fallback is None:
-            # Delay OpenAI client initialization until image generation is requested so
-            # browser-backed text steps don't require OPENAI_API_KEY.
-            if OpenAI is None:
-                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
-            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
-        return self.image_fallback.execute_image(prompt, size=size)
-```
-
-### REPLACE WITH
-
-```python
-    def execute_image(
-        self,
-        prompt: str,
-        size: str = "1024x1536",
-        generation_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        if self.image_fallback is None:
-            # Delay OpenAI client initialization until image generation is requested so
-            # browser-backed text steps don't require OPENAI_API_KEY.
-            if OpenAI is None:
-                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
-            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
-        return self.image_fallback.execute_image(
-            prompt,
-            size=size,
-            generation_context=generation_context,
-        )
-```
-
----
-
-## PATCH_10E — Extend `call_image_generation(...)` adapter boundary
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10E",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
-    json_log("step_start", kind="image_generation", size=size)
-    return get_execution_adapter().execute_image(prompt, size=size)
-```
-
-### REPLACE WITH
-
-```python
-def call_image_generation(
-    prompt: str,
-    size: str = "1024x1536",
-    generation_context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
-    source_images = []
-    image_task = {}
-
-    if isinstance(generation_context, dict):
-        raw_source_images = generation_context.get("source_images") or []
-        if isinstance(raw_source_images, list):
-            source_images = [p for p in raw_source_images if isinstance(p, str)]
-        raw_image_task = generation_context.get("image_task") or {}
-        if isinstance(raw_image_task, dict):
-            image_task = raw_image_task
-
-    json_log(
-        level="INFO",
-        message="Image generation adapter handoff started",
-        stage="PROCESSING",
-        status="STARTED",
-        context={
-            "kind": "image_generation",
-            "size": size,
-            "image_number": image_task.get("image_number"),
-            "image_type": image_task.get("image_type"),
-            "source_image_count": len(source_images),
-            "has_generation_context": generation_context is not None,
-        },
-    )
-    return get_execution_adapter().execute_image(
-        prompt,
-        size=size,
-        generation_context=generation_context,
-    )
-```
-
----
-
-## PATCH_10F — Pass `generation_context` from even image-generation steps
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10F",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-        result = call_image_generation(prompt)
-```
-
-### REPLACE WITH
-
-```python
-        result = call_image_generation(prompt, generation_context=generation_context)
-```
-
----
-
-## PATCH_10G — Persist adapter source-image usage metadata
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_10G",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-                "saved_path": saved_path,
-                "revised_prompt": result.get("revised_prompt"),
-```
-
-### REPLACE WITH
-
-```python
-                "saved_path": saved_path,
-                "revised_prompt": result.get("revised_prompt"),
-                "source_images_used": result.get("source_images_used", []),
-```
-
 ---
 
 # PATCH_SET_10 validation checkpoint
@@ -474,17 +30,456 @@ def call_image_generation(
 
 ---
 
-# Validation commands
+- Confirmed Validation B passed.
+- Confirmed Validation C passed.
+- Confirmed the only remaining blocker before Validation D is the browser image path still falling back to OpenAI API.
+- Providing only the specific fix: `PATCH_10H`.
 
-## Validation A — compile
+The current file still has this browser-backend image fallback:
+
+```python
+if self.image_fallback is None:
+    if OpenAI is None:
+        fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
+    self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
+return self.image_fallback.execute_image(...)
+```
+
+That is the exact defect. It must be replaced with a browser/CDP image-generation workflow.
+
+---
+
+# PATCH_10H — Replace browser image API fallback with browser/CDP image workflow
+
+## Purpose
+
+Use the already launched and authenticated Chrome/CDP session for STEP `12` image generation.
+
+This patch does **not** change:
+
+```json
+[
+  "Validation B result",
+  "Validation C result",
+  "STEP 11 behavior",
+  "PATCH_SET_02 routing",
+  "PATCH_SET_03 prompt wording",
+  "OpenAIPromptExecutionAdapter behavior for non-browser backend",
+  "run_step image-generation context handoff"
+]
+```
+
+It only fixes `BrowserPromptExecutionAdapter.execute_image(...)`.
+
+---
+
+## PATCH_10H1 — Add browser image-generation timeout control
+
+### DRY-RUN EXPECTATION
+
+```json
+{
+  "patch_id": "PATCH_10H1",
+  "expected_match_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_match_count_is_not": 1
+}
+```
+
+### FIND
+
+```python
+BROWSER_REQUIRE_PARSEABLE_JSON = os.getenv("BROWSER_REQUIRE_PARSEABLE_JSON", "1") == "1"
+```
+
+### REPLACE WITH
+
+```python
+BROWSER_REQUIRE_PARSEABLE_JSON = os.getenv("BROWSER_REQUIRE_PARSEABLE_JSON", "1") == "1"
+BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS = float(os.getenv("BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS", "300"))
+```
+
+---
+
+## PATCH_10H2 — Replace browser image API fallback
+
+### DRY-RUN EXPECTATION
+
+```json
+{
+  "patch_id": "PATCH_10H2",
+  "expected_match_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_match_count_is_not": 1
+}
+```
+
+### FIND
+
+```python
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if self.image_fallback is None:
+            # Delay OpenAI client initialization until image generation is requested so
+            # browser-backed text steps don't require OPENAI_API_KEY.
+            if OpenAI is None:
+                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
+            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
+        return self.image_fallback.execute_image(
+            prompt,
+            size=size,
+            generation_context=generation_context,
+        )
+```
+
+### REPLACE WITH
+
+```python
+    def _extract_generation_source_images(
+        self,
+        generation_context: Optional[Dict[str, Any]],
+    ) -> Tuple[List[str], List[str]]:
+        source_images: List[str] = []
+        missing_images: List[str] = []
+
+        if isinstance(generation_context, dict):
+            raw_source_images = generation_context.get("source_images") or []
+            if isinstance(raw_source_images, list):
+                for item in raw_source_images:
+                    if not isinstance(item, str):
+                        continue
+                    path = Path(item)
+                    if path.exists() and path.is_file():
+                        source_images.append(str(path))
+                    else:
+                        missing_images.append(item)
+
+        return source_images, missing_images
+
+    def _attach_images_for_generation(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        json_log(
+            level="INFO",
+            message="Browser image generation reference attachment started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "browser_image_reference_attach_start",
+                "source_image_count": len(source_images),
+            },
+        )
+
+        attach_selectors = [
+            "button[aria-label*='Attach']",
+            "button[aria-label*='attach']",
+            "button:has-text('Attach')",
+            "button[data-testid*='attach']",
+        ]
+
+        try:
+            if page.locator("input[type=file]").count() == 0:
+                for sel in attach_selectors:
+                    btn = page.locator(sel).first
+                    if btn.count() and btn.is_visible():
+                        btn.click()
+                        page.wait_for_timeout(250)
+                        break
+        except Exception:
+            pass
+
+        try:
+            inp = page.locator("input[type=file]").first
+            if not inp.count():
+                fail(
+                    "BROWSER_IMAGE_ATTACH_INPUT_MISSING",
+                    "Could not find browser file input for image generation reference images.",
+                    field="browser_file_input",
+                    expected="input[type=file]",
+                    actual=f"url={getattr(page, 'url', '')}",
+                    stage="PROCESSING",
+                )
+
+            inp.set_input_files(source_images, timeout=self.action_timeout_ms)
+            page.wait_for_timeout(1000)
+
+            json_log(
+                level="INFO",
+                message="Browser image generation reference images attached",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "browser_image_reference_attach_success",
+                    "source_image_count": len(source_images),
+                },
+            )
+        except SystemExit:
+            raise
+        except Exception as e:
+            fail(
+                "BROWSER_IMAGE_REFERENCE_ATTACH_FAILED",
+                "Failed to attach reference images for browser image generation.",
+                field="generation_context.source_images",
+                expected="reference images attached through browser file input",
+                actual=str(e)[:1000],
+                stage="PROCESSING",
+            )
+
+    def _submit_image_generation_prompt(self, page, prompt: str) -> int:
+        before_assistant_count = page.locator("[data-message-author-role='assistant']").count()
+        before_user_count = page.locator("[data-message-author-role='user']").count()
+
+        box = self._input_box(page)
+        json_log(
+            level="DEBUG",
+            message="Browser image prompt input box resolved",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={"operation": "browser_image_input_box_resolved"},
+        )
+
+        box.click()
+        try:
+            page.keyboard.press("Control+A")
+            page.keyboard.press("Backspace")
+        except Exception:
+            pass
+
+        try:
+            box.fill(prompt, timeout=self.action_timeout_ms)
+        except Exception:
+            try:
+                page.keyboard.insert_text(prompt)
+            except Exception:
+                box.type(prompt, delay=0, timeout=self.action_timeout_ms)
+
+        def try_click_send() -> bool:
+            selectors = [
+                "button[data-testid='send-button']",
+                "button[aria-label*='Send']",
+                "button[aria-label*='send']",
+                "button:has-text('Send')",
+            ]
+            for sel in selectors:
+                try:
+                    btn = page.locator(sel).first
+                    if btn.count() and btn.is_visible() and btn.is_enabled():
+                        btn.click()
+                        return True
+                except Exception:
+                    pass
+            try:
+                btn = page.get_by_role("button", name=re.compile(r"send", re.I)).first
+                if btn.count() and btn.is_visible() and btn.is_enabled():
+                    btn.click()
+                    return True
+            except Exception:
+                pass
+            return False
+
+        json_log(
+            level="INFO",
+            message="Browser image generation prompt submission attempted",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "browser_image_prompt_submit_attempt",
+                "prompt_chars": len(prompt or ""),
+            },
+        )
+
+        page.keyboard.press("Enter")
+        send_deadline = time.time() + 20.0
+        ctrl_enter_tried = False
+
+        while time.time() < send_deadline:
+            if page.locator("[data-message-author-role='user']").count() > before_user_count:
+                break
+            try:
+                if not ctrl_enter_tried:
+                    page.keyboard.press("Control+Enter")
+                    ctrl_enter_tried = True
+            except Exception:
+                pass
+            try_click_send()
+            page.wait_for_timeout(250)
+
+        return before_assistant_count
+
+    def _capture_latest_browser_generated_image_base64(self, page, before_assistant_count: int) -> str:
+        deadline = time.time() + BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS
+        last_assistant_excerpt = ""
+
+        json_log(
+            level="INFO",
+            message="Browser image generation wait started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "browser_image_generation_wait_start",
+                "timeout_seconds": BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS,
+                "before_assistant_count": before_assistant_count,
+            },
+        )
+
+        while time.time() < deadline:
+            assistant_count = page.locator("[data-message-author-role='assistant']").count()
+
+            if assistant_count > before_assistant_count:
+                assistant = page.locator("[data-message-author-role='assistant']").last
+
+                try:
+                    last_assistant_excerpt = assistant.inner_text(timeout=5000).strip()[:1000]
+                except Exception:
+                    last_assistant_excerpt = ""
+
+                try:
+                    image_locator = assistant.locator("img").last
+                    if image_locator.count() and image_locator.is_visible():
+                        page.wait_for_timeout(1500)
+
+                        src = ""
+                        try:
+                            src = image_locator.get_attribute("src") or ""
+                        except Exception:
+                            src = ""
+
+                        if src.startswith("data:image") and "," in src:
+                            image_base64 = src.split(",", 1)[1]
+                            json_log(
+                                level="INFO",
+                                message="Browser generated image captured from data URL",
+                                stage="PROCESSING",
+                                status="IN_PROGRESS",
+                                context={
+                                    "operation": "browser_generated_image_captured_data_url",
+                                    "assistant_count": assistant_count,
+                                    "image_base64_chars": len(image_base64),
+                                },
+                            )
+                            return image_base64
+
+                        screenshot_bytes = image_locator.screenshot(timeout=self.action_timeout_ms)
+                        image_base64 = base64.b64encode(screenshot_bytes).decode("ascii")
+
+                        json_log(
+                            level="INFO",
+                            message="Browser generated image captured from rendered image",
+                            stage="PROCESSING",
+                            status="IN_PROGRESS",
+                            context={
+                                "operation": "browser_generated_image_captured_screenshot",
+                                "assistant_count": assistant_count,
+                                "image_base64_chars": len(image_base64),
+                            },
+                        )
+                        return image_base64
+                except Exception:
+                    pass
+
+            try:
+                stop_btn = page.get_by_role("button", name=re.compile(r"stop generating", re.I)).first
+                if stop_btn.count() and stop_btn.is_visible():
+                    page.wait_for_timeout(1000)
+                    continue
+            except Exception:
+                pass
+
+            page.wait_for_timeout(1000)
+
+        fail(
+            "BROWSER_IMAGE_GENERATION_TIMEOUT",
+            "Timed out waiting for generated image in browser assistant response.",
+            field="browser_generated_image",
+            expected="visible generated image in latest assistant message",
+            actual=last_assistant_excerpt[:1000],
+            stage="PROCESSING",
+        )
+
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        source_images, missing_images = self._extract_generation_source_images(generation_context)
+
+        if missing_images and IMAGE_REFERENCE_STRICT:
+            fail(
+                "IMAGE_REFERENCE_IMAGE_MISSING",
+                "One or more reference images listed in generation_context.source_images do not exist.",
+                field="generation_context.source_images",
+                expected="all listed reference image paths exist",
+                actual=json.dumps(missing_images, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        if IMAGE_REFERENCE_STRICT and not source_images:
+            fail(
+                "IMAGE_REFERENCE_IMAGES_NOT_AVAILABLE",
+                "Strict browser image generation requires source_images at the adapter boundary.",
+                field="generation_context.source_images",
+                expected="at least one existing reference image path",
+                actual=str((generation_context or {}).get("source_images") if isinstance(generation_context, dict) else None),
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="INFO",
+            message="Browser image generation started",
+            stage="PROCESSING",
+            status="STARTED",
+            context={
+                "operation": "browser_image_generation_start",
+                "source_image_count": len(source_images),
+                "size": size,
+                "has_generation_context": generation_context is not None,
+            },
+        )
+
+        page = self._page()
+
+        if os.getenv("BROWSER_NEW_CHAT_EACH_PROMPT", "1") == "1":
+            self._start_new_chat(page)
+        elif not self._prepared_chat and os.getenv("BROWSER_NEW_CHAT", "1") == "1":
+            self._start_new_chat(page)
+            self._prepared_chat = True
+
+        self._attach_images_for_generation(page, source_images)
+        before_assistant_count = self._submit_image_generation_prompt(page, prompt)
+        image_base64 = self._capture_latest_browser_generated_image_base64(page, before_assistant_count)
+
+        return {
+            "image_base64": image_base64,
+            "revised_prompt": None,
+            "source_images_used": source_images,
+        }
+```
+
+---
+
+# PATCH_10H validation
+
+## H-Validation 1 — compile
 
 ```powershell
 D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
 ```
 
+Expected:
+
+```
+PASS / no output
+```
+
 ---
 
-## Validation B — static marker validation
+## H-Validation 2 — static browser fallback removal check
 
 ```powershell
 @'
@@ -492,194 +487,97 @@ from pathlib import Path
 
 text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
 
+browser_class = text.split("class BrowserPromptExecutionAdapter", 1)[1].split("def _json_only_retry_prompt", 1)[0]
+browser_execute_image = browser_class.split("def execute_image(", 1)[1]
+
 required = [
-    "IMAGE_REFERENCE_STRICT",
-    "generation_context: Optional[Dict[str, Any]] = None",
-    "OpenAI image edit requested with reference images",
-    "Image generation adapter handoff started",
+    "BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS",
+    "Browser image generation started",
+    "Browser image generation reference images attached",
+    "Browser image generation prompt submission attempted",
+    "Browser generated image captured from rendered image",
     "source_images_used",
-    "result = call_image_generation(prompt, generation_context=generation_context)",
 ]
 
 for marker in required:
     assert marker in text, marker
 
 for forbidden in [
-    "result = call_image_generation(prompt)\n",
+    "self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())",
+    "return self.image_fallback.execute_image(",
+    "MISSING_DEPENDENCY\", \"Python package 'openai' is required for image generation.",
 ]:
-    assert forbidden not in text, forbidden
+    assert forbidden not in browser_execute_image, forbidden
 
-print("PATCH_SET_10_STATIC_VALIDATION_OK")
+print("PATCH_10H_BROWSER_IMAGE_FALLBACK_REMOVAL_OK")
 '@ | D:\TOOLS\Python314\python.exe -
 ```
-
----
 
 Expected:
 
 ```
-PATCH_SET_10_STATIC_VALIDATION_OK
+PATCH_10H_BROWSER_IMAGE_FALLBACK_REMOVAL_OK
 ```
 
 ---
 
-## **Validation C — PowerShell-compatible STEP 12 dry-run contract test**
+CONFIRMATION REQUIRED:
+YES.
 
-Run only if `workflow_state.json` is still at `last_completed_step = 11`.
+# Validation D — corrected browser/CDP actual STEP 12 runtime
+
+Run this only after H-Validation 1 and H-Validation 2 pass.
 
 ```powershell
 $env:SKIP_IMAGES="0"
 $env:IMAGE_REFERENCE_STRICT="1"
-
-@'
-import base64
-import copy
-import workflow_orchestrator as w
-
-state = w.load_json(w.STATE_PATH)
-assert state.get("last_completed_step") == "11", state.get("last_completed_step")
-assert "image_strategy_1" in state, "missing image_strategy_1"
-
-calls = {}
-
-orig_call_image_generation = w.call_image_generation
-orig_save_image = w.save_image
-orig_save_json_atomic = w.save_json_atomic
-orig_apply_step_wait = w.apply_step_wait
-
-def fake_call_image_generation(prompt, size="1024x1536", generation_context=None):
-    calls["prompt"] = prompt
-    calls["size"] = size
-    calls["generation_context"] = copy.deepcopy(generation_context)
-
-    assert generation_context is not None
-    assert generation_context["image_task"]["image_number"] == 1
-    assert generation_context["image_task"]["image_type"] == "Hero Product Image"
-    assert generation_context["image_generation_prompt"] == prompt
-    assert isinstance(generation_context.get("source_images"), list)
-    assert len(generation_context["source_images"]) >= 1
-
-    forbidden = [
-        "outputs",
-        "source_payload",
-        "amazon_product_title",
-        "amazon_bullet_points",
-        "amazon_product_description",
-        "customer_faq",
-        "social_media_posts",
-    ]
-    for key in forbidden:
-        assert key not in generation_context, key
-
-    return {
-        "image_base64": base64.b64encode(b"DRY_RUN_IMAGE_BYTES").decode("ascii"),
-        "revised_prompt": None,
-        "source_images_used": generation_context["source_images"],
-    }
-
-def fake_save_image(image_base64, name):
-    calls["save_image_name"] = name
-    calls["save_image_base64_len"] = len(image_base64)
-    return "DRY_RUN_NO_FILE_WRITE/" + name
-
-def fake_save_json_atomic(path, data):
-    calls["save_json_path"] = str(path)
-    calls["saved_last_completed_step"] = data.get("last_completed_step")
-
-def fake_apply_step_wait(kind):
-    calls["wait_kind"] = kind
-
-try:
-    w.call_image_generation = fake_call_image_generation
-    w.save_image = fake_save_image
-    w.save_json_atomic = fake_save_json_atomic
-    w.apply_step_wait = fake_apply_step_wait
-
-    step = w.Step("12", "image_generate", None, "generated_image_1", None)
-    w.run_step(step, state)
-
-finally:
-    w.call_image_generation = orig_call_image_generation
-    w.save_image = orig_save_image
-    w.save_json_atomic = orig_save_json_atomic
-    w.apply_step_wait = orig_apply_step_wait
-
-assert calls["generation_context"]["image_task"]["image_number"] == 1
-assert calls["generation_context"]["image_generation_prompt"] == calls["prompt"]
-assert calls["save_image_name"] == "image_12.png"
-assert calls["wait_kind"] == "image_generate"
-assert state["last_completed_step"] == "12"
-assert "generated_image_1" in state
-assert state["generated_image_1"]["generated_image"]["image_number"] == 1
-assert state["generated_image_1"]["generated_image"]["source_images_used"]
-
-print("PATCH_SET_10_STEP_12_DRY_RUN_OK")
-print("step=12")
-print("image_number=1")
-print("uses_image_strategy_1_prompt=True")
-print("passes_generation_context_to_call_image_generation=True")
-print("source_images_available_at_adapter_boundary=True")
-print("does_not_pass_full_workflow_state_to_image_adapter=True")
-print("generated_image_1_written_to_state=True")
-'@ | D:\TOOLS\Python314\python.exe -
-```
-
----
-
-Expected:
-
-```
-PATCH_SET_10_STEP_12_DRY_RUN_OK
-```
-
----
-
-## Validation D — actual STEP 12 runtime
-
----
-
-Only run after Validation B and C pass.
-
-```
-$env:SKIP_IMAGES="0"
-$env:IMAGE_REFERENCE_STRICT="1"
 $env:EXECUTION_BACKEND="browser"
 $env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+$env:BROWSER_IMAGE_GENERATION_TIMEOUT_SECONDS="300"
 
 D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
 ```
 
 Expected:
 
-```
+```json
 {
   "expected": [
-"resume starts at 12",
-"Image generation adapter handoff started",
-"source_image_count >= 1",
-"OpenAI image edit requested with reference images",
-"output/generated_images/image_12.png exists",
-"generated_image_1 exists in workflow_state.json",
-"generated_image_1.generated_image.source_images_used is non-empty",
-"last_completed_step=12",
-"OUTPUT/SUCCESS"
+    "resume starts at 12",
+    "Image generation adapter handoff started",
+    "Browser image generation started",
+    "source_image_count >= 1",
+    "Browser image generation reference images attached",
+    "Browser image generation prompt submission attempted",
+    "Browser generated image captured from rendered image OR data URL",
+    "output/generated_images/image_12.png exists",
+    "generated_image_1 exists in workflow_state.json",
+    "generated_image_1.generated_image.source_images_used is non-empty",
+    "last_completed_step=12",
+    "OUTPUT/SUCCESS"
+  ],
+  "forbidden": [
+    "OPENAI_API_KEY requirement",
+    "OpenAI image edit requested with reference images",
+    "Python package 'openai' is required for image generation",
+    "MISSING_DEPENDENCY from BrowserPromptExecutionAdapter.execute_image"
   ]
 }
 ```
 
-## Current status after issuing PATCH_SET_10
+## Current sequence status
 
 ```json
 {
-  "STATE": "10",
-  "PATCH_SET_10": "READY_TO_APPLY",
-  "STATE_17": "BLOCKED_UNTIL_STEP_12_RUNTIME_PASS",
-  "next_required_result_from_you": [
-    "PATCH_SET_10 apply report",
-    "compile result",
-    "static marker validation result",
-    "STEP 12 dry-run contract result",
-    "actual STEP 12 runtime result"
-  ]
+  "Validation_B": "PASS",
+  "Validation_C": "PASS",
+  "PATCH_10H": "READY_TO_APPLY",
+  "next": [
+    "apply PATCH_10H",
+    "run H-Validation 1",
+    "run H-Validation 2",
+    "run Validation D"
+  ],
+  "STATE_17": "BLOCKED_UNTIL_VALIDATION_D_PASS"
 }
 ```
