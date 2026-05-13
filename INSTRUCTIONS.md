@@ -1,26 +1,47 @@
-# NEXT CHAT
+# INSTRUCTIONS
 
-ACTION:
+- Proceeding with `PATCH_SET_10 — Image generation adapter context handoff`.
+- Targeting only the even-step image-generation adapter boundary.
+- First runtime target remains STEP `12`.
 
-- Generated `PATCH_SET_04 — Runtime stop controls + focused 01A diagnostics`.
-- Scope: `workflow_orchestrator.py` only.
-- No prompt changes.
-- No schema changes.
-- No image-context-router changes.
+This follows the uploaded controlling plan: the remaining gap is that `generation_context` is already built, but not handed to the image execution adapter.
 
-The current file confirms the root issue: `--stop-after` is checked **before** `run_step(...)`, so `--stop-after 01A` exits before executing `01A`.
+OpenAI’s current Image API supports image edits from one or more source images plus a prompt, and the Python API accepts a file or sequence of image files for GPT image models; GPT image models accept text and image inputs. This supports PATCH_SET_10’s adapter handoff design. ([OpenAI Developers](https://developers.openai.com/api/reference/resources/images/methods/edit/?utm_source=chatgpt.com))
 
 ---
 
-# PATCH_SET_04 — Runtime stop controls + focused 01A diagnostics
+# PATCH_SET_10 — Image generation adapter context handoff
 
-## PATCH_04A — Add explicit `-stop-before`
+## Scope
+
+Target file:
+
+```
+workflow_orchestrator.py
+```
+
+Do **not** modify:
+
+```json
+[
+  "docs/prompts.md",
+  "STEP 11 behavior",
+  "PROMPT 11 behavior",
+  "PATCH_SET_02 image prompt routing",
+  "PATCH_SET_03 prompt wording",
+  "normal text steps 01A-10"
+]
+```
+
+---
+
+## PATCH_10A — Add strict reference-image handoff control
 
 ### DRY-RUN EXPECTATION
 
 ```json
 {
-  "patch_id": "PATCH_04A",
+  "patch_id": "PATCH_10A",
   "expected_match_count": 1,
   "expected_replacement_count": 1,
   "halt_if_match_count_is_not": 1
@@ -30,25 +51,25 @@ The current file confirms the root issue: `--stop-after` is checked **before** `
 ### FIND
 
 ```python
-    parser.add_argument("--stop-after", default=None, help="Optional step id to stop after (e.g. 10)")
+IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
 ```
 
 ### REPLACE WITH
 
 ```python
-    parser.add_argument("--stop-after", default=None, help="Run through the matching step id, then stop before the next step (e.g. 01A, 11)")
-    parser.add_argument("--stop-before", default=None, help="Stop before the matching step id without executing it (e.g. 01A, 11)")
+IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
+IMAGE_REFERENCE_STRICT = os.getenv("IMAGE_REFERENCE_STRICT", "1") == "1"
 ```
 
 ---
 
-## PATCH_04B — Reject conflicting stop controls
+## PATCH_10B — Extend base adapter image interface
 
 ### DRY-RUN EXPECTATION
 
 ```json
 {
-  "patch_id": "PATCH_04B",
+  "patch_id": "PATCH_10B",
   "expected_match_count": 1,
   "expected_replacement_count": 1,
   "halt_if_match_count_is_not": 1
@@ -58,464 +79,210 @@ The current file confirms the root issue: `--stop-after` is checked **before** `
 ### FIND
 
 ```python
-    ensure_dirs()
-    if not args.resume:
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        raise NotImplementedError
 ```
 
 ### REPLACE WITH
 
 ```python
-    ensure_dirs()
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        raise NotImplementedError
+```
 
-    if args.stop_after and args.stop_before:
-        fail(
-            "INVALID_ARGS",
-            "--stop-after and --stop-before cannot be used together.",
-            field="stop_controls",
-            expected="only one of --stop-after or --stop-before",
-            actual=f"stop_after={args.stop_after}, stop_before={args.stop_before}",
+---
+
+## PATCH_10C — Replace OpenAI image adapter with context-aware implementation
+
+### DRY-RUN EXPECTATION
+
+```json
+{
+  "patch_id": "PATCH_10C",
+  "expected_match_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_match_count_is_not": 1
+}
+```
+
+### FIND
+
+```python
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        response = self.client.responses.create(
+            model=IMAGE_MODEL,
+            input=prompt,
+            tools=[{"type": "image_generation"}],
+            tool_choice={"type": "image_generation"},
         )
-
-    if not args.resume:
-```
-
----
-
-## PATCH_04C — Correct `-stop-after` semantics
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04C",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-    for i in range(start_from, len(plan)):
-        step = plan[i]
-        current_step_number = i + 1
-        if args.stop_after and step.step_id == args.stop_after:
-            break
-        run_step(step, state)
-        progress_percent = min(100, int((current_step_number / len(plan)) * 100))
-        validate_progress_percent(progress_percent, current_step_number, len(plan))
-        json_log(
-            level="INFO",
-            message=f"Completed step {step.step_id}",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"step_id": step.step_id},
-            progress_percent=progress_percent,
-            current_step=current_step_number,
-            total_steps=len(plan),
-        )
+        image_data = [
+            output.result
+            for output in response.output
+            if getattr(output, "type", None) == "image_generation_call"
+        ]
+        revised_prompt = None
+        for output in response.output:
+            if getattr(output, "type", None) == "image_generation_call":
+                revised_prompt = getattr(output, "revised_prompt", None)
+                break
+        if not image_data:
+            fail("IMAGE_GENERATION_FAILED", "No image returned by model.")
+        return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
 ```
 
 ### REPLACE WITH
 
 ```python
-    for i in range(start_from, len(plan)):
-        step = plan[i]
-        current_step_number = i + 1
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        source_images: List[str] = []
+        missing_images: List[str] = []
 
-        if args.stop_before and step.step_id == args.stop_before:
+        if isinstance(generation_context, dict):
+            raw_source_images = generation_context.get("source_images") or []
+            if isinstance(raw_source_images, list):
+                for item in raw_source_images:
+                    if not isinstance(item, str):
+                        continue
+                    path = Path(item)
+                    if path.exists() and path.is_file():
+                        source_images.append(str(path))
+                    else:
+                        missing_images.append(item)
+
+        if missing_images and IMAGE_REFERENCE_STRICT:
+            fail(
+                "IMAGE_REFERENCE_IMAGE_MISSING",
+                "One or more reference images listed in generation_context.source_images do not exist.",
+                field="generation_context.source_images",
+                expected="all listed reference image paths exist",
+                actual=json.dumps(missing_images, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        if isinstance(generation_context, dict) and IMAGE_REFERENCE_STRICT and not source_images:
+            fail(
+                "IMAGE_REFERENCE_IMAGES_NOT_AVAILABLE",
+                "Strict image generation requires source_images at the adapter boundary.",
+                field="generation_context.source_images",
+                expected="at least one existing reference image path",
+                actual=str(generation_context.get("source_images")),
+                stage="PROCESSING",
+            )
+
+        if source_images:
             json_log(
                 level="INFO",
-                message=f"Stopped before step {step.step_id}",
+                message="OpenAI image edit requested with reference images",
                 stage="PROCESSING",
                 status="IN_PROGRESS",
-                context={"step_id": step.step_id, "control": "stop_before"},
+                context={
+                    "operation": "openai_image_edit",
+                    "source_image_count": len(source_images),
+                    "image_model": IMAGE_MODEL,
+                    "size": size,
+                },
             )
-            break
 
-        run_step(step, state)
-        progress_percent = min(100, int((current_step_number / len(plan)) * 100))
-        validate_progress_percent(progress_percent, current_step_number, len(plan))
-        json_log(
-            level="INFO",
-            message=f"Completed step {step.step_id}",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"step_id": step.step_id},
-            progress_percent=progress_percent,
-            current_step=current_step_number,
-            total_steps=len(plan),
-        )
+            files = []
+            try:
+                for image_path in source_images:
+                    files.append(open(image_path, "rb"))
 
-        if args.stop_after and step.step_id == args.stop_after:
-            json_log(
-                level="INFO",
-                message=f"Stopped after step {step.step_id}",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={"step_id": step.step_id, "control": "stop_after"},
-            )
-            break
-```
-
----
-
-# Focused browser diagnostics
-
-These patches do **not** change behavior. They only add structured logs so the next `01A` runtime failure tells us where it hung.
-
----
-
-## PATCH_04D — Log browser text execution start/page readiness
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04D",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
-        page = self._page()
-```
-
-### REPLACE WITH
-
-```python
-    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
-        json_log(
-            level="DEBUG",
-            message="Browser text execution started",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"step_id": step_id, "operation": "execute_text_start"},
-        )
-        page = self._page()
-        json_log(
-            level="DEBUG",
-            message="Browser page ready",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"step_id": step_id, "operation": "browser_page_ready", "url": getattr(page, "url", "")},
-        )
-```
-
----
-
-## PATCH_04E — Log prompt payload build
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04E",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-        payload = build_text_input(state, prompt_text)
-
-        last_response = ""
-```
-
-### REPLACE WITH
-
-```python
-        payload = build_text_input(state, prompt_text)
-        json_log(
-            level="DEBUG",
-            message="Browser payload built",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "step_id": step_id,
-                "operation": "payload_built",
-                "payload_chars": len(payload),
-                "context_type": state.get("context_type", "WORKFLOW_STATE_JSON"),
-            },
-        )
-
-        last_response = ""
-```
-
----
-
-## PATCH_04F — Log JSON retry attempts
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04F",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-        last_response = ""
-        for attempt in range(max_retries + 1):
-            response_text = self.send_prompt(page, payload if attempt == 0 else _json_only_retry_prompt(step_id, schema, last_response))
-            last_response = response_text
-            if not response_text:
-                fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
-            parsed, err, excerpt = try_parse_response_json(response_text)
-            if parsed is not None:
-                return parsed
-            if attempt >= max_retries:
-                fail(
-                    "MODEL_OUTPUT_NOT_JSON",
-                    f"Model output is not valid JSON: {err}",
-                    actual=excerpt[:2000],
+                response = self.client.images.edit(
+                    model=IMAGE_MODEL,
+                    image=files,
+                    prompt=prompt,
+                    size=size,
+                    n=1,
                 )
-```
+            finally:
+                for f in files:
+                    try:
+                        f.close()
+                    except Exception:
+                        pass
 
-### REPLACE WITH
+            data = getattr(response, "data", None) or []
+            if not data:
+                fail("IMAGE_GENERATION_FAILED", "No image returned by image edit model.", stage="PROCESSING")
 
-```python
-        last_response = ""
-        for attempt in range(max_retries + 1):
-            json_log(
-                level="DEBUG",
-                message="Browser JSON attempt started",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "step_id": step_id,
-                    "operation": "json_attempt_start",
-                    "attempt": attempt,
-                    "max_retries": max_retries,
-                },
-            )
-            response_text = self.send_prompt(page, payload if attempt == 0 else _json_only_retry_prompt(step_id, schema, last_response))
-            last_response = response_text
-            json_log(
-                level="DEBUG",
-                message="Browser response received",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "step_id": step_id,
-                    "operation": "browser_response_received",
-                    "attempt": attempt,
-                    "response_chars": len(response_text or ""),
-                },
-            )
-            if not response_text:
-                fail("EMPTY_MODEL_OUTPUT", f"Step {step_id} returned empty browser output.")
-            parsed, err, excerpt = try_parse_response_json(response_text)
-            if parsed is not None:
-                json_log(
-                    level="DEBUG",
-                    message="Browser response parsed as JSON",
+            first = data[0]
+            image_base64 = getattr(first, "b64_json", None)
+            revised_prompt = getattr(first, "revised_prompt", None)
+
+            if isinstance(first, dict):
+                image_base64 = image_base64 or first.get("b64_json")
+                revised_prompt = revised_prompt or first.get("revised_prompt")
+
+            if not image_base64:
+                fail(
+                    "IMAGE_GENERATION_FAILED",
+                    "Image edit model returned no base64 image payload.",
+                    field="image_base64",
+                    expected="b64_json",
+                    actual=str(first)[:1000],
                     stage="PROCESSING",
-                    status="IN_PROGRESS",
-                    context={
-                        "step_id": step_id,
-                        "operation": "json_parse_success",
-                        "attempt": attempt,
-                        "output_keys": list(parsed.keys()),
-                    },
                 )
-                return parsed
-            json_log(
-                level="DEBUG",
-                message="Browser response JSON parse failed",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "step_id": step_id,
-                    "operation": "json_parse_failed",
-                    "attempt": attempt,
-                    "error": err,
-                    "excerpt_chars": len(excerpt or ""),
-                },
-            )
-            if attempt >= max_retries:
-                fail(
-                    "MODEL_OUTPUT_NOT_JSON",
-                    f"Model output is not valid JSON: {err}",
-                    actual=excerpt[:2000],
-                )
-```
 
----
+            return {
+                "image_base64": image_base64,
+                "revised_prompt": revised_prompt,
+                "source_images_used": source_images,
+            }
 
-## PATCH_04G — Log prompt-send start
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04G",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-    def send_prompt(self, page, payload: str) -> str:
-        before_assistant_count = page.locator("[data-message-author-role='assistant']").count()
-```
-
-### REPLACE WITH
-
-```python
-    def send_prompt(self, page, payload: str) -> str:
         json_log(
-            level="DEBUG",
-            message="Browser prompt send started",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"operation": "send_prompt_start", "payload_chars": len(payload)},
-        )
-        before_assistant_count = page.locator("[data-message-author-role='assistant']").count()
-```
-
----
-
-## PATCH_04H — Log input-box resolution
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04H",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-        box = self._input_box(page)
-
-        box.click()
-```
-
-### REPLACE WITH
-
-```python
-        box = self._input_box(page)
-        json_log(
-            level="DEBUG",
-            message="Browser input box resolved",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"operation": "input_box_resolved"},
-        )
-
-        box.click()
-```
-
----
-
-## PATCH_04I — Log prompt submission attempt
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04I",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-        # Ensure the prompt is actually submitted (some UI states require clicking send
-        # or using Ctrl+Enter).
-        page.keyboard.press("Enter")
-```
-
-### REPLACE WITH
-
-```python
-        # Ensure the prompt is actually submitted (some UI states require clicking send
-        # or using Ctrl+Enter).
-        json_log(
-            level="DEBUG",
-            message="Browser prompt submission attempted",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={"operation": "prompt_submit_attempt"},
-        )
-        page.keyboard.press("Enter")
-```
-
----
-
-## PATCH_04J — Log assistant-response wait start
-
-### DRY-RUN EXPECTATION
-
-```json
-{
-  "patch_id": "PATCH_04J",
-  "expected_match_count": 1,
-  "expected_replacement_count": 1,
-  "halt_if_match_count_is_not": 1
-}
-```
-
-### FIND
-
-```python
-        # Wait for a new assistant message to appear (response started).
-        response_deadline = time.time() + (self.action_timeout_ms / 1000.0)
-```
-
-### REPLACE WITH
-
-```python
-        # Wait for a new assistant message to appear (response started).
-        json_log(
-            level="DEBUG",
-            message="Browser assistant response wait started",
+            level="WARNING",
+            message="OpenAI image generation requested without reference images",
             stage="PROCESSING",
             status="IN_PROGRESS",
             context={
-                "operation": "assistant_response_wait_start",
-                "before_assistant_count": before_assistant_count,
-                "before_user_count": before_user_count,
+                "operation": "openai_image_generate_without_references",
+                "image_model": IMAGE_MODEL,
+                "size": size,
+                "strict": IMAGE_REFERENCE_STRICT,
             },
         )
-        response_deadline = time.time() + (self.action_timeout_ms / 1000.0)
+
+        response = self.client.responses.create(
+            model=IMAGE_MODEL,
+            input=prompt,
+            tools=[{"type": "image_generation"}],
+            tool_choice={"type": "image_generation"},
+        )
+        image_data = [
+            output.result
+            for output in response.output
+            if getattr(output, "type", None) == "image_generation_call"
+        ]
+        revised_prompt = None
+        for output in response.output:
+            if getattr(output, "type", None) == "image_generation_call":
+                revised_prompt = getattr(output, "revised_prompt", None)
+                break
+        if not image_data:
+            fail("IMAGE_GENERATION_FAILED", "No image returned by model.", stage="PROCESSING")
+        return {"image_base64": image_data[0], "revised_prompt": revised_prompt}
 ```
 
 ---
 
-## PATCH_04K — Log assistant response detection
+## PATCH_10D — Extend browser adapter image interface and pass context to fallback
 
 ### DRY-RUN EXPECTATION
 
 ```json
 {
-  "patch_id": "PATCH_04K",
+  "patch_id": "PATCH_10D",
   "expected_match_count": 1,
   "expected_replacement_count": 1,
   "halt_if_match_count_is_not": 1
@@ -525,38 +292,47 @@ These patches do **not** change behavior. They only add structured logs so the n
 ### FIND
 
 ```python
-        assistant = page.locator("[data-message-author-role='assistant']").last
-        assistant.wait_for(timeout=self.action_timeout_ms)
-        # Wait for streaming to settle to avoid capturing partial (invalid) JSON.
+    def execute_image(self, prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+        if self.image_fallback is None:
+            # Delay OpenAI client initialization until image generation is requested so
+            # browser-backed text steps don't require OPENAI_API_KEY.
+            if OpenAI is None:
+                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
+            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
+        return self.image_fallback.execute_image(prompt, size=size)
 ```
 
 ### REPLACE WITH
 
 ```python
-        assistant = page.locator("[data-message-author-role='assistant']").last
-        assistant.wait_for(timeout=self.action_timeout_ms)
-        json_log(
-            level="DEBUG",
-            message="Browser assistant response detected",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "assistant_response_detected",
-                "assistant_count": page.locator("[data-message-author-role='assistant']").count(),
-            },
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if self.image_fallback is None:
+            # Delay OpenAI client initialization until image generation is requested so
+            # browser-backed text steps don't require OPENAI_API_KEY.
+            if OpenAI is None:
+                fail("MISSING_DEPENDENCY", "Python package 'openai' is required for image generation.")
+            self.image_fallback = OpenAIPromptExecutionAdapter(OpenAI())
+        return self.image_fallback.execute_image(
+            prompt,
+            size=size,
+            generation_context=generation_context,
         )
-        # Wait for streaming to settle to avoid capturing partial (invalid) JSON.
 ```
 
 ---
 
-## PATCH_04L — Log response stabilization success
+## PATCH_10E — Extend `call_image_generation(...)` adapter boundary
 
 ### DRY-RUN EXPECTATION
 
 ```json
 {
-  "patch_id": "PATCH_04L",
+  "patch_id": "PATCH_10E",
   "expected_match_count": 1,
   "expected_replacement_count": 1,
   "halt_if_match_count_is_not": 1
@@ -566,37 +342,60 @@ These patches do **not** change behavior. They only add structured logs so the n
 ### FIND
 
 ```python
-                if stable_count >= stable_required:
-                    return current
+def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
+    json_log("step_start", kind="image_generation", size=size)
+    return get_execution_adapter().execute_image(prompt, size=size)
 ```
 
 ### REPLACE WITH
 
 ```python
-                if stable_count >= stable_required:
-                    json_log(
-                        level="DEBUG",
-                        message="Browser assistant response stabilized",
-                        stage="PROCESSING",
-                        status="IN_PROGRESS",
-                        context={
-                            "operation": "assistant_response_stabilized",
-                            "response_chars": len(current),
-                            "stable_count": stable_count,
-                        },
-                    )
-                    return current
+def call_image_generation(
+    prompt: str,
+    size: str = "1024x1536",
+    generation_context: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    source_images = []
+    image_task = {}
+
+    if isinstance(generation_context, dict):
+        raw_source_images = generation_context.get("source_images") or []
+        if isinstance(raw_source_images, list):
+            source_images = [p for p in raw_source_images if isinstance(p, str)]
+        raw_image_task = generation_context.get("image_task") or {}
+        if isinstance(raw_image_task, dict):
+            image_task = raw_image_task
+
+    json_log(
+        level="INFO",
+        message="Image generation adapter handoff started",
+        stage="PROCESSING",
+        status="STARTED",
+        context={
+            "kind": "image_generation",
+            "size": size,
+            "image_number": image_task.get("image_number"),
+            "image_type": image_task.get("image_type"),
+            "source_image_count": len(source_images),
+            "has_generation_context": generation_context is not None,
+        },
+    )
+    return get_execution_adapter().execute_image(
+        prompt,
+        size=size,
+        generation_context=generation_context,
+    )
 ```
 
 ---
 
-## PATCH_04M — Log response stabilization timeout fallback
+## PATCH_10F — Pass `generation_context` from even image-generation steps
 
 ### DRY-RUN EXPECTATION
 
 ```json
 {
-  "patch_id": "PATCH_04M",
+  "patch_id": "PATCH_10F",
   "expected_match_count": 1,
   "expected_replacement_count": 1,
   "halt_if_match_count_is_not": 1
@@ -606,63 +405,69 @@ These patches do **not** change behavior. They only add structured logs so the n
 ### FIND
 
 ```python
-        return last_text.strip()
+        result = call_image_generation(prompt)
 ```
 
 ### REPLACE WITH
 
 ```python
-        json_log(
-            level="DEBUG",
-            message="Browser assistant response stabilization ended by deadline",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "assistant_response_stabilization_deadline",
-                "response_chars": len(last_text or ""),
-            },
-        )
-        return last_text.strip()
+        result = call_image_generation(prompt, generation_context=generation_context)
 ```
 
 ---
 
-# PATCH_SET_04 VALIDATION CHECKPOINT
+## PATCH_10G — Persist adapter source-image usage metadata
+
+### DRY-RUN EXPECTATION
 
 ```json
 {
-  "patch_set_id": "PATCH_SET_04",
-  "expected_behavior": "--stop-after executes the matching step before stopping; --stop-before preserves old pre-step stop behavior; browser execution emits focused diagnostics for 01A timeout localization.",
+  "patch_id": "PATCH_10G",
+  "expected_match_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_match_count_is_not": 1
+}
+```
+
+### FIND
+
+```python
+                "saved_path": saved_path,
+                "revised_prompt": result.get("revised_prompt"),
+```
+
+### REPLACE WITH
+
+```python
+                "saved_path": saved_path,
+                "revised_prompt": result.get("revised_prompt"),
+                "source_images_used": result.get("source_images_used", []),
+```
+
+---
+
+# PATCH_SET_10 validation checkpoint
+
+```json
+{
+  "patch_set_id": "PATCH_SET_10",
+  "expected_behavior": "Even image-generation steps pass the slim generation_context into the image adapter, source_images are visible at the adapter boundary, and STEP 12 can use reference images through the image edit path when available.",
   "expected_present": {
-    "--stop-before": true,
-    "Stopped before step": true,
-    "Stopped after step": true,
-    "Browser text execution started": true,
-    "Browser page ready": true,
-    "Browser payload built": true,
-    "Browser JSON attempt started": true,
-    "Browser prompt send started": true,
-    "Browser input box resolved": true,
-    "Browser prompt submission attempted": true,
-    "Browser assistant response wait started": true,
-    "Browser assistant response detected": true,
-    "Browser assistant response stabilized": true
+    "IMAGE_REFERENCE_STRICT": true,
+    "generation_context: Optional[Dict[str, Any]] = None": true,
+    "OpenAI image edit requested with reference images": true,
+    "Image generation adapter handoff started": true,
+    "source_images_used": true,
+    "result = call_image_generation(prompt, generation_context=generation_context)": true
   },
-  "expected_terminal_success_fields": [
-    "timestamp",
-    "level",
-    "status",
-    "trace_id",
-    "span_id",
-    "output_hash"
-  ],
   "forbidden_changes": [
-    "Do not modify prompts.md",
-    "Do not change output schemas",
-    "Do not change image context router behavior",
-    "Do not change image step numbering",
-    "Do not add retry or recovery logic",
-    "Do not remove fail-fast behavior"
+    "Do not modify docs/prompts.md",
+    "Do not alter STEP 11 behavior",
+    "Do not attach raw binary reference images to STEP 11",
+    "Do not send full workflow_state.json to image-generation adapter",
+    "Do not change image prompt routing from PATCH_SET_02",
+    "Do not change prompt wording from PATCH_SET_03",
+    "Do not proceed to STATE 17 before STEP 12 actual image generation passes"
   ]
 }
 ```
@@ -671,16 +476,158 @@ These patches do **not** change behavior. They only add structured logs so the n
 
 # Validation commands
 
-## 1. Compile
+## Validation A — compile
 
 ```powershell
 D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
 ```
 
-## 2. Verify old behavior is now explicit
+---
+
+## Validation B — static marker validation
 
 ```powershell
-D:\TOOLS\Python314\python.exe workflow_orchestrator.py --stop-before 01A
+D:\TOOLS\Python314\python.exe - <<'PY'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "IMAGE_REFERENCE_STRICT",
+    "generation_context: Optional[Dict[str, Any]] = None",
+    "OpenAI image edit requested with reference images",
+    "Image generation adapter handoff started",
+    "source_images_used",
+    "result = call_image_generation(prompt, generation_context=generation_context)",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+for forbidden in [
+    "result = call_image_generation(prompt)\n",
+]:
+    assert forbidden not in text, forbidden
+
+print("PATCH_SET_10_STATIC_VALIDATION_OK")
+PY
+```
+
+---
+
+## Validation C — focused STEP 12 dry-run contract test
+
+Run this from a state that already passed through STEP `11`.
+
+```powershell
+$env:SKIP_IMAGES="0"
+$env:IMAGE_REFERENCE_STRICT="1"
+
+D:\TOOLS\Python314\python.exe - <<'PY'
+import base64
+import copy
+import workflow_orchestrator as w
+
+state = w.load_json(w.STATE_PATH)
+assert state.get("last_completed_step") == "11", state.get("last_completed_step")
+assert "image_strategy_1" in state, "missing image_strategy_1"
+
+calls = {}
+
+orig_call_image_generation = w.call_image_generation
+orig_save_image = w.save_image
+orig_save_json_atomic = w.save_json_atomic
+orig_apply_step_wait = w.apply_step_wait
+
+def fake_call_image_generation(prompt, size="1024x1536", generation_context=None):
+    calls["prompt"] = prompt
+    calls["size"] = size
+    calls["generation_context"] = copy.deepcopy(generation_context)
+
+    assert generation_context is not None
+    assert generation_context["image_task"]["image_number"] == 1
+    assert generation_context["image_task"]["image_type"] == "Hero Product Image"
+    assert generation_context["image_generation_prompt"] == prompt
+    assert isinstance(generation_context.get("source_images"), list)
+    assert len(generation_context["source_images"]) >= 1
+
+    forbidden = [
+        "outputs",
+        "source_payload",
+        "amazon_product_title",
+        "amazon_bullet_points",
+        "amazon_product_description",
+        "customer_faq",
+        "social_media_posts",
+    ]
+    for key in forbidden:
+        assert key not in generation_context, key
+
+    return {
+        "image_base64": base64.b64encode(b"DRY_RUN_IMAGE_BYTES").decode("ascii"),
+        "revised_prompt": None,
+        "source_images_used": generation_context["source_images"],
+    }
+
+def fake_save_image(image_base64, name):
+    calls["save_image_name"] = name
+    calls["save_image_base64_len"] = len(image_base64)
+    return "DRY_RUN_NO_FILE_WRITE/" + name
+
+def fake_save_json_atomic(path, data):
+    calls["save_json_path"] = str(path)
+    calls["saved_last_completed_step"] = data.get("last_completed_step")
+
+def fake_apply_step_wait(kind):
+    calls["wait_kind"] = kind
+
+try:
+    w.call_image_generation = fake_call_image_generation
+    w.save_image = fake_save_image
+    w.save_json_atomic = fake_save_json_atomic
+    w.apply_step_wait = fake_apply_step_wait
+
+    step = w.Step("12", "image_generate", None, "generated_image_1", None)
+    w.run_step(step, state)
+
+finally:
+    w.call_image_generation = orig_call_image_generation
+    w.save_image = orig_save_image
+    w.save_json_atomic = orig_save_json_atomic
+    w.apply_step_wait = orig_apply_step_wait
+
+assert calls["generation_context"]["image_task"]["image_number"] == 1
+assert calls["generation_context"]["image_generation_prompt"] == calls["prompt"]
+assert calls["save_image_name"] == "image_12.png"
+assert calls["wait_kind"] == "image_generate"
+assert state["last_completed_step"] == "12"
+assert "generated_image_1" in state
+assert state["generated_image_1"]["generated_image"]["image_number"] == 1
+assert state["generated_image_1"]["generated_image"]["source_images_used"]
+
+print("PATCH_SET_10_STEP_12_DRY_RUN_OK")
+print("step=12")
+print("image_number=1")
+print("uses_image_strategy_1_prompt=True")
+print("passes_generation_context_to_call_image_generation=True")
+print("source_images_available_at_adapter_boundary=True")
+print("does_not_pass_full_workflow_state_to_image_adapter=True")
+print("generated_image_1_written_to_state=True")
+PY
+```
+
+---
+
+## Validation D — actual STEP 12 runtime
+
+Only run after Validation C passes.
+
+```powershell
+$env:OPENAI_API_KEY="YOUR_KEY_HERE"
+$env:SKIP_IMAGES="0"
+$env:IMAGE_REFERENCE_STRICT="1"
+
+D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
 ```
 
 Expected:
@@ -688,50 +635,34 @@ Expected:
 ```json
 {
   "expected": [
-    "lifecycle logs emitted",
-    "no step_start for 01A",
-    "terminal OUTPUT/SUCCESS emitted"
+    "resume starts at 12",
+    "Image generation adapter handoff started",
+    "source_image_count >= 1",
+    "OpenAI image edit requested with reference images",
+    "output/generated_images/image_12.png exists",
+    "generated_image_1 exists in workflow_state.json",
+    "generated_image_1.generated_image.source_images_used is non-empty",
+    "last_completed_step=12",
+    "OUTPUT/SUCCESS"
   ]
 }
 ```
 
-## 3. Verify corrected `-stop-after`
+---
 
-```powershell
-D:\TOOLS\Python314\python.exe workflow_orchestrator.py --stop-after 01A
-```
-
-Expected:
+## Current status after issuing PATCH_SET_10
 
 ```json
 {
-  "expected": [
-    "step_start for 01A appears",
-    "01A either completes or fails with structured diagnostics",
-    "if it times out, last DEBUG log identifies the active phase"
+  "STATE": "10",
+  "PATCH_SET_10": "READY_TO_APPLY",
+  "STATE_17": "BLOCKED_UNTIL_STEP_12_RUNTIME_PASS",
+  "next_required_result_from_you": [
+    "PATCH_SET_10 apply report",
+    "compile result",
+    "static marker validation result",
+    "STEP 12 dry-run contract result",
+    "actual STEP 12 runtime result"
   ]
 }
 ```
-
-## Important runtime note
-
-Your prior 3-minute outer timeout may still be too short. The script currently has:
-
-```python
-BROWSER_ACTION_TIMEOUT_MS = 120000
-BROWSER_JSON_RETRIES = 2
-```
-
-That means one text step can take roughly **up to 3 browser attempts**, each with its own browser wait window. For diagnosing `01A`, either use a longer outer timeout or temporarily run:
-
-```powershell
-$env:BROWSER_JSON_RETRIES="0"
-$env:BROWSER_ACTION_TIMEOUT_MS="120000"
-D:\TOOLS\Python314\python.exe workflow_orchestrator.py --stop-after 01A
-```
-
-That will localize the first failure faster without changing the script.
-
-CONFIRMATION REQUIRED:
-
-YES
