@@ -487,7 +487,7 @@ D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
 ## Validation B — static marker validation
 
 ```powershell
-D:\TOOLS\Python314\python.exe - <<'PY'
+@'
 from pathlib import Path
 
 text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
@@ -510,20 +510,28 @@ for forbidden in [
     assert forbidden not in text, forbidden
 
 print("PATCH_SET_10_STATIC_VALIDATION_OK")
-PY
+'@ | D:\TOOLS\Python314\python.exe -
 ```
 
 ---
 
-## Validation C — focused STEP 12 dry-run contract test
+Expected:
 
-Run this from a state that already passed through STEP `11`.
+```
+PATCH_SET_10_STATIC_VALIDATION_OK
+```
+
+---
+
+## **Validation C — PowerShell-compatible STEP 12 dry-run contract test**
+
+Run only if `workflow_state.json` is still at `last_completed_step = 11`.
 
 ```powershell
 $env:SKIP_IMAGES="0"
 $env:IMAGE_REFERENCE_STRICT="1"
 
-D:\TOOLS\Python314\python.exe - <<'PY'
+@'
 import base64
 import copy
 import workflow_orchestrator as w
@@ -613,42 +621,51 @@ print("passes_generation_context_to_call_image_generation=True")
 print("source_images_available_at_adapter_boundary=True")
 print("does_not_pass_full_workflow_state_to_image_adapter=True")
 print("generated_image_1_written_to_state=True")
-PY
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+---
+
+Expected:
+
+```
+PATCH_SET_10_STEP_12_DRY_RUN_OK
 ```
 
 ---
 
 ## Validation D — actual STEP 12 runtime
 
-Only run after Validation C passes.
+---
 
-```powershell
-$env:OPENAI_API_KEY="YOUR_KEY_HERE"
+Only run after Validation B and C pass.
+
+```
 $env:SKIP_IMAGES="0"
 $env:IMAGE_REFERENCE_STRICT="1"
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
 
 D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
 ```
 
 Expected:
 
-```json
+```
 {
   "expected": [
-    "resume starts at 12",
-    "Image generation adapter handoff started",
-    "source_image_count >= 1",
-    "OpenAI image edit requested with reference images",
-    "output/generated_images/image_12.png exists",
-    "generated_image_1 exists in workflow_state.json",
-    "generated_image_1.generated_image.source_images_used is non-empty",
-    "last_completed_step=12",
-    "OUTPUT/SUCCESS"
+"resume starts at 12",
+"Image generation adapter handoff started",
+"source_image_count >= 1",
+"OpenAI image edit requested with reference images",
+"output/generated_images/image_12.png exists",
+"generated_image_1 exists in workflow_state.json",
+"generated_image_1.generated_image.source_images_used is non-empty",
+"last_completed_step=12",
+"OUTPUT/SUCCESS"
   ]
 }
 ```
-
----
 
 ## Current status after issuing PATCH_SET_10
 
