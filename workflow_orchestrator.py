@@ -51,6 +51,7 @@ RAW_TEXT_PATH_MD = DATA_DIR / "raw_product_input.md"
 
 TEXT_MODEL = os.getenv("OPENAI_TEXT_MODEL", "gpt-5.4")
 IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5")
+IMAGE_REFERENCE_STRICT = os.getenv("IMAGE_REFERENCE_STRICT", "1") == "1"
 EXECUTION_BACKEND = os.getenv("EXECUTION_BACKEND", "browser").lower()
 BROWSER_CDP_URL = os.getenv("BROWSER_CDP_URL", "http://127.0.0.1:9222")
 BROWSER_CHAT_URL = os.getenv("BROWSER_CHAT_URL", "https://chatgpt.com/")
