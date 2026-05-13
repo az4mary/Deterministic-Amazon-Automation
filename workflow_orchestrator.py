@@ -1933,9 +1933,41 @@ def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state
     return parsed
 
 
-def call_image_generation(prompt: str, size: str = "1024x1536") -> Dict[str, Any]:
-    json_log("step_start", kind="image_generation", size=size)
-    return get_execution_adapter().execute_image(prompt, size=size)
+def call_image_generation(
+    prompt: str,
+    size: str = "1024x1536",
+    generation_context: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    source_images = []
+    image_task = {}
+
+    if isinstance(generation_context, dict):
+        raw_source_images = generation_context.get("source_images") or []
+        if isinstance(raw_source_images, list):
+            source_images = [p for p in raw_source_images if isinstance(p, str)]
+        raw_image_task = generation_context.get("image_task") or {}
+        if isinstance(raw_image_task, dict):
+            image_task = raw_image_task
+
+    json_log(
+        level="INFO",
+        message="Image generation adapter handoff started",
+        stage="PROCESSING",
+        status="STARTED",
+        context={
+            "kind": "image_generation",
+            "size": size,
+            "image_number": image_task.get("image_number"),
+            "image_type": image_task.get("image_type"),
+            "source_image_count": len(source_images),
+            "has_generation_context": generation_context is not None,
+        },
+    )
+    return get_execution_adapter().execute_image(
+        prompt,
+        size=size,
+        generation_context=generation_context,
+    )
 
 
 def save_image(image_base64: str, name: str) -> str:
