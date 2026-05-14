@@ -370,14 +370,116 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             page.goto(self.chat_url, wait_until="domcontentloaded")
         return page
 
+    def _composer_available(self, page) -> bool:
+        selectors = [
+            "[contenteditable='true']",
+            "div[contenteditable='true']",
+            "[role='textbox']",
+            "div[role='textbox']",
+            "main [contenteditable='true']",
+            "form [contenteditable='true']",
+            "textarea#prompt-textarea",
+            "textarea[data-testid='prompt-textarea']",
+        ]
+        for sel in selectors:
+            try:
+                loc = page.locator(sel).first
+                if loc.count() and loc.is_visible():
+                    return True
+            except Exception:
+                pass
+        return False
+
+    def _wait_for_clean_composer(self, page, *, reason: str) -> bool:
+        deadline = time.time() + (BROWSER_NEW_CHAT_READY_TIMEOUT_MS / 1000.0)
+        last_log = 0.0
+
+        while time.time() < deadline:
+            if self._composer_available(page):
+                json_log(
+                    level="DEBUG",
+                    message="Browser clean composer ready",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "browser_clean_composer_ready",
+                        "reason": reason,
+                        "url": getattr(page, "url", ""),
+                    },
+                )
+                return True
+
+            now = time.time()
+            if now - last_log >= 2.0:
+                last_log = now
+                json_log(
+                    level="DEBUG",
+                    message="Browser clean composer wait continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "browser_clean_composer_wait_continue",
+                        "reason": reason,
+                        "url": getattr(page, "url", ""),
+                    },
+                )
+
+            page.wait_for_timeout(500)
+
+        return False
+
     def _start_new_chat(self, page) -> None:
-        # Best-effort "new chat" without opening more tabs.
+        # Establish a clean ChatGPT composer surface before every prompt.
+        # This is intentionally stronger than a best-effort sidebar click because
+        # generated-image/canvas result surfaces can leave the composer hidden.
         old_url = ""
         try:
             old_url = page.url or ""
         except Exception:
             old_url = ""
 
+        json_log(
+            level="DEBUG",
+            message="Browser new chat reset started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "browser_new_chat_reset_start",
+                "old_url": old_url,
+                "force_root": BROWSER_FORCE_ROOT_NEW_CHAT,
+            },
+        )
+
+        # First dismiss transient UI layers that may trap focus after image generation.
+        for key in ["Escape", "Escape"]:
+            try:
+                page.keyboard.press(key)
+                page.wait_for_timeout(250)
+            except Exception:
+                pass
+
+        # Prefer hard navigation to root when enabled. This is the most reliable
+        # way to exit generated-image/canvas views and recover the normal composer.
+        if BROWSER_FORCE_ROOT_NEW_CHAT:
+            try:
+                page.goto(self.chat_url or "https://chatgpt.com/", wait_until="domcontentloaded")
+                page.wait_for_timeout(1000)
+            except Exception as e:
+                json_log(
+                    level="DEBUG",
+                    message="Browser root navigation for new chat failed",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "browser_root_navigation_failed",
+                        "error": str(e)[:500],
+                    },
+                )
+
+        if self._wait_for_clean_composer(page, reason="after_root_navigation"):
+            return
+
+        # Fallback: try the visible New Chat affordance.
         selectors = [
             "button[data-testid='new-chat-button']",
             "a[data-testid='new-chat-button']",
@@ -385,40 +487,39 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
             "a:has-text('New chat')",
             "button[aria-label*='New chat']",
             "a[aria-label*='New chat']",
+            "a[href='/']",
         ]
+
         for sel in selectors:
             try:
                 el = page.locator(sel).first
                 if el.count() and el.is_visible():
                     el.click()
-                    break
+                    page.wait_for_timeout(1000)
+                    if self._wait_for_clean_composer(page, reason=f"after_new_chat_click:{sel}"):
+                        return
             except Exception:
                 pass
 
-        # Fallback: navigate to the root (often lands in a fresh composer state).
-        # Also: if the click didn't work (or there's no sidebar), force-navigation helps.
-        deadline = time.time() + 5.0
-        while time.time() < deadline:
-            try:
-                if old_url and page.url and page.url != old_url:
-                    break
-            except Exception:
-                pass
-            try:
-                box = page.locator("textarea#prompt-textarea, [contenteditable='true']").first
-                if box.count() and box.is_visible():
-                    break
-            except Exception:
-                pass
-            page.wait_for_timeout(200)
-
+        # Last resort: reload root and check again.
         try:
-            # If we're still on a conversation URL, force to home to ensure a clean chat.
-            if "/c/" in (page.url or ""):
-                page.goto("https://chatgpt.com/", wait_until="domcontentloaded")
+            page.goto(self.chat_url or "https://chatgpt.com/", wait_until="domcontentloaded")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_timeout(1500)
         except Exception:
             pass
-        page.wait_for_timeout(500)
+
+        if self._wait_for_clean_composer(page, reason="after_root_reload"):
+            return
+
+        fail(
+            "SELECTOR_TIMEOUT",
+            "Could not recover clean ChatGPT composer after new-chat reset.",
+            field="browser_clean_composer",
+            expected="visible composer after root navigation/new chat reset",
+            actual=f"old_url={old_url}; current_url={getattr(page, 'url', '')}",
+            stage="PROCESSING",
+        )
 
     def _attach_images_for_state(self, page, state: Dict[str, Any]) -> None:
         if os.getenv("BROWSER_ATTACH_IMAGES", "1") != "1":
