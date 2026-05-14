@@ -2538,12 +2538,42 @@ def deterministic_style_lock() -> Dict[str, str]:
 def apply_step_wait(step_kind: str) -> None:
     global SYNTHETIC_DURATION_MS
 
+    wait_seconds = 0
+
     if step_kind == "text":
-        time.sleep(TEXT_STEP_WAIT_SECONDS)
-        SYNTHETIC_DURATION_MS += TEXT_STEP_WAIT_SECONDS * 1000
+        wait_seconds = TEXT_STEP_WAIT_SECONDS
     elif step_kind == "image_generate":
-        time.sleep(IMAGE_STEP_WAIT_SECONDS)
-        SYNTHETIC_DURATION_MS += IMAGE_STEP_WAIT_SECONDS * 1000
+        wait_seconds = IMAGE_STEP_WAIT_SECONDS
+
+    if wait_seconds <= 0:
+        return
+
+    json_log(
+        level="INFO",
+        message="Model cooldown wait started",
+        stage="PROCESSING",
+        status="IN_PROGRESS",
+        context={
+            "operation": "model_cooldown_wait",
+            "step_kind": step_kind,
+            "wait_seconds": wait_seconds,
+        },
+    )
+
+    time.sleep(wait_seconds)
+    SYNTHETIC_DURATION_MS += wait_seconds * 1000
+
+    json_log(
+        level="INFO",
+        message="Model cooldown wait completed",
+        stage="PROCESSING",
+        status="IN_PROGRESS",
+        context={
+            "operation": "model_cooldown_complete",
+            "step_kind": step_kind,
+            "wait_seconds": wait_seconds,
+        },
+    )
 
 
 STEP_PLAN: List[Step] = [
