@@ -2640,6 +2640,7 @@ def build_image_generation_context(state: Dict[str, Any], step_id: str) -> Dict[
             "image_views": visual_data.get("image_views", {}),
         },
         "style_lock": state.get("image_style_lock", deterministic_style_lock()),
+        "spatial_image_contract": build_spatial_image_contract(product_data, visual_data),
         "source_images": state.get("source_payload", {}).get("source_images", []),
     }
 
