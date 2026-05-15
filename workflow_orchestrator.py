@@ -46,6 +46,7 @@ IMAGE_SOURCE_DIR = DATA_DIR / "images"
 GENERATED_IMAGE_DIR = OUTPUT_DIR / "generated_images"
 STATE_PATH = OUTPUT_DIR / "workflow_state.json"
 IMAGE_PROMPTS_PATH = OUTPUT_DIR / "image_prompts.json"
+IMAGE_CONTENT_PATH = OUTPUT_DIR / "image_content.json"
 RAW_TEXT_PATH = DATA_DIR / "raw_product_input.txt"
 RAW_TEXT_PATH_MD = DATA_DIR / "raw_product_input.md"
 
@@ -2844,6 +2845,12 @@ def write_image_prompts(state: Dict[str, Any]) -> None:
             prompts.append(container["image_strategy"])
     if prompts:
         IMAGE_PROMPTS_PATH.write_text(json.dumps(prompts, indent=2, ensure_ascii=False), encoding="utf-8")
+        image_content = {
+            "reference_tag": state.get("reference_tag", ""),
+            "spatial_image_contract": state.get("spatial_image_contract", {}),
+            "image_prompts": prompts,
+        }
+        IMAGE_CONTENT_PATH.write_text(json.dumps(image_content, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def run_step(step: Step, state: Dict[str, Any]) -> None:
