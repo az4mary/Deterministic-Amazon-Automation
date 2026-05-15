@@ -2442,6 +2442,107 @@ def get_extraction_output(state: Dict[str, Any], step_id: str) -> Dict[str, Any]
     return {}
 
 
+def build_spatial_image_contract(product_data: Dict[str, Any], visual_data: Dict[str, Any]) -> Dict[str, Any]:
+    existing = visual_data.get("spatial_image_contract")
+    if isinstance(existing, dict):
+        return existing
+
+    visual_identity = visual_data.get("visual_identity", {})
+    if not isinstance(visual_identity, dict):
+        visual_identity = {}
+
+    object_layout_map = visual_data.get("object_layout_map", {})
+    if not isinstance(object_layout_map, dict):
+        object_layout_map = {}
+
+    product_geometry = visual_data.get("product_geometry", {})
+    if not isinstance(product_geometry, dict):
+        product_geometry = {}
+
+    image_views = visual_data.get("image_views", {})
+    if not isinstance(image_views, dict):
+        image_views = {}
+
+    attributes = product_data.get("attributes", {})
+    if not isinstance(attributes, dict):
+        attributes = {}
+
+    additional_attributes = product_data.get("additional_attributes", {})
+    if not isinstance(additional_attributes, dict):
+        additional_attributes = {}
+
+    package_contents = product_data.get("package_contents", [])
+    if not isinstance(package_contents, list):
+        package_contents = []
+
+    dimension_sources = []
+    for source in (attributes, additional_attributes):
+        for key, value in source.items():
+            key_text = str(key).lower()
+            if any(token in key_text for token in ("dimension", "size", "width", "height", "depth", "length")):
+                dimension_sources.append(f"{key}: {value}")
+
+    exact_dimensions = "; ".join(dimension_sources) if dimension_sources else "Unconfirmed"
+    dimension_source = "input attributes" if dimension_sources else "not provided in input/source data"
+    dimension_status = "confirmed" if dimension_sources else "unconfirmed"
+
+    product_type = str(visual_identity.get("product_type") or product_data.get("product_category") or "product")
+    materials = str(visual_identity.get("materials") or "")
+    dominant_color = str(visual_identity.get("dominant_color") or "")
+    primary_components = visual_identity.get("primary_components") or []
+    if not isinstance(primary_components, list):
+        primary_components = []
+
+    component_positions = object_layout_map.get("component_positions") or {}
+    if not isinstance(component_positions, dict):
+        component_positions = {}
+
+    return {
+        "product_dimensions": {
+            "exact_dimensions": exact_dimensions,
+            "dimension_source": dimension_source,
+            "dimension_status": dimension_status,
+            "relative_scale": str(product_geometry.get("relative_dimensions") or product_geometry.get("proportions") or "relative proportions from visual extraction"),
+        },
+        "product_3d_geometry": {
+            "overall_shape": str(product_geometry.get("shape_description") or f"{product_type} physical body"),
+            "front_face": str(image_views.get("front_3q_left") or image_views.get("front_3q_right") or "front face from source imagery"),
+            "rear_face": str(image_views.get("rear_3q") or "rear face unconfirmed from source imagery"),
+            "top_face": str(image_views.get("top_view") or "top face unconfirmed from source imagery"),
+            "bottom_face": str(image_views.get("bottom_view") or "bottom face unconfirmed from source imagery"),
+            "left_side": str(image_views.get("left_side") or "left side unconfirmed from source imagery"),
+            "right_side": str(image_views.get("right_side") or "right side unconfirmed from source imagery"),
+            "component_depth_relationships": json.dumps(component_positions, ensure_ascii=False) if component_positions else "Use component placement and depth from source imagery only.",
+        },
+        "component_interaction_rules": {
+            "mounting_or_support_logic": str(attributes.get("mount") or additional_attributes.get("mount") or "Use visible support, mounting, resting, or included accessory logic only."),
+            "lens_or_primary_function_axis": "Align any lens, sensor, nozzle, light, speaker, blade, handle, display, or primary functional face with its real-world operating direction.",
+            "screen_or_display_logic": "If a screen/display is present, screen content must match the visible environment and physical viewing direction.",
+            "controls_and_ports_logic": "Do not invent controls, ports, labels, lights, or markings that are not visible or provided in source data.",
+            "accessory_interaction_logic": "Use only included accessories: " + (", ".join(str(item) for item in package_contents) if package_contents else "none confirmed"),
+        },
+        "photographer_scene_rules": {
+            "camera_pov_required": "Describe a real camera position, optical axis, foreground, midground, background, focal plane, and product-facing direction.",
+            "foreground_midground_background": "Place the product and surrounding objects in physically coherent depth layers.",
+            "focal_plane_and_depth_of_field": "Keep the verified product geometry in focus; use depth of field only when it does not obscure required product details.",
+            "environment_sync_rules": "Environment, reflections, displays, and functional axes must agree with the product geometry and scene perspective.",
+            "scale_rules": f"Use confirmed dimensions when available; otherwise use unconfirmed relative scale for a {dominant_color} {materials} {product_type}.",
+        },
+        "physics_constraints": [
+            "Product cannot float unless visibly suspended or supported.",
+            "Component placement must match source imagery and extracted geometry.",
+            "Functional axes must point toward what they capture, emit, display, cut, spray, hold, or affect.",
+            "Do not invent exact dimensions when source dimensions are unconfirmed.",
+        ],
+        "negative_spatial_constraints": [
+            "Do not copy the reference image as a flat sticker.",
+            "Do not use impossible rotations, impossible support, or contradictory perspective.",
+            "Do not show screen/display content that contradicts the visible environment.",
+            "Do not invent unverified components, accessories, ports, labels, lights, or markings.",
+        ],
+    }
+
+
 def build_image_prompt_context(state: Dict[str, Any], step_id: str) -> Dict[str, Any]:
     product_data = get_extraction_output(state, "01A")
     visual_data = get_extraction_output(state, "01B")
