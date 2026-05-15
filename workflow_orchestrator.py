@@ -2584,6 +2584,7 @@ def build_image_prompt_context(state: Dict[str, Any], step_id: str) -> Dict[str,
         },
         "visual_attribute_subset": pick_visual_attributes(product_data),
         "feature_subset": product_data.get("core_features", []),
+        "spatial_image_contract": build_spatial_image_contract(product_data, visual_data),
         "source_images": state.get("source_payload", {}).get("source_images", []),
     }
 
