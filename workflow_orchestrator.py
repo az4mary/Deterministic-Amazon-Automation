@@ -2838,6 +2838,10 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
             state["dataset"] = output
         elif step.step_id == "01B":
             state["visual_grounding"] = output
+            state["spatial_image_contract"] = build_spatial_image_contract(
+                get_extraction_output(state, "01A"),
+                output,
+            )
         elif step.step_id == "11":
             state["image_strategy"] = output["image_strategy"]
         elif step.step_id in {"13", "15", "17", "19", "21", "23"}:
