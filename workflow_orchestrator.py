@@ -1611,12 +1611,130 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             stage="PROCESSING",
         )
 
+    def _extract_reference_images(self, generation_context: Optional[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
+        source_images: List[str] = []
+        missing_images: List[str] = []
+
+        if isinstance(generation_context, dict):
+            raw_source_images = generation_context.get("source_images") or []
+            if isinstance(raw_source_images, list):
+                for item in raw_source_images:
+                    if not isinstance(item, str):
+                        continue
+                    path = Path(item)
+                    if path.exists() and path.is_file():
+                        source_images.append(str(path))
+                    else:
+                        missing_images.append(item)
+
+        if missing_images and FLOW_REFERENCE_STRICT:
+            fail(
+                "FLOW_REFERENCE_IMAGE_MISSING",
+                "One or more reference images listed in generation_context.source_images do not exist.",
+                field="generation_context.source_images",
+                expected="all listed Flow reference image paths exist",
+                actual=json.dumps(missing_images, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        if FLOW_REFERENCE_STRICT and not source_images:
+            fail(
+                "FLOW_REFERENCE_IMAGES_NOT_AVAILABLE",
+                "Strict Flow image generation requires source_images at the adapter boundary.",
+                field="generation_context.source_images",
+                expected="at least one existing reference image path",
+                actual=str((generation_context or {}).get("source_images") if isinstance(generation_context, dict) else None),
+                stage="PROCESSING",
+            )
+
+        return source_images, missing_images
+
+    def _attach_reference_images(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        json_log(
+            level="INFO",
+            message="Flow reference image attachment started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_image_attach_start",
+                "source_image_count": len(source_images),
+            },
+        )
+
+        attach_selectors = [
+            "button[aria-label*='Upload']",
+            "button[aria-label*='upload']",
+            "button[aria-label*='Ingredient']",
+            "button[aria-label*='ingredient']",
+            "button[aria-label*='Reference']",
+            "button[aria-label*='reference']",
+            "button:has-text('Upload')",
+            "button:has-text('Ingredient')",
+            "button:has-text('Reference')",
+            "button:has-text('Add media')",
+        ]
+
+        try:
+            if page.locator("input[type=file]").count() == 0:
+                for selector in attach_selectors:
+                    button = page.locator(selector).first
+                    if button.count() and button.is_visible():
+                        button.click(timeout=self.action_timeout_ms)
+                        page.wait_for_timeout(500)
+                        break
+        except Exception:
+            pass
+
+        try:
+            file_input = page.locator("input[type=file]").first
+            if not file_input.count():
+                fail(
+                    "FLOW_REFERENCE_ATTACH_INPUT_MISSING",
+                    "Could not find Flow file input for reference image upload.",
+                    field="flow_file_input",
+                    expected="input[type=file] after opening Flow upload or ingredient control",
+                    actual=f"url={getattr(page, 'url', '')}",
+                    stage="PROCESSING",
+                )
+
+            file_input.set_input_files(source_images, timeout=self.action_timeout_ms)
+            page.wait_for_timeout(1500)
+
+            json_log(
+                level="INFO",
+                message="Flow reference images attached",
+                stage="PROCESSING",
+                status="COMPLETED",
+                context={
+                    "operation": "flow_reference_image_attach_success",
+                    "source_image_count": len(source_images),
+                },
+            )
+        except SystemExit:
+            raise
+        except Exception as exc:
+            fail(
+                "FLOW_REFERENCE_IMAGE_ATTACH_FAILED",
+                "Failed to attach reference images to Flow.",
+                field="generation_context.source_images",
+                expected="reference images uploaded through Flow file input",
+                actual=str(exc)[:1000],
+                stage="PROCESSING",
+            )
+
     def execute_image(
         self,
         prompt: str,
         size: str = "1024x1536",
         generation_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        source_images, _missing_images = self._extract_reference_images(generation_context)
+        page = self._page()
+        self._attach_reference_images(page, source_images)
+
         fail(
             "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
             "Flow browser image generation adapter is registered but page, reference, prompt, and capture helpers are not implemented yet.",
