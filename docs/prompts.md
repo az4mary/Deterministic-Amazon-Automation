@@ -716,10 +716,28 @@ IMAGE_CONTEXT_JSON includes:
 - style_guidance
 - visual_attribute_subset
 - image_task
+- spatial_image_contract
 - amazon_rules
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 1 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
+Hero image rule: no environment, no lifestyle scene, and no screen/environment sync unless the product screen must be shown as a physical component only.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -763,6 +781,18 @@ Do not suggest additional steps.
    "headline_text": "N/A",
    "supporting_text": "N/A",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -881,11 +911,28 @@ IMAGE_CONTEXT_JSON includes:
 - image_style_lock
 - visual_attribute_subset
 - feature_subset
+- spatial_image_contract
 - amazon_rules
 - source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 2 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -934,6 +981,18 @@ Do not suggest additional steps.
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1036,11 +1095,28 @@ IMAGE_CONTEXT_JSON includes:
 - image_style_lock
 - visual_attribute_subset
 - feature_subset
+- spatial_image_contract
 - amazon_rules
 - source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 3 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -1089,6 +1165,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1191,11 +1279,28 @@ IMAGE_CONTEXT_JSON includes:
 - image_style_lock
 - visual_attribute_subset
 - feature_subset
+- spatial_image_contract
 - amazon_rules
 - source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 4 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -1244,6 +1349,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1346,11 +1463,28 @@ IMAGE_CONTEXT_JSON includes:
 - image_style_lock
 - visual_attribute_subset
 - feature_subset
+- spatial_image_contract
 - amazon_rules
 - source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 5 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -1399,6 +1533,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1501,11 +1647,28 @@ IMAGE_CONTEXT_JSON includes:
 - image_style_lock
 - visual_attribute_subset
 - feature_subset
+- spatial_image_contract
 - amazon_rules
 - source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 6 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -1554,6 +1717,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1656,11 +1831,28 @@ IMAGE_CONTEXT_JSON includes:
 - image_style_lock
 - visual_attribute_subset
 - feature_subset
+- spatial_image_contract
 - amazon_rules
 - source_images
 
 **OBJECTIVE**
 Generate the image-generation prompt for Image 7 of the Amazon listing.
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract to build a photographer-grade, physically grounded scene brief.
+Return image_strategy.spatial_scene_brief with every field shown in the JSON template.
+Write image_generation_prompt in plain language with these exact master-prompt section headings:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+Do not invent exact dimensions. Use confirmed exact dimensions only when supplied; otherwise state that dimensions are unconfirmed and use relative scale/proportions from IMAGE_CONTEXT_JSON.spatial_image_contract.
 
 **RULES**
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
@@ -1709,6 +1901,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
