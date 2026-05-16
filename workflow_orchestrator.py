@@ -3617,6 +3617,8 @@ def run_step(step: Step, state: Dict[str, Any]) -> None:
                 "saved_path": saved_path,
                 "revised_prompt": result.get("revised_prompt"),
                 "source_images_used": result.get("source_images_used", []),
+                "generation_backend": result.get("generation_backend", IMAGE_EXECUTION_BACKEND),
+                "generation_model": result.get("generation_model", FLOW_IMAGE_MODEL if IMAGE_EXECUTION_BACKEND == "flow_browser" else IMAGE_MODEL),
             },
             "image_style_lock": deterministic_style_lock(),
         }
