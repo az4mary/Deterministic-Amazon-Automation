@@ -716,6 +716,7 @@ IMAGE_CONTEXT_JSON includes:
 - style_guidance
 - visual_attribute_subset
 - image_task
+- spatial_image_contract
 - amazon_rules
 
 **OBJECTIVE**
@@ -745,6 +746,34 @@ Hero Product Image (Amazon main image)
 - Vertical composition
 - Product centered and dominant in frame
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 **WORKFLOW MODE**
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -763,6 +792,18 @@ Do not suggest additional steps.
    "headline_text": "N/A",
    "supporting_text": "N/A",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -870,6 +911,7 @@ reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
 - image_task
+- spatial_image_contract
 - product_identity
 - included_accessories
 - visual_grounding
@@ -916,6 +958,34 @@ Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - color profile
 - product scale
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 **WORKFLOW MODE**
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -934,6 +1004,18 @@ Do not suggest additional steps.
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1025,6 +1107,7 @@ reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
 - image_task
+- spatial_image_contract
 - product_identity
 - included_accessories
 - visual_grounding
@@ -1071,6 +1154,34 @@ Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - color profile
 - product scale
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 WORKFLOW MODE
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -1089,6 +1200,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1180,6 +1303,7 @@ reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
 - image_task
+- spatial_image_contract
 - product_identity
 - included_accessories
 - visual_grounding
@@ -1226,6 +1350,34 @@ Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - color profile
 - product scale
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 WORKFLOW MODE
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -1244,6 +1396,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1335,6 +1499,7 @@ reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
 - image_task
+- spatial_image_contract
 - product_identity
 - included_accessories
 - visual_grounding
@@ -1381,6 +1546,34 @@ Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - color profile
 - product scale
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 WORKFLOW MODE
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -1399,6 +1592,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1490,6 +1695,7 @@ reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
 - image_task
+- spatial_image_contract
 - product_identity
 - included_accessories
 - visual_grounding
@@ -1536,6 +1742,34 @@ Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - color profile
 - product scale
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 WORKFLOW MODE
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -1554,6 +1788,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
@@ -1645,6 +1891,7 @@ reference_tag must be read from IMAGE_CONTEXT_JSON and preserved unchanged.
 
 IMAGE_CONTEXT_JSON includes:
 - image_task
+- spatial_image_contract
 - product_identity
 - included_accessories
 - visual_grounding
@@ -1691,6 +1938,34 @@ Use image_style_lock from IMAGE_CONTEXT_JSON.style_guidance to maintain:
 - color profile
 - product scale
 
+
+**SPATIAL IMAGE PROMPT CONTRACT**
+Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
+
+The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
+
+The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
+- System/Role Context
+- Technical Specifications
+- Model Photographer's POV
+- Binding Geometry
+- Orientation & Spatial Sync
+- Scene Composition & Environmental Sync
+- Typography & Graphic Overlays
+- Physical Constraints
+- Negative Spatial Constraints
+- Amazon Compliance Constraints
+
+Rules for spatial grounding:
+1. Anchor the product in a real physical location or studio setup.
+2. State the camera/photographer POV explicitly.
+3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
+4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
+5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
+6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
+7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
+8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
+
 WORKFLOW MODE
 You are executing one step of an automated pipeline.
 Only perform the requested task.
@@ -1709,6 +1984,18 @@ OUTPUT FORMAT (JSON)
    "headline_text": "",
    "supporting_text": "",
    "visual_design_direction": "",
+   "spatial_scene_brief": {
+     "system_role_context": "",
+     "technical_specifications": "",
+     "model_photographer_pov": "",
+     "binding_geometry": "",
+     "orientation_and_spatial_sync": "",
+     "scene_composition_and_environmental_sync": "",
+     "typography_and_graphic_overlays": "",
+     "physical_constraints": [],
+     "negative_spatial_constraints": [],
+     "amazon_compliance_constraints": []
+   },
    "image_generation_prompt": ""
  }
 }
