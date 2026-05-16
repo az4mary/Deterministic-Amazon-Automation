@@ -1474,14 +1474,15 @@ def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_respo
 
 
 client: Any = None
-EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
+TEXT_EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
+IMAGE_EXECUTION_ADAPTER: Optional[PromptExecutionAdapter] = None
 
 
-def get_execution_adapter() -> PromptExecutionAdapter:
-    global client, EXECUTION_ADAPTER
-    if EXECUTION_ADAPTER is None:
+def get_text_execution_adapter() -> PromptExecutionAdapter:
+    global client, TEXT_EXECUTION_ADAPTER
+    if TEXT_EXECUTION_ADAPTER is None:
         if EXECUTION_BACKEND == "browser":
-            EXECUTION_ADAPTER = BrowserPromptExecutionAdapter(
+            TEXT_EXECUTION_ADAPTER = BrowserPromptExecutionAdapter(
                 BROWSER_CDP_URL,
                 BROWSER_CHAT_URL,
                 BROWSER_ACTION_TIMEOUT_MS,
@@ -1491,8 +1492,22 @@ def get_execution_adapter() -> PromptExecutionAdapter:
                 fail("MISSING_DEPENDENCY", "Python package 'openai' is required for EXECUTION_BACKEND != browser.")
             if client is None:
                 client = OpenAI()
-            EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
-    return EXECUTION_ADAPTER
+            TEXT_EXECUTION_ADAPTER = OpenAIPromptExecutionAdapter(client)
+    return TEXT_EXECUTION_ADAPTER
+
+
+def get_image_execution_adapter() -> PromptExecutionAdapter:
+    global IMAGE_EXECUTION_ADAPTER
+    if IMAGE_EXECUTION_ADAPTER is None:
+        if IMAGE_EXECUTION_BACKEND == "flow_browser":
+            IMAGE_EXECUTION_ADAPTER = FlowBrowserImageGenerationAdapter(
+                BROWSER_CDP_URL,
+                FLOW_URL,
+                BROWSER_ACTION_TIMEOUT_MS,
+            )
+        else:
+            IMAGE_EXECUTION_ADAPTER = get_text_execution_adapter()
+    return IMAGE_EXECUTION_ADAPTER
 
 
 def build_deterministic_trace_id(raw_text_hash: str, image_hashes: List[str]) -> str:
@@ -2704,7 +2719,7 @@ def build_text_input(state: Dict[str, Any], prompt_text: str) -> str:
 
 def call_text_step(step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
     json_log("step_start", step_id=step_id, kind="text")
-    parsed = get_execution_adapter().execute_text(step_id, prompt_text, schema, state)
+    parsed = get_text_execution_adapter().execute_text(step_id, prompt_text, schema, state)
     json_log("step_end", step_id=step_id, kind="text", output_keys=list(parsed.keys()))
     return parsed
 
@@ -2739,7 +2754,7 @@ def call_image_generation(
             "has_generation_context": generation_context is not None,
         },
     )
-    return get_execution_adapter().execute_image(
+    return get_image_execution_adapter().execute_image(
         prompt,
         size=size,
         generation_context=generation_context,
