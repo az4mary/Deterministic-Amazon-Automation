@@ -1909,6 +1909,204 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 stage="PROCESSING",
             )
 
+    def _capture_flow_generated_image_base64(self, page) -> str:
+        json_log(
+            level="INFO",
+            message="Flow image generation wait started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_image_generation_wait_start",
+                "timeout_seconds": FLOW_IMAGE_TIMEOUT_SECONDS,
+            },
+        )
+
+        def locator_key(locator) -> str:
+            try:
+                src = locator.get_attribute("src") or ""
+                if src:
+                    return src[:500]
+            except Exception:
+                pass
+            try:
+                box = locator.bounding_box() or {}
+                tag_name = locator.evaluate("el => el.tagName.toLowerCase()")
+                return json.dumps(
+                    {
+                        "tag": tag_name,
+                        "x": round(float(box.get("x", 0)), 1),
+                        "y": round(float(box.get("y", 0)), 1),
+                        "w": round(float(box.get("width", 0)), 1),
+                        "h": round(float(box.get("height", 0)), 1),
+                    },
+                    sort_keys=True,
+                )
+            except Exception:
+                return ""
+
+        def visible_large_enough(locator) -> bool:
+            try:
+                if not locator.is_visible():
+                    return False
+                box = locator.bounding_box() or {}
+                return float(box.get("width", 0)) >= 180 and float(box.get("height", 0)) >= 180
+            except Exception:
+                return False
+
+        def collect_candidates():
+            candidates = []
+            selectors = [
+                "main img[src^='blob:']",
+                "main img[src^='data:image']",
+                "main img",
+                "main canvas",
+                "[data-testid*='generation'] img",
+                "[data-testid*='generation'] canvas",
+                "[data-testid*='result'] img",
+                "[data-testid*='result'] canvas",
+                "[role='img']",
+            ]
+            for selector in selectors:
+                try:
+                    collection = page.locator(selector)
+                    count = min(collection.count(), 20)
+                    for idx in range(count):
+                        candidates.append((selector, collection.nth(idx)))
+                except Exception:
+                    continue
+            return candidates
+
+        def read_locator_image_base64(locator) -> Optional[str]:
+            try:
+                src = locator.get_attribute("src") or ""
+                if src.startswith("data:image") and "," in src:
+                    return src.split(",", 1)[1]
+                if src.startswith("blob:") or src.startswith("http://") or src.startswith("https://"):
+                    return page.evaluate(
+                        """
+                        async (src) => {
+                          const response = await fetch(src);
+                          const blob = await response.blob();
+                          const bytes = new Uint8Array(await blob.arrayBuffer());
+                          let binary = "";
+                          for (let i = 0; i < bytes.length; i += 1) {
+                            binary += String.fromCharCode(bytes[i]);
+                          }
+                          return btoa(binary);
+                        }
+                        """,
+                        src,
+                    )
+            except Exception:
+                return None
+            return None
+
+        baseline_keys = set()
+        for _selector, candidate in collect_candidates():
+            try:
+                key = locator_key(candidate)
+                if key:
+                    baseline_keys.add(key)
+            except Exception:
+                continue
+
+        download_selectors = [
+            "button[aria-label*='Download']",
+            "button[aria-label*='download']",
+            "[role='button'][aria-label*='Download']",
+            "[role='button'][aria-label*='download']",
+            "button:has-text('Download')",
+            "[data-testid*='download']",
+        ]
+
+        deadline = time.time() + FLOW_IMAGE_TIMEOUT_SECONDS
+        last_error = ""
+        while time.time() < deadline:
+            for selector in download_selectors:
+                try:
+                    button = page.locator(selector).last
+                    if not button.count() or not button.is_visible() or not button.is_enabled():
+                        continue
+                    with page.expect_download(timeout=3000) as download_info:
+                        button.click(timeout=self.action_timeout_ms)
+                    download = download_info.value
+                    download_path = download.path()
+                    if download_path:
+                        image_base64 = base64.b64encode(Path(download_path).read_bytes()).decode("ascii")
+                        json_log(
+                            level="INFO",
+                            message="Flow generated image captured from download",
+                            stage="PROCESSING",
+                            status="COMPLETED",
+                            context={
+                                "operation": "flow_generated_image_captured_download",
+                                "image_base64_chars": len(image_base64),
+                            },
+                        )
+                        return image_base64
+                except Exception as exc:
+                    last_error = str(exc)[:500]
+
+            for selector, candidate in collect_candidates():
+                try:
+                    if not visible_large_enough(candidate):
+                        continue
+                    key = locator_key(candidate)
+                    if key and key in baseline_keys:
+                        continue
+
+                    image_base64 = read_locator_image_base64(candidate)
+                    if image_base64:
+                        json_log(
+                            level="INFO",
+                            message="Flow generated image captured from image tile",
+                            stage="PROCESSING",
+                            status="COMPLETED",
+                            context={
+                                "operation": "flow_generated_image_captured_tile",
+                                "selector": selector,
+                                "image_base64_chars": len(image_base64),
+                            },
+                        )
+                        return image_base64
+
+                    screenshot_bytes = candidate.screenshot(timeout=self.action_timeout_ms)
+                    image_base64 = base64.b64encode(screenshot_bytes).decode("ascii")
+                    json_log(
+                        level="INFO",
+                        message="Flow generated image captured from canvas/screenshot",
+                        stage="PROCESSING",
+                        status="COMPLETED",
+                        context={
+                            "operation": "flow_generated_image_captured_screenshot",
+                            "selector": selector,
+                            "image_base64_chars": len(image_base64),
+                        },
+                    )
+                    return image_base64
+                except Exception as exc:
+                    last_error = str(exc)[:500]
+
+            page.wait_for_timeout(1000)
+
+        fail(
+            "FLOW_IMAGE_GENERATION_TIMEOUT",
+            "Timed out waiting for Flow to produce a downloadable, image, canvas, or screenshot-capturable result.",
+            field="flow_generated_image",
+            expected="generated Flow output captured as base64 image",
+            actual=last_error,
+            stage="PROCESSING",
+        )
+
+        fail(
+            "FLOW_GENERATED_IMAGE_CAPTURE_FAILED",
+            "Flow generated image capture failed after waiting for generation output.",
+            field="flow_generated_image",
+            expected="generated Flow output captured as base64 image",
+            actual=last_error,
+            stage="PROCESSING",
+        )
+
     def execute_image(
         self,
         prompt: str,
@@ -1919,15 +2117,15 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
         page = self._page()
         self._attach_reference_images(page, source_images)
         self._submit_flow_prompt(page, prompt)
+        image_base64 = self._capture_flow_generated_image_base64(page)
 
-        fail(
-            "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
-            "Flow browser image generation adapter is registered but page, reference, prompt, and capture helpers are not implemented yet.",
-            field="IMAGE_EXECUTION_BACKEND",
-            expected="later PATCH_SET_12 Flow helper patches before actual Flow execution",
-            actual=IMAGE_EXECUTION_BACKEND,
-            stage="PROCESSING",
-        )
+        return {
+            "image_base64": image_base64,
+            "revised_prompt": None,
+            "source_images_used": source_images,
+            "generation_backend": "flow_browser",
+            "generation_model": FLOW_IMAGE_MODEL,
+        }
 
 
 def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_response: str) -> str:
