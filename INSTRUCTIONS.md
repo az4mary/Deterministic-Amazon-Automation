@@ -1,223 +1,509 @@
 # INSTRUCTIONS
 
-CONFIRMATION REQUIRED: Before each PATCH and Validation.
+CONFIRMATION REQUIRED: Before each 16 STEPS.
 
 YES
 
-## Current source status before PATCH_11H
+- Preserve `PATCH_SET_11` as confirmed.
+- Clean only generated validation/runtime artifacts.
+- Proceed next with `PATCH_SET_12 — Flow browser image backend`.
 
-```json
-{
-  "workflow_orchestrator": {
-    "PATCH_11A_to_11G": "PRESENT",
-    "schema_image_prompt_requires_spatial_scene_brief": true,
-    "IMAGE_CONTENT_PATH": true,
-    "build_spatial_image_contract": true,
-    "build_image_prompt_context_includes_spatial_image_contract": true,
-    "build_image_generation_context_includes_spatial_image_contract": true
-  },
-  "prompts_md": {
-    "PATCH_11H": "NOT_PRESENT",
-    "spatial_scene_brief_mentions": 0,
-    "spatial_contract_prompt_wording": "MISSING",
-    "image_prompt_output_schemas": "OLD_SCHEMA"
-  }
-}
-```
-
-The current `prompts.md` still uses the old image prompt output schemas for PROMPT `11/13/15/17/19/21/23`; each schema ends at `image_generation_prompt` and does not instruct the browser model to emit `spatial_scene_brief`.
-
-The script already expects `spatial_scene_brief` inside `schema_image_prompt(...)`, so the correct fix is **prompt-doc alignment only**, not another orchestrator patch.
+`PATCH_SET_11` is now the stable base: `PATCH_11H` applied, committed, pushed, H-validations passed, clean `--stop-after 23` passed, and all seven prompt records now contain the spatial prompt contract fields.
 
 ---
 
-# PATCH_11H — Prompt docs: enforce spatial_scene_brief for image prompt steps
+# 1. Cleanup before PATCH_SET_12
 
 ## Purpose
 
-Align `docs/prompts.md` with the already-patched runtime schema.
+Remove stale prompt/image/output artifacts so Flow validation cannot accidentally pass by reading old ChatGPT-generated or old prompt-validation files.
 
-This patch affects only:
+This cleanup does **not** touch source files.
 
+## Safe cleanup command
+
+Run from repo root:
+
+```powershell
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$archive = "output\_archive\pre_PATCH_SET_12_$stamp"
+
+New-Item -ItemType Directory -Force $archive | Out-Null
+
+Copy-Item output\workflow_state.json $archive -Force -ErrorAction SilentlyContinue
+Copy-Item output\image_prompts.json $archive -Force -ErrorAction SilentlyContinue
+Copy-Item output\image_content.json $archive -Force -ErrorAction SilentlyContinue
+Copy-Item output\logs\execution.jsonl $archive -Force -ErrorAction SilentlyContinue
+
+if (Test-Path output\generated_images) {
+    Copy-Item output\generated_images "$archive\generated_images" -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+Remove-Item output\workflow_state.json -Force -ErrorAction SilentlyContinue
+Remove-Item output\image_prompts.json -Force -ErrorAction SilentlyContinue
+Remove-Item output\image_content.json -Force -ErrorAction SilentlyContinue
+Remove-Item output\logs\execution.jsonl -Force -ErrorAction SilentlyContinue
+Remove-Item output\generated_images\*.png -Force -ErrorAction SilentlyContinue
+
+New-Item -ItemType Directory -Force output\logs | Out-Null
+New-Item -ItemType Directory -Force output\generated_images | Out-Null
+
+git status --short
 ```
-docs/prompts.md
-```
 
-It does **not** touch:
+## Do not delete
 
 ```json
 [
   "workflow_orchestrator.py",
-  "image context router",
-  "image generation backend",
-  "browser selector logic",
-  "cooldown pacing",
+  "docs/prompts.md",
+  "data/raw_product_input.md",
+  "data/images/",
+  "docs/",
+  "output/_archive/"
+]
+```
+
+Expected after cleanup:
+
+```json
+{
+  "source_files_preserved": true,
+  "old_workflow_state_removed": true,
+  "old_image_prompts_removed": true,
+  "old_image_content_removed": true,
+  "old_execution_log_removed": true,
+  "old_generated_pngs_removed": true,
+  "archive_created": true
+}
+```
+
+---
+
+# Next patch set
+
+```json
+{
+  "patch_set_id": "PATCH_SET_12",
+  "name": "Flow browser image backend",
+  "purpose": "Route actual image-generation steps to Google Flow while keeping ChatGPT browser/CDP for text and image-prompt JSON generation.",
+  "state": "STATE_16",
+  "depends_on": [
+    "PATCH_SET_10 browser/CDP stabilization",
+    "PATCH_10K cooldown pacing",
+    "PATCH_SET_11 spatial image prompt contract"
+  ]
+}
+```
+
+## Scope
+
+Only these steps move to Flow:
+
+```json
+{
+  "actual_image_generation_steps": ["12", "14", "16", "18", "20", "22", "24"]
+}
+```
+
+These remain on ChatGPT browser/CDP:
+
+```json
+{
+  "text_steps": ["01A", "01B", "02", "03", "04", "05", "06", "07", "08", "09", "10"],
+  "image_prompt_steps": ["11", "13", "15", "17", "19", "21", "23"]
+}
+```
+
+## Do not touch
+
+```json
+[
+  "docs/prompts.md PATCH_SET_11 contract",
+  "schema_image_prompt spatial_scene_brief",
+  "build_image_prompt_context",
+  "build_image_generation_context",
+  "cooldown defaults",
+  "ChatGPT text/browser prompt execution",
   "step numbering",
-  "Flow backend"
+  "image prompt JSON schema",
+  "output image numbering"
 ]
 ```
 
 ---
 
-## PATCH_11H dry-run expectation
+# Required runtime model
 
 ```json
 {
-  "patch_id": "PATCH_11H",
-  "target_file": "docs/prompts.md",
-  "expected_prompt_sections": ["11", "13", "15", "17", "19", "21", "23"],
-  "expected_spatial_image_contract_include_insertions": 7,
-  "expected_spatial_contract_instruction_insertions": 7,
-  "expected_output_schema_replacements": 7,
-  "halt_if_any_count_is_not_expected": true
+  "browser": "already launched",
+  "auth": "already authenticated",
+  "connection": "Chrome remote debugging / CDP",
+  "text_backend": "ChatGPT browser",
+  "image_prompt_backend": "ChatGPT browser",
+  "image_generation_backend": "Google Flow browser",
+  "flow_url": "https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+}
+```
+
+## Required environment variables
+
+```powershell
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:FLOW_IMAGE_MODEL="Nano Banana 2"
+$env:FLOW_MODEL_STRICT="1"
+$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+$env:FLOW_REFERENCE_STRICT="1"
+$env:FLOW_ASPECT_RATIO="9:16"
+$env:FLOW_OUTPUT_COUNT="1"
+
+$env:TEXT_STEP_WAIT_SECONDS="300"
+$env:IMAGE_STEP_WAIT_SECONDS="600"
+```
+
+---
+
+# PATCH_SET_12 breakdown
+
+## 2. PATCH_12A — Add Flow backend configuration
+
+Add constants:
+
+```python
+IMAGE_EXECUTION_BACKEND = os.getenv("IMAGE_EXECUTION_BACKEND", "chatgpt_browser").lower()
+FLOW_URL = os.getenv("FLOW_URL", "https://labs.google/fx/tools/flow")
+FLOW_IMAGE_MODEL = os.getenv("FLOW_IMAGE_MODEL", "Nano Banana 2")
+FLOW_MODEL_STRICT = os.getenv("FLOW_MODEL_STRICT", "1") == "1"
+FLOW_IMAGE_TIMEOUT_SECONDS = float(os.getenv("FLOW_IMAGE_TIMEOUT_SECONDS", "1200"))
+FLOW_REFERENCE_STRICT = os.getenv("FLOW_REFERENCE_STRICT", "1") == "1"
+FLOW_ASPECT_RATIO = os.getenv("FLOW_ASPECT_RATIO", "9:16")
+FLOW_OUTPUT_COUNT = int(os.getenv("FLOW_OUTPUT_COUNT", "1"))
+```
+
+Expected validation markers:
+
+```json
+{
+  "required": [
+    "IMAGE_EXECUTION_BACKEND",
+    "FLOW_URL",
+    "FLOW_IMAGE_TIMEOUT_SECONDS",
+    "FLOW_REFERENCE_STRICT",
+    "FLOW_ASPECT_RATIO",
+    "FLOW_OUTPUT_COUNT"
+  ]
 }
 ```
 
 ---
 
-# PATCH_11H application script
+## 3. PATCH_12B — Split text adapter from image adapter
 
-Run from repo root:
+Current behavior: `call_image_generation(...)` uses the same execution adapter path.
 
-```powershell
-@'
-from pathlib import Path
-import re
+Required behavior:
 
-path = Path("docs/prompts.md")
-text = path.read_text(encoding="utf-8")
+```python
+def get_text_execution_adapter() -> PromptExecutionAdapter:
+    ...
 
-TARGET_PROMPTS = ["11", "13", "15", "17", "19", "21", "23"]
-
-spatial_instruction_block = """
-**SPATIAL IMAGE PROMPT CONTRACT**
-Use IMAGE_CONTEXT_JSON.spatial_image_contract as the controlling physical-scene contract.
-
-The image_strategy output MUST include a spatial_scene_brief object with all required fields below.
-
-The image_generation_prompt MUST be written as a photographer-grade scene-construction brief and must incorporate these exact conceptual sections in natural language:
-- System/Role Context
-- Technical Specifications
-- Model Photographer's POV
-- Binding Geometry
-- Orientation & Spatial Sync
-- Scene Composition & Environmental Sync
-- Typography & Graphic Overlays
-- Physical Constraints
-- Negative Spatial Constraints
-- Amazon Compliance Constraints
-
-Rules for spatial grounding:
-1. Anchor the product in a real physical location or studio setup.
-2. State the camera/photographer POV explicitly.
-3. Preserve product geometry, component placement, mounting/support logic, and real-world scale from spatial_image_contract.
-4. If exact physical dimensions are unconfirmed, do not invent dimensions; use relative scale only.
-5. Explain how the product's functional axis interacts with real space: lens direction, display direction, nozzle direction, handle direction, light direction, speaker direction, cutting direction, or equivalent product-specific axis.
-6. If the product has a display, lens, mirror, camera, sensor, light, transparent chamber, or reflection, visible content must physically agree with the real environment and product orientation.
-7. Do not copy-paste the reference image as a flat sticker. Reconstruct the product as a coherent 3D object.
-8. Do not create impossible rotations, floating components, unsupported mounts, contradictory screen/environment content, or invented components.
-
-"""
-
-spatial_scene_schema = '''   "spatial_scene_brief": {
-     "system_role_context": "",
-     "technical_specifications": "",
-     "model_photographer_pov": "",
-     "binding_geometry": "",
-     "orientation_and_spatial_sync": "",
-     "scene_composition_and_environmental_sync": "",
-     "typography_and_graphic_overlays": "",
-     "physical_constraints": [],
-     "negative_spatial_constraints": [],
-     "amazon_compliance_constraints": []
-   },
-   "image_generation_prompt": ""'''
-
-include_insertions = 0
-instruction_insertions = 0
-schema_replacements = 0
-
-pattern = re.compile(r"(?ms)(^# PROMPT (?P<id>\\d+)\\b.*?)(?=^# PROMPT \\d+\\b|\\Z)")
-
-def patch_section(section: str, prompt_id: str) -> str:
-    global include_insertions, instruction_insertions, schema_replacements
-
-    original = section
-
-    if "- spatial_image_contract" not in section:
-        if "- image_task\n" not in section:
-            raise SystemExit(f"PATCH_11H_FAILED: PROMPT {prompt_id} missing - image_task include anchor")
-        section = section.replace("- image_task\n", "- image_task\n- spatial_image_contract\n", 1)
-        include_insertions += 1
-
-    if "**SPATIAL IMAGE PROMPT CONTRACT**" not in section:
-        if "**WORKFLOW MODE**" in section:
-            section = section.replace("**WORKFLOW MODE**", spatial_instruction_block + "**WORKFLOW MODE**", 1)
-        elif "WORKFLOW MODE" in section:
-            section = section.replace("WORKFLOW MODE", spatial_instruction_block + "WORKFLOW MODE", 1)
-        else:
-            raise SystemExit(f"PATCH_11H_FAILED: PROMPT {prompt_id} missing WORKFLOW MODE anchor")
-        instruction_insertions += 1
-
-    old_schema_tail = '''   "visual_design_direction": "",
-   "image_generation_prompt": ""'''
-
-    if old_schema_tail not in section:
-        raise SystemExit(f"PATCH_11H_FAILED: PROMPT {prompt_id} missing old schema tail")
-
-    section = section.replace(
-        old_schema_tail,
-        '''   "visual_design_direction": "",
-''' + spatial_scene_schema,
-        1,
-    )
-    schema_replacements += 1
-
-    if section == original:
-        raise SystemExit(f"PATCH_11H_FAILED: PROMPT {prompt_id} unchanged")
-
-    return section
-
-def repl(match: re.Match) -> str:
-    prompt_id = match.group("id")
-    section = match.group(0)
-    if prompt_id in TARGET_PROMPTS:
-        return patch_section(section, prompt_id)
-    return section
-
-new_text = pattern.sub(repl, text)
-
-expected = 7
-if include_insertions != expected:
-    raise SystemExit(f"PATCH_11H_FAILED: include_insertions={include_insertions}, expected={expected}")
-if instruction_insertions != expected:
-    raise SystemExit(f"PATCH_11H_FAILED: instruction_insertions={instruction_insertions}, expected={expected}")
-if schema_replacements != expected:
-    raise SystemExit(f"PATCH_11H_FAILED: schema_replacements={schema_replacements}, expected={expected}")
-
-path.write_text(new_text, encoding="utf-8")
-
-print("PATCH_11H_APPLIED")
-print(f"include_insertions={include_insertions}")
-print(f"instruction_insertions={instruction_insertions}")
-print(f"schema_replacements={schema_replacements}")
-'@ | D:\TOOLS\Python314\python.exe -
+def get_image_execution_adapter() -> PromptExecutionAdapter:
+    ...
 ```
 
-Expected:
+Routing rule:
 
+```json
+{
+  "if IMAGE_EXECUTION_BACKEND == flow_browser": "use FlowBrowserImageGenerationAdapter for image_generate steps",
+  "else": "use current browser/OpenAI image adapter path"
+}
 ```
-PATCH_11H_APPLIED
-include_insertions=7
-instruction_insertions=7
-schema_replacements=7
+
+`call_image_generation(...)` becomes:
+
+```python
+return get_image_execution_adapter().execute_image(
+    prompt,
+    size=size,
+    generation_context=generation_context,
+)
 ```
 
 ---
 
-# PATCH_11H validation
+## 4. PATCH_12C — Add `FlowBrowserImageGenerationAdapter`
 
-## H-Validation 1 — compile
+New class:
+
+```python
+class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
+    ...
+```
+
+Responsibilities:
+
+```json
+[
+  "connect to existing Chrome over CDP",
+  "find existing Flow tab or open Flow URL",
+  "bring Flow page to front",
+  "verify Flow UI is reachable",
+  "submit image prompt",
+  "attach reference images",
+  "wait for generated output",
+  "capture/download generated image",
+  "return image_base64 + source_images_used + generation_backend"
+]
+```
+
+This adapter should raise `NotImplementedError` for `execute_text(...)` because Flow must not handle text/JSON steps.
+
+---
+
+## 5. PATCH_12D — Flow page discovery / readiness
+
+Add helper methods:
+
+```python
+def _page(self):
+    ...
+
+def _flow_ready(self, page) -> bool:
+    ...
+
+def _wait_for_flow_ready(self, page) -> None:
+    ...
+```
+
+Page selection rule:
+
+```json
+{
+  "prefer_existing_tab_containing": "labs.google/fx/tools/flow",
+  "fallback": "open new page and navigate to FLOW_URL",
+  "fail_if": "Flow page unavailable or Google auth/access blocks UI"
+}
+```
+
+Expected failure codes:
+
+```json
+[
+  "FLOW_PAGE_UNAVAILABLE",
+  "FLOW_AUTH_REQUIRED",
+  "FLOW_READY_TIMEOUT"
+]
+```
+
+---
+
+## 6. PATCH_12E — Reference-image upload / ingredient handoff
+
+Use:
+
+```python
+generation_context["source_images"]
+```
+
+Strict rule:
+
+```json
+{
+  "FLOW_REFERENCE_STRICT": true,
+  "missing_source_images": "fail",
+  "empty_source_images": "fail"
+}
+```
+
+Implementation path:
+
+```json
+{
+  "v1_strategy": "upload references every generation step",
+  "reason": "more deterministic than relying on Flow asset-library @ references"
+}
+```
+
+Add helper:
+
+```python
+def _attach_reference_images(self, page, source_images: List[str]) -> None:
+    ...
+```
+
+Expected logs:
+
+```json
+[
+  "Flow reference image attachment started",
+  "Flow reference images attached"
+]
+```
+
+---
+
+## 7. PATCH_12F — Flow prompt submission
+
+Before entering the prompt and clicking generate, `FlowBrowserImageGenerationAdapter` should run:
+
+```python
+
+```
+
+Use the already generated `image_generation_prompt`.
+
+Add helper:
+
+```python
+def _submit_flow_prompt(self, page, prompt: str) -> None:
+    ...
+```
+
+Required behavior:
+
+```json
+{
+  "target_model":"Nano Banana 2",
+  "strict":"FLOW_MODEL_STRICT",
+  "if_model_visible":"select Nano Banana 2",
+  "if_model_not_visible_and_strict":"fail with FLOW_MODEL_NOT_AVAILABLE",
+  "if_model_not_visible_and_not_strict":"log warning and continue with current Flow model"
+}
+```
+
+Expected logs:
+
+```json
+[
+"Flow model selection started",
+"Flow model selected",
+"Flow model selection skipped",
+"Flow model not available"
+]
+```
+
+Expected failure code:
+
+```json
+{
+  "code":"FLOW_MODEL_NOT_AVAILABLE",
+  "field":"FLOW_IMAGE_MODEL",
+  "expected":"Nano Banana 2 visible/selectable in Flow model menu"
+}
+```
+
+### 
+
+---
+
+## 8. PATCH_12G — Flow generated-image capture
+
+Preferred capture order:
+
+```json
+[
+  "download generated image if Flow exposes a download button",
+  "extract data/blob image if accessible",
+  "screenshot generated image tile/canvas as fallback"
+]
+```
+
+Add helper:
+
+```python
+def _capture_flow_generated_image_base64(self, page) -> str:
+    ...
+```
+
+Expected logs:
+
+```json
+[
+  "Flow image generation wait started",
+  "Flow generated image captured from download",
+  "Flow generated image captured from image tile",
+  "Flow generated image captured from canvas/screenshot"
+]
+```
+
+Expected failure codes:
+
+```json
+[
+  "FLOW_IMAGE_GENERATION_TIMEOUT",
+  "FLOW_GENERATED_IMAGE_CAPTURE_FAILED"
+]
+```
+
+---
+
+## 9. PATCH_12H — Persist backend metadata
+
+Generated image records should include:
+
+```json
+{
+  "generation_backend":"flow_browser",
+  "generation_model":"Nano Banana 2"
+}
+```
+
+Do not remove existing fields:
+
+```json
+[
+"image_number",
+"image_type",
+"saved_path",
+"source_images_used",
+"image_generation_prompt"
+]
+```
+
+## 
+
+---
+
+## 10. PATCH_12I — Validation utilities and diagnostics
+
+Add or require static validation that confirms:
+
+```json
+{
+  "required_markers": [
+    "FlowBrowserImageGenerationAdapter",
+    "FLOW_IMAGE_MODEL",
+	  "FLOW_MODEL_STRICT",
+	  "Flow model selection started",
+	  "FLOW_MODEL_NOT_AVAILABLE",
+	  "generation_model"
+    "IMAGE_EXECUTION_BACKEND",
+    "get_image_execution_adapter",
+    "FLOW_URL",
+    "FLOW_REFERENCE_STRICT",
+    "generation_backend"
+  ],
+  "forbidden_changes": [
+    "renumbered image steps",
+    "removed spatial_scene_brief",
+    "changed prompt docs",
+    "changed cooldown defaults",
+    "routed image_prompt steps to Flow"
+  ]
+}
+```
+
+---
+
+# PATCH_SET_12 validation sequence
+
+## 11. Validation 1 — compile
 
 ```powershell
 D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
@@ -231,268 +517,221 @@ PASS / no output
 
 ---
 
-## H-Validation 2 — static prompt-doc validation
+## 12. Validation 2 — static marker validation
 
 ```powershell
 @'
 from pathlib import Path
-import re
 
-text = Path("docs/prompts.md").read_text(encoding="utf-8")
-target_prompts = ["11", "13", "15", "17", "19", "21", "23"]
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
 
-sections = {}
-matches = list(re.finditer(r"(?m)^# PROMPT (\\d+)\\b", text))
-for i, m in enumerate(matches):
-    prompt_id = m.group(1)
-    start = m.start()
-    end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-    sections[prompt_id] = text[start:end]
-
-required_schema_fields = [
-    '"spatial_scene_brief": {',
-    '"system_role_context": ""',
-    '"technical_specifications": ""',
-    '"model_photographer_pov": ""',
-    '"binding_geometry": ""',
-    '"orientation_and_spatial_sync": ""',
-    '"scene_composition_and_environmental_sync": ""',
-    '"typography_and_graphic_overlays": ""',
-    '"physical_constraints": []',
-    '"negative_spatial_constraints": []',
-    '"amazon_compliance_constraints": []',
+required = [
+    "IMAGE_EXECUTION_BACKEND",
+    "FLOW_URL",
+    "FLOW_IMAGE_TIMEOUT_SECONDS",
+    "FLOW_REFERENCE_STRICT",
+    "FlowBrowserImageGenerationAdapter",
+    "get_image_execution_adapter",
+    "generation_backend",
 ]
 
-required_instruction_markers = [
-    "- spatial_image_contract",
-    "**SPATIAL IMAGE PROMPT CONTRACT**",
-    "System/Role Context",
-    "Technical Specifications",
-    "Model Photographer's POV",
-    "Binding Geometry",
-    "Orientation & Spatial Sync",
-    "Scene Composition & Environmental Sync",
-    "Typography & Graphic Overlays",
-    "Physical Constraints",
-    "Negative Spatial Constraints",
-    "Amazon Compliance Constraints",
-]
+for marker in required:
+    assert marker in text, marker
 
-for prompt_id in target_prompts:
-    section = sections.get(prompt_id)
-    assert section, f"missing PROMPT {prompt_id}"
+for forbidden in [
+    "IMAGE_PROMPT_STEP_IDS = {\"12\"",
+    "spatial_scene_brief\" not in",
+]:
+    assert forbidden not in text, forbidden
 
-    for marker in required_instruction_markers:
-        assert marker in section, f"PROMPT {prompt_id} missing instruction marker: {marker}"
-
-    for marker in required_schema_fields:
-        assert marker in section, f"PROMPT {prompt_id} missing schema marker: {marker}"
-
-assert text.count('"spatial_scene_brief": {') == 7, text.count('"spatial_scene_brief": {')
-assert text.count("**SPATIAL IMAGE PROMPT CONTRACT**") == 7, text.count("**SPATIAL IMAGE PROMPT CONTRACT**")
-
-print("PATCH_11H_PROMPT_DOC_STATIC_OK")
+print("PATCH_SET_12_STATIC_OK")
 '@ | D:\TOOLS\Python314\python.exe -
 ```
 
 Expected:
 
 ```
-PATCH_11H_PROMPT_DOC_STATIC_OK
+PATCH_SET_12_STATIC_OK
 ```
 
 ---
 
-## H-Validation 3 — runtime schema/static alignment check
+## 13. Validation 3 — adapter routing dry-run
+
+No browser call. Mock Flow adapter.
+
+Expected proof:
+
+```json
+{
+  "step": "12",
+  "image_generation_prompt": "comes from image_strategy_1",
+  "generation_context": "passed to image adapter",
+  "source_images": "present",
+  "adapter": "FlowBrowserImageGenerationAdapter",
+  "generation_backend": "flow_browser"
+}
+```
+
+Expected terminal marker:
+
+```
+PATCH_SET_12_ROUTING_DRY_RUN_OK
+```
+
+---
+
+## 14. Validation 4 — Flow UI smoke check
+
+Browser/CDP only. No image generation required.
 
 ```powershell
-@'
-import workflow_orchestrator as w
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
 
-target = {
-    "11": (1, "What is this product?", "Hero Product Image"),
-    "13": (2, "Why do I need this product?", "Core Benefit Image"),
-    "15": (3, "What problem does this product solve?", "Problem Solution Image"),
-    "17": (4, "When would I use this product?", "Lifestyle Use Image"),
-    "19": (5, "What technology makes this product better?", "Technology Feature Image"),
-    "21": (6, "How easy is it to install or use?", "Ease of Use / Installation Image"),
-    "23": (7, "What specifications matter?", "Specifications Infographic"),
-}
-
-for step_id, (image_number, buyer_question, image_type) in target.items():
-    schema = w.schema_image_prompt(image_number, buyer_question, image_type)
-    image_strategy = schema["properties"]["image_strategy"]
-    required = image_strategy["required"]
-    props = image_strategy["properties"]
-
-    assert "spatial_scene_brief" in required, step_id
-    brief = props["spatial_scene_brief"]
-    for field in [
-        "system_role_context",
-        "technical_specifications",
-        "model_photographer_pov",
-        "binding_geometry",
-        "orientation_and_spatial_sync",
-        "scene_composition_and_environmental_sync",
-        "typography_and_graphic_overlays",
-        "physical_constraints",
-        "negative_spatial_constraints",
-        "amazon_compliance_constraints",
-    ]:
-        assert field in brief["required"], (step_id, field)
-
-print("PATCH_11H_SCHEMA_ALIGNMENT_OK")
-'@ | D:\TOOLS\Python314\python.exe -
+D:\TOOLS\Python314\python.exe -c "import workflow_orchestrator as w; print('FLOW_SMOKE_IMPORT_OK')"
 ```
+
+Then run the adapter’s page readiness check if exposed.
 
 Expected:
 
-```
-PATCH_11H_SCHEMA_ALIGNMENT_OK
+```json
+{
+  "flow_page_reachable": true,
+  "auth_ready": true,
+  "project_or_prompt_ui_visible": true
+}
 ```
 
 ---
 
-# Clean full prompt validation after PATCH_11H
+## 15. Validation 5 — STEP 12 Flow actual generation smoke test
 
-Do not run image generation. This is prompt validation only.
-
-## Clean workspace prep
+Clean output first, then run through step `12`.
 
 ```powershell
 Remove-Item output\workflow_state.json -Force -ErrorAction SilentlyContinue
 Remove-Item output\image_prompts.json -Force -ErrorAction SilentlyContinue
 Remove-Item output\image_content.json -Force -ErrorAction SilentlyContinue
 Remove-Item output\logs\execution.jsonl -Force -ErrorAction SilentlyContinue
-```
+Remove-Item output\generated_images\*.png -Force -ErrorAction SilentlyContinue
 
-## Run through prompt generation
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+$env:FLOW_REFERENCE_STRICT="1"
+$env:FLOW_ASPECT_RATIO="9:16"
+$env:FLOW_OUTPUT_COUNT="1"
+$env:TEXT_STEP_WAIT_SECONDS="300"
+$env:IMAGE_STEP_WAIT_SECONDS="600"
 
-```powershell
-D:\TOOLS\Python314\python.exe workflow_orchestrator.py --stop-after 23
-```
-
-Expected process result:
-
-```json
-{
-  "exit_status": 0,
-  "last_completed_step": "23",
-  "image_prompts_json_exists": true,
-  "image_content_json_exists": true
-}
-```
-
----
-
-# Final PATCH_SET_11 quality gate
-
-Run this after the clean `--stop-after 23` finishes:
-
-```powershell
-@'
-import json
-from pathlib import Path
-
-state = json.loads(Path("output/workflow_state.json").read_text(encoding="utf-8"))
-image_prompts = json.loads(Path("output/image_prompts.json").read_text(encoding="utf-8"))
-image_content = json.loads(Path("output/image_content.json").read_text(encoding="utf-8"))
-
-assert state.get("last_completed_step") == "23", state.get("last_completed_step")
-assert len(image_prompts) == 7, len(image_prompts)
-assert len(image_content.get("image_prompts", [])) == 7, len(image_content.get("image_prompts", []))
-assert isinstance(image_content.get("spatial_image_contract"), dict), "missing spatial_image_contract"
-assert image_content["spatial_image_contract"], "empty spatial_image_contract"
-
-required_brief_fields = [
-    "system_role_context",
-    "technical_specifications",
-    "model_photographer_pov",
-    "binding_geometry",
-    "orientation_and_spatial_sync",
-    "scene_composition_and_environmental_sync",
-    "typography_and_graphic_overlays",
-    "physical_constraints",
-    "negative_spatial_constraints",
-    "amazon_compliance_constraints",
-]
-
-required_prompt_markers = [
-    "System/Role Context",
-    "Technical Specifications",
-    "Model Photographer",
-    "Binding Geometry",
-    "Orientation",
-    "Spatial",
-    "Physical",
-    "Negative",
-    "Amazon",
-]
-
-seen_numbers = []
-
-for idx, prompt in enumerate(image_prompts, start=1):
-    assert prompt.get("image_number") == idx, (idx, prompt.get("image_number"))
-    seen_numbers.append(prompt.get("image_number"))
-
-    brief = prompt.get("spatial_scene_brief")
-    assert isinstance(brief, dict), f"image {idx} missing spatial_scene_brief"
-
-    for field in required_brief_fields:
-        assert field in brief, f"image {idx} missing {field}"
-
-    assert isinstance(brief["physical_constraints"], list) and brief["physical_constraints"], f"image {idx} physical_constraints empty"
-    assert isinstance(brief["negative_spatial_constraints"], list) and brief["negative_spatial_constraints"], f"image {idx} negative_spatial_constraints empty"
-    assert isinstance(brief["amazon_compliance_constraints"], list) and brief["amazon_compliance_constraints"], f"image {idx} amazon_compliance_constraints empty"
-
-    generation_prompt = prompt.get("image_generation_prompt", "")
-    assert isinstance(generation_prompt, str) and len(generation_prompt) > 300, f"image {idx} prompt too short"
-
-    # The natural language can vary; require enough exact section markers to prove the master-prompt contract is present.
-    marker_hits = sum(1 for marker in required_prompt_markers if marker.lower() in generation_prompt.lower())
-    assert marker_hits >= 6, f"image {idx} lacks master-section grounding markers; hits={marker_hits}"
-
-assert seen_numbers == [1, 2, 3, 4, 5, 6, 7], seen_numbers
-
-print("PATCH_SET_11_FULL_PROMPT_VALIDATION_OK")
-print("last_completed_step=23")
-print("image_prompts_count=7")
-print("image_content_prompts_count=7")
-print("all_have_spatial_scene_brief=True")
-print("all_have_physical_constraints=True")
-print("all_have_negative_spatial_constraints=True")
-print("all_have_amazon_compliance_constraints=True")
-print("all_generation_prompts_have_spatial_master_contract=True")
-'@ | D:\TOOLS\Python314\python.exe -
+D:\TOOLS\Python314\python.exe workflow_orchestrator.py --enable-image-generation --stop-after 12
 ```
 
 Expected:
 
-```
-PATCH_SET_11_FULL_PROMPT_VALIDATION_OK
-last_completed_step=23
-image_prompts_count=7
-image_content_prompts_count=7
-all_have_spatial_scene_brief=True
-all_have_physical_constraints=True
-all_have_negative_spatial_constraints=True
-all_have_amazon_compliance_constraints=True
-all_generation_prompts_have_spatial_master_contract=True
+```json
+{
+  "expected_terminal": "OUTPUT/SUCCESS",
+  "expected_last_completed_step": "12",
+  "expected_generated_image": "generated_image_1",
+  "expected_file": "output/generated_images/image_12.png",
+  "expected_backend": "flow_browser",
+  "expected_model": "Nano Banana 2",
+  "expected_source_images_used": "non-empty"
+}
 ```
 
 ---
 
-# Current expected state after this patch
+## 16. Validation 6 — full Flow run
+
+Only after STEP `12` Flow smoke passes.
+
+```powershell
+Remove-Item output\workflow_state.json -Force -ErrorAction SilentlyContinue
+Remove-Item output\image_prompts.json -Force -ErrorAction SilentlyContinue
+Remove-Item output\image_content.json -Force -ErrorAction SilentlyContinue
+Remove-Item output\logs\execution.jsonl -Force -ErrorAction SilentlyContinue
+Remove-Item output\generated_images\*.png -Force -ErrorAction SilentlyContinue
+
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+$env:FLOW_REFERENCE_STRICT="1"
+$env:FLOW_ASPECT_RATIO="9:16"
+$env:FLOW_OUTPUT_COUNT="1"
+$env:TEXT_STEP_WAIT_SECONDS="300"
+$env:IMAGE_STEP_WAIT_SECONDS="600"
+
+D:\TOOLS\Python314\python.exe workflow_orchestrator.py --enable-image-generation
+```
+
+Expected final checkpoint:
 
 ```json
 {
-  "PATCH_11H": "READY_TO_APPLY",
-  "expected_result_after_validation": {
-    "PATCH_SET_11": "CONFIRMED",
-    "Flow_backend_work": "NEXT_AFTER_CONFIRMATION",
-    "STATE_17": "STILL_BLOCKED_UNTIL_FLOW_BACKEND_DECISION_AND_VALIDATION"
-  }
+  "expected_terminal": "OUTPUT/SUCCESS",
+  "expected_last_completed_step": "24",
+  "expected_image_prompts_json_count": 7,
+  "expected_image_content_json_count": 7,
+  "expected_generated_images": [
+    "generated_image_1",
+    "generated_image_2",
+    "generated_image_3",
+    "generated_image_4",
+    "generated_image_5",
+    "generated_image_6",
+    "generated_image_7"
+  ],
+  "expected_generated_files": [
+    "image_12.png",
+    "image_14.png",
+    "image_16.png",
+    "image_18.png",
+    "image_20.png",
+    "image_22.png",
+    "image_24.png"
+  ],
+  "expected_generation_backend_for_all_images": "flow_browser",
+  "expected_generation_model_for_all_images": "Nano Banana 2",
+  "expected_cooldown_logs": [
+    "Model cooldown wait started",
+    "Model cooldown wait completed"
+  ]
 }
 ```
 
-This is the corrected `PATCH_11H`: it is narrow, deterministic, prompt-doc-only, and it avoids the previous mistake of using a targeted dry-run that wrote files and contaminated the validation workspace.
+---
+
+# Known risk for PATCH_SET_12
+
+```json
+{
+  "primary_risk": "Flow UI selectors are unknown and may require live DOM inspection.",
+  "expected_failure_type": "selector/readiness failure, not architecture failure",
+  "rule_if_failure": "patch only the exact failing Flow selector/helper and preserve the patch sequence"
+}
+```
+
+Likely fragile points:
+
+```json
+[
+  "Flow project creation/opening",
+  "prompt input selector",
+  "reference image upload/ingredient selector",
+  "aspect ratio selector",
+  "generate button selector",
+  "generated image tile selector",
+  "download button selector"
+]
+```
+
+---
