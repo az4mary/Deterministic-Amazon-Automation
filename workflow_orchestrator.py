@@ -91,6 +91,41 @@ IMAGE_STEP_WAIT_SECONDS = int(os.getenv("IMAGE_STEP_WAIT_SECONDS", "600"))
 IMAGE_PROMPT_STEP_IDS = {"11", "13", "15", "17", "19", "21", "23"}
 IMAGE_GENERATION_STEP_IDS = {"12", "14", "16", "18", "20", "22", "24"}
 
+PATCH_SET_12_REQUIRED_MARKERS = [
+    "FlowBrowserImageGenerationAdapter",
+    "FLOW_IMAGE_MODEL",
+    "FLOW_MODEL_STRICT",
+    "Flow model selection started",
+    "FLOW_MODEL_NOT_AVAILABLE",
+    "generation_model",
+    "IMAGE_EXECUTION_BACKEND",
+    "get_image_execution_adapter",
+    "FLOW_URL",
+    "FLOW_REFERENCE_STRICT",
+    "generation_backend",
+]
+
+PATCH_SET_12_FORBIDDEN_CHANGE_DESCRIPTIONS = [
+    "renumbered image steps",
+    "removed spatial_scene_brief",
+    "changed prompt docs",
+    "changed cooldown defaults",
+    "routed image_prompt steps to Flow",
+]
+
+
+def build_patch_set_12_static_diagnostics() -> Dict[str, Any]:
+    return {
+        "patch_set_id": "PATCH_SET_12",
+        "required_markers": PATCH_SET_12_REQUIRED_MARKERS,
+        "forbidden_change_descriptions": PATCH_SET_12_FORBIDDEN_CHANGE_DESCRIPTIONS,
+        "image_prompt_steps": sorted(IMAGE_PROMPT_STEP_IDS),
+        "actual_image_generation_steps": sorted(IMAGE_GENERATION_STEP_IDS),
+        "image_execution_backend": IMAGE_EXECUTION_BACKEND,
+        "flow_url": FLOW_URL,
+        "flow_reference_strict": FLOW_REFERENCE_STRICT,
+    }
+
 IMAGE_TASKS: Dict[str, Dict[str, Any]] = {
     "11": {
         "image_number": 1,
