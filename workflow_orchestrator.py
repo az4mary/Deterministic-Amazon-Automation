@@ -1725,6 +1725,190 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 stage="PROCESSING",
             )
 
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+        json_log(
+            level="INFO",
+            message="Flow model selection started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_model_selection_start",
+                "target_model": FLOW_IMAGE_MODEL,
+                "strict": FLOW_MODEL_STRICT,
+            },
+        )
+
+        model_visible = False
+        model_selectors = [
+            f"button:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='button']:has-text('{FLOW_IMAGE_MODEL}')",
+            f"text={FLOW_IMAGE_MODEL}",
+            "button[aria-label*='model']",
+            "button[aria-label*='Model']",
+            "[role='button'][aria-label*='model']",
+            "[role='button'][aria-label*='Model']",
+        ]
+
+        for selector in model_selectors:
+            try:
+                candidate = page.locator(selector).first
+                if not candidate.count() or not candidate.is_visible():
+                    continue
+                candidate.click(timeout=self.action_timeout_ms)
+                page.wait_for_timeout(500)
+                model_visible = True
+                break
+            except Exception:
+                continue
+
+        if not model_visible:
+            try:
+                model_option = page.get_by_text(FLOW_IMAGE_MODEL, exact=False).first
+                if model_option.count() and model_option.is_visible():
+                    model_option.click(timeout=self.action_timeout_ms)
+                    page.wait_for_timeout(500)
+                    model_visible = True
+            except Exception:
+                pass
+
+        if not model_visible:
+            if FLOW_MODEL_STRICT:
+                json_log(
+                    level="ERROR",
+                    message="Flow model not available",
+                    stage="PROCESSING",
+                    status="FAILED",
+                    context={
+                        "operation": "flow_model_not_available",
+                        "target_model": FLOW_IMAGE_MODEL,
+                    },
+                )
+                fail(
+                    "FLOW_MODEL_NOT_AVAILABLE",
+                    "Required Flow image model is not visible or selectable in the Flow UI.",
+                    field="FLOW_IMAGE_MODEL",
+                    expected=f"{FLOW_IMAGE_MODEL} visible/selectable in Flow model menu",
+                    actual=f"url={getattr(page, 'url', '')}",
+                    stage="PROCESSING",
+                )
+
+            json_log(
+                level="WARNING",
+                message="Flow model selection skipped",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_model_selection_skipped",
+                    "target_model": FLOW_IMAGE_MODEL,
+                },
+            )
+        else:
+            json_log(
+                level="INFO",
+                message="Flow model selected",
+                stage="PROCESSING",
+                status="COMPLETED",
+                context={
+                    "operation": "flow_model_selected",
+                    "target_model": FLOW_IMAGE_MODEL,
+                },
+            )
+
+        prompt_selectors = [
+            "textarea",
+            "[contenteditable='true']",
+            "div[role='textbox']",
+            "input[type='text']",
+            "input:not([type])",
+        ]
+        prompt_box = None
+        for selector in prompt_selectors:
+            try:
+                candidate = page.locator(selector).first
+                if candidate.count() and candidate.is_visible():
+                    prompt_box = candidate
+                    break
+            except Exception:
+                continue
+
+        if prompt_box is None:
+            fail(
+                "FLOW_PROMPT_INPUT_MISSING",
+                "Could not find Flow prompt input for image generation.",
+                field="flow_prompt_input",
+                expected="visible textarea, textbox, contenteditable, or text input",
+                actual=f"url={getattr(page, 'url', '')}",
+                stage="PROCESSING",
+            )
+
+        prompt_box.click(timeout=self.action_timeout_ms)
+        try:
+            page.keyboard.press("Control+A")
+            page.keyboard.press("Backspace")
+        except Exception:
+            pass
+
+        try:
+            prompt_box.fill(prompt, timeout=self.action_timeout_ms)
+        except Exception:
+            try:
+                page.keyboard.insert_text(prompt)
+            except Exception:
+                prompt_box.type(prompt, delay=0, timeout=self.action_timeout_ms)
+
+        generate_selectors = [
+            "button:has-text('Generate')",
+            "button[aria-label*='Generate']",
+            "button[aria-label*='generate']",
+            "[role='button']:has-text('Generate')",
+            "button:has-text('Create')",
+            "button[aria-label*='Create']",
+            "button[aria-label*='create']",
+        ]
+        for selector in generate_selectors:
+            try:
+                button = page.locator(selector).first
+                if button.count() and button.is_visible() and button.is_enabled():
+                    button.click(timeout=self.action_timeout_ms)
+                    json_log(
+                        level="INFO",
+                        message="Flow image prompt submitted",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "flow_prompt_submitted",
+                            "prompt_chars": len(prompt or ""),
+                            "target_model": FLOW_IMAGE_MODEL,
+                        },
+                    )
+                    return
+            except Exception:
+                continue
+
+        try:
+            page.keyboard.press("Control+Enter")
+            json_log(
+                level="INFO",
+                message="Flow image prompt submitted",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_submitted_keyboard",
+                    "prompt_chars": len(prompt or ""),
+                    "target_model": FLOW_IMAGE_MODEL,
+                },
+            )
+            return
+        except Exception as exc:
+            fail(
+                "FLOW_PROMPT_SUBMIT_FAILED",
+                "Could not submit Flow prompt with visible generate/create button or keyboard shortcut.",
+                field="flow_generate_button",
+                expected="enabled Flow generate/create control",
+                actual=str(exc)[:1000],
+                stage="PROCESSING",
+            )
+
     def execute_image(
         self,
         prompt: str,
@@ -1734,6 +1918,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
         source_images, _missing_images = self._extract_reference_images(generation_context)
         page = self._page()
         self._attach_reference_images(page, source_images)
+        self._submit_flow_prompt(page, prompt)
 
         fail(
             "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
