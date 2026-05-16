@@ -1472,6 +1472,145 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
     def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
         raise NotImplementedError("FlowBrowserImageGenerationAdapter does not execute text or JSON prompt steps.")
 
+    def _page(self):
+        if self._page_obj is not None:
+            try:
+                if not self._page_obj.is_closed() and "labs.google/fx/tools/flow" in (self._page_obj.url or ""):
+                    return self._page_obj
+            except Exception:
+                self._page_obj = None
+
+        if self._browser is None:
+            self._playwright = sync_playwright().start()
+            try:
+                self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
+            except Exception:
+                if "localhost" in self.cdp_url:
+                    alt = self.cdp_url.replace("localhost", "127.0.0.1")
+                    try:
+                        self._browser = self._playwright.chromium.connect_over_cdp(alt)
+                        self.cdp_url = alt
+                    except Exception as exc:
+                        fail(
+                            "FLOW_PAGE_UNAVAILABLE",
+                            "Unable to connect to Chrome over CDP for Flow image generation.",
+                            field="BROWSER_CDP_URL",
+                            expected="reachable Chrome remote debugging endpoint",
+                            actual=f"{alt}: {exc}",
+                            stage="PROCESSING",
+                        )
+                else:
+                    fail(
+                        "FLOW_PAGE_UNAVAILABLE",
+                        "Unable to connect to Chrome over CDP for Flow image generation.",
+                        field="BROWSER_CDP_URL",
+                        expected="reachable Chrome remote debugging endpoint",
+                        actual=self.cdp_url,
+                        stage="PROCESSING",
+                    )
+
+        chosen_context = None
+        chosen_page = None
+        for ctx in self._browser.contexts:
+            for page in ctx.pages:
+                try:
+                    if "labs.google/fx/tools/flow" in (page.url or ""):
+                        chosen_context = ctx
+                        chosen_page = page
+                        break
+                except Exception:
+                    continue
+            if chosen_page is not None:
+                break
+
+        if chosen_context is None:
+            if self._browser.contexts:
+                chosen_context = self._browser.contexts[0]
+            else:
+                chosen_context = self._browser.new_context()
+
+        if chosen_page is None:
+            try:
+                chosen_page = chosen_context.new_page()
+                chosen_page.goto(self.flow_url, wait_until="domcontentloaded", timeout=self.action_timeout_ms)
+            except Exception as exc:
+                fail(
+                    "FLOW_PAGE_UNAVAILABLE",
+                    "Flow page could not be opened or navigated.",
+                    field="FLOW_URL",
+                    expected="reachable Flow project URL",
+                    actual=f"{self.flow_url}: {exc}",
+                    stage="PROCESSING",
+                )
+
+        self._context = chosen_context
+        self._page_obj = chosen_page
+        try:
+            chosen_page.bring_to_front()
+        except Exception:
+            pass
+        self._wait_for_flow_ready(chosen_page)
+        return chosen_page
+
+    def _flow_ready(self, page) -> bool:
+        try:
+            url = page.url or ""
+            body_text = page.locator("body").inner_text(timeout=2000)
+        except Exception:
+            return False
+
+        normalized = body_text.lower()
+        if "sign in" in normalized or "choose an account" in normalized:
+            fail(
+                "FLOW_AUTH_REQUIRED",
+                "Flow page is reachable but Google authentication is required.",
+                field="FLOW_URL",
+                expected="authenticated Flow project or prompt UI",
+                actual=url,
+                stage="PROCESSING",
+            )
+
+        readiness_markers = [
+            "flow",
+            "prompt",
+            "create",
+            "generate",
+            "ingredient",
+            "camera",
+            "video",
+        ]
+        return "labs.google/fx/tools/flow" in url and any(marker in normalized for marker in readiness_markers)
+
+    def _wait_for_flow_ready(self, page) -> None:
+        deadline = time.time() + (self.action_timeout_ms / 1000.0)
+        last_url = ""
+        last_excerpt = ""
+        while time.time() < deadline:
+            try:
+                last_url = page.url or ""
+                last_excerpt = page.locator("body").inner_text(timeout=1000)[:500]
+                if self._flow_ready(page):
+                    json_log(
+                        level="INFO",
+                        message="Flow page ready",
+                        stage="PROCESSING",
+                        status="COMPLETED",
+                        context={"operation": "flow_page_ready", "url": last_url},
+                    )
+                    return
+            except Exception:
+                pass
+            page.wait_for_timeout(1000)
+
+        fail(
+            "FLOW_READY_TIMEOUT",
+            "Timed out waiting for Flow project or prompt UI to become ready.",
+            field="FLOW_URL",
+            expected="Flow UI with project or prompt controls visible",
+            actual=json.dumps({"url": last_url, "excerpt": last_excerpt}, ensure_ascii=False),
+            stage="PROCESSING",
+        )
+
     def execute_image(
         self,
         prompt: str,
