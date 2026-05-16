@@ -1459,6 +1459,35 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
         }
 
 
+class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
+    def __init__(self, cdp_url: str, flow_url: str, action_timeout_ms: int) -> None:
+        self.cdp_url = cdp_url
+        self.flow_url = flow_url
+        self.action_timeout_ms = action_timeout_ms
+        self._playwright = None
+        self._browser = None
+        self._context = None
+        self._page_obj = None
+
+    def execute_text(self, step_id: str, prompt_text: str, schema: Dict[str, Any], state: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError("FlowBrowserImageGenerationAdapter does not execute text or JSON prompt steps.")
+
+    def execute_image(
+        self,
+        prompt: str,
+        size: str = "1024x1536",
+        generation_context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        fail(
+            "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
+            "Flow browser image generation adapter is registered but page, reference, prompt, and capture helpers are not implemented yet.",
+            field="IMAGE_EXECUTION_BACKEND",
+            expected="later PATCH_SET_12 Flow helper patches before actual Flow execution",
+            actual=IMAGE_EXECUTION_BACKEND,
+            stage="PROCESSING",
+        )
+
+
 def _json_only_retry_prompt(step_id: str, schema: Dict[str, Any], previous_response: str) -> str:
     schema_compact = json.dumps(schema, ensure_ascii=False, indent=2)
     prev = previous_response.strip()
