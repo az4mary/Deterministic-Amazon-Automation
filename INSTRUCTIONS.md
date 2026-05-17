@@ -5,7 +5,17 @@ Source response: `chatGPT_messenger_response.md`
 Current messenger decision:
 
 ```text
-STEP 2 - PATCH_12J2 remains blocked. Messenger requested the exact failed apply_patch payload, full failed apply_patch output, git diff/status output, and confirmation whether workflow_orchestrator.py had any manual formatting, line-ending, or whitespace changes after PATCH_12J1 and before PATCH_12J2.
+Use a method-body replacement, not the failed hunk.
+
+For STEP 2, replace the entire FlowBrowserImageGenerationAdapter._page() method from:
+
+    def _page(self):
+
+through the line immediately before:
+
+    def _flow_ready(self, page) -> bool:
+
+This is needed because the failed patch payload targeted stale context containing "from playwright.sync_api import sync_playwright" inside _page(), but the current file does not have that line there.
 ```
 
 Previous cleanup decision:
@@ -128,6 +138,13 @@ Target file:
 workflow_orchestrator.py
 ```
 
+Messenger override:
+
+```text
+Use a method-body replacement, not the failed hunk.
+Replace the entire FlowBrowserImageGenerationAdapter._page() method from def _page(self): through the line immediately before def _flow_ready(self, page) -> bool:.
+```
+
 Dry-run expectation:
 
 ```json
@@ -139,45 +156,35 @@ Dry-run expectation:
 }
 ```
 
-Find:
+Find method boundary:
 
 ```python
-        if self._browser is None:
-            self._playwright = sync_playwright().start()
-            try:
-                self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
-            except Exception:
-                if "localhost" in self.cdp_url:
-                    alt = self.cdp_url.replace("localhost", "127.0.0.1")
-                    try:
-                        self._browser = self._playwright.chromium.connect_over_cdp(alt)
-                        self.cdp_url = alt
-                    except Exception as exc:
-                        fail(
-                            "FLOW_PAGE_UNAVAILABLE",
-                            "Unable to connect to Chrome over CDP for Flow image generation.",
-                            field="BROWSER_CDP_URL",
-                            expected="reachable Chrome remote debugging endpoint",
-                            actual=f"{alt}: {exc}",
-                            stage="PROCESSING",
-                        )
-                else:
-                    fail(
-                        "FLOW_PAGE_UNAVAILABLE",
-                        "Unable to connect to Chrome over CDP for Flow image generation.",
-                        field="BROWSER_CDP_URL",
-                        expected="reachable Chrome remote debugging endpoint",
-                        actual=self.cdp_url,
-                        stage="PROCESSING",
-                    )
+class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
+    ...
+    def _page(self):
+        ...
+    def _flow_ready(self, page) -> bool:
 ```
 
-Replace with:
+Replacement rule:
+
+```text
+Replace only the full _page() method. Preserve def _flow_ready(self, page) -> bool: and everything after it.
+```
+
+Replacement method:
 
 ```python
+    def _page(self):
+        if self._page_obj is not None:
+            try:
+                if not self._page_obj.is_closed() and "labs.google/fx/tools/flow" in (self._page_obj.url or ""):
+                    return self._page_obj
+            except Exception:
+                self._page_obj = None
+
         if self._browser is None:
             shared = self.shared_browser_adapter
-
             if shared is not None and getattr(shared, "_browser", None) is not None:
                 self._playwright = getattr(shared, "_playwright", None)
                 self._browser = getattr(shared, "_browser", None)
@@ -220,11 +227,56 @@ Replace with:
                             actual=self.cdp_url,
                             stage="PROCESSING",
                         )
+
+        chosen_context = None
+        chosen_page = None
+        for ctx in self._browser.contexts:
+            for page in ctx.pages:
+                try:
+                    if "labs.google/fx/tools/flow" in (page.url or ""):
+                        chosen_context = ctx
+                        chosen_page = page
+                        break
+                except Exception:
+                    continue
+            if chosen_page is not None:
+                break
+
+        if chosen_context is None:
+            if self._context is not None:
+                chosen_context = self._context
+            elif self._browser.contexts:
+                chosen_context = self._browser.contexts[0]
+            else:
+                chosen_context = self._browser.new_context()
+
+        if chosen_page is None:
+            try:
+                chosen_page = chosen_context.new_page()
+                chosen_page.goto(self.flow_url, wait_until="domcontentloaded", timeout=self.action_timeout_ms)
+            except Exception as exc:
+                fail(
+                    "FLOW_PAGE_UNAVAILABLE",
+                    "Flow page could not be opened or navigated.",
+                    field="FLOW_URL",
+                    expected="reachable Flow project URL",
+                    actual=f"{self.flow_url}: {exc}",
+                    stage="PROCESSING",
+                )
+
+        self._context = chosen_context
+        self._page_obj = chosen_page
+        try:
+            chosen_page.bring_to_front()
+        except Exception:
+            pass
+        self._wait_for_flow_ready(chosen_page)
+        return chosen_page
 ```
 
 Execution:
 
-1. Run dry-run match count.
+1. Run dry-run method-boundary match count.
 2. If actual match count is not `1`, stop and report.
 3. Apply only PATCH_12J2.
 4. Commit only PATCH_12J2.
