@@ -403,3 +403,54 @@ Next STEP:
 ```text
 STEP 5 - J-Validation 2 - Static marker check
 ```
+
+## STEP 5 - J-Validation 2 - Static marker check
+
+Status: PASS
+
+Command:
+
+```text
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "shared_browser_adapter: Optional[BrowserPromptExecutionAdapter] = None",
+    "self.shared_browser_adapter = shared_browser_adapter",
+    "Flow adapter reused shared browser session",
+    "flow_reuse_shared_browser_session",
+    "shared_browser_adapter=shared_browser_adapter",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+print("PATCH_12J_SHARED_BROWSER_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Observed output:
+
+```text
+PATCH_12J_SHARED_BROWSER_STATIC_OK
+```
+
+Files changed:
+
+```text
+NONE
+```
+
+Commit:
+
+```text
+NOT APPLICABLE - validation only
+```
+
+Next STEP:
+
+```text
+STEP 6 - J-Validation 3 - Routing/session dry-run
+```
