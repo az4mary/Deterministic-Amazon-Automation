@@ -135,3 +135,36 @@ Automation behavior notes from STEP 2:
 - Real assistant reply text streamed in chunks and stabilized successfully.
 - Broad page-level generation signals remain unreliable; latest-assistant-node text with `Thinking` ignored is the reliable detector.
 - A later attempt to re-extract the reply after the Codex_Tech tab disappeared failed because navigation from generic ChatGPT returned zero transcript message nodes. That empty extraction was not pushed.
+
+## STEP 3 - Validation 3 - Provide next single validation action
+
+Status: COMPLETED - NEXT SINGLE VALIDATION ACTION READY
+
+Input condition:
+- STEP A-0 readiness probe was classified as `PASS`.
+
+Next single validation action:
+- Run the original validation from STEP B.
+
+STEP B action scope:
+- Attach exactly one validation file.
+- Confirm the upload from the composer only.
+- Submit the validation prompt.
+- Confirm the user message appears in the transcript.
+- Wait for the assistant response.
+- Use fallback transcript extraction if the primary wait misses the reply.
+
+STEP B expected PASS criteria:
+- Correct Codex_Tech tab is selected.
+- Exactly one validation file is attached and visible as a composer attachment tile, including duplicate-renamed filenames such as `(1)`.
+- The send button becomes enabled after upload processing.
+- The submitted user message appears in the transcript.
+- A new assistant response appears after submission.
+- The latest assistant response text is non-empty and stable after ignoring transient `Thinking` placeholder text.
+- If the primary stability wait misses the reply, fallback extraction reads the latest assistant message from the transcript.
+
+Current block:
+- Do not run STEP B until Codex_Tech messenger confirms STEP 3.
+
+Required Codex_Tech messenger confirmation:
+- `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`
