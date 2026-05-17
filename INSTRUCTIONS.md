@@ -12,6 +12,117 @@ YES
 
 ---
 
+# PATCH_12J — Reuse ChatGPT browser/CDP session for Flow adapter
+
+Proceed with PATCH_12J.
+
+There is no PATCH_12K yet. The next controlled action is to apply and validate PATCH_12J, because PATCH_SET_12 is currently blocked by the Playwright/CDP session ownership issue.
+
+## Execute now
+
+Apply:
+
+```json
+{
+  "patch_id": "PATCH_12J",
+  "purpose": "Reuse the active ChatGPT browser/CDP Playwright session inside FlowBrowserImageGenerationAdapter instead of starting a second sync Playwright session.",
+  "target_file": "workflow_orchestrator.py",
+  "scope": [
+    "FlowBrowserImageGenerationAdapter.__init__",
+    "FlowBrowserImageGenerationAdapter._page",
+    "get_image_execution_adapter"
+  ]
+}
+```
+
+Then run:
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Then:
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "shared_browser_adapter: Optional[BrowserPromptExecutionAdapter] = None",
+    "self.shared_browser_adapter = shared_browser_adapter",
+    "Flow adapter reused shared browser session",
+    "flow_reuse_shared_browser_session",
+    "shared_browser_adapter=shared_browser_adapter",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+print("PATCH_12J_SHARED_BROWSER_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Then:
+
+```powershell
+@'
+import workflow_orchestrator as w
+
+w.IMAGE_EXECUTION_ADAPTER = None
+w.TEXT_EXECUTION_ADAPTER = w.BrowserPromptExecutionAdapter(
+    w.BROWSER_CDP_URL,
+    w.BROWSER_CHAT_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+adapter = w.get_image_execution_adapter()
+
+assert isinstance(adapter, w.FlowBrowserImageGenerationAdapter), type(adapter)
+assert adapter.shared_browser_adapter is w.TEXT_EXECUTION_ADAPTER
+assert adapter.cdp_url == w.BROWSER_CDP_URL
+assert adapter.flow_url == w.FLOW_URL
+
+print("PATCH_12J_SHARED_BROWSER_ROUTING_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+## Then resume Validation 5
+
+```powershell
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:FLOW_IMAGE_MODEL="Nano Banana 2"
+$env:FLOW_MODEL_STRICT="1"
+$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+$env:FLOW_REFERENCE_STRICT="1"
+$env:FLOW_ASPECT_RATIO="9:16"
+$env:FLOW_OUTPUT_COUNT="1"
+
+$env:TEXT_STEP_WAIT_SECONDS="300"
+$env:IMAGE_STEP_WAIT_SECONDS="600"
+
+D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
+```
+
+Expected result:
+
+```json
+{
+  "PATCH_12J": "PASS",
+  "Validation_5": "PASS",
+  "last_completed_step": "12",
+  "generated_image_1.generation_backend": "flow_browser",
+  "generated_image_1.generation_model": "Nano Banana 2"
+}
+```
+
+Send the updated files/logs after that.
+
 # 1. Cleanup before PATCH_SET_12
 
 ## Purpose
