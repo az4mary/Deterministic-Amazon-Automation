@@ -271,3 +271,55 @@ No manual formatting, line-ending, or whitespace changes were made to workflow_o
 ```text
 No additional source files are needed right now, according to the messenger. Future failure reports should attach PATCH_SET_12_Progress.md first and ask whether more files are needed.
 ```
+
+## STEP 2 - PATCH_12J2 - Retry with method-body replacement
+
+Status: APPLIED_COMMITTED_PUSHED
+
+Messenger unblock instruction:
+
+```text
+Use a method-body replacement, not the failed hunk.
+```
+
+Dry-run:
+
+```text
+PATCH_12J2 method dry-run class_count=1 method_count=1 next_marker_count=1 replacement_region_chars=3248
+```
+
+Files changed:
+
+```text
+workflow_orchestrator.py
+```
+
+Change:
+
+```text
+FlowBrowserImageGenerationAdapter._page() now reuses shared_browser_adapter browser/playwright/context objects when available and logs "Flow adapter reused shared browser session".
+```
+
+Commit:
+
+```text
+758e354 PATCH_12J2 reuse shared flow browser session
+```
+
+Push:
+
+```text
+origin/codex_branch updated 099528e..758e354
+```
+
+Validation:
+
+```text
+NOT RUN - STEP 2 only covers PATCH_12J2 dry-run + apply + commit + push.
+```
+
+Next STEP:
+
+```text
+STEP 3 - PATCH_12J3 - Pass active ChatGPT browser adapter into Flow adapter factory
+```
