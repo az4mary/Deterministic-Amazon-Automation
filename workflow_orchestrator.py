@@ -2229,10 +2229,13 @@ def get_image_execution_adapter() -> PromptExecutionAdapter:
     global IMAGE_EXECUTION_ADAPTER
     if IMAGE_EXECUTION_ADAPTER is None:
         if IMAGE_EXECUTION_BACKEND == "flow_browser":
+            text_adapter = get_text_execution_adapter()
+            shared_browser_adapter = text_adapter if isinstance(text_adapter, BrowserPromptExecutionAdapter) else None
             IMAGE_EXECUTION_ADAPTER = FlowBrowserImageGenerationAdapter(
                 BROWSER_CDP_URL,
                 FLOW_URL,
                 BROWSER_ACTION_TIMEOUT_MS,
+                shared_browser_adapter=shared_browser_adapter,
             )
         else:
             IMAGE_EXECUTION_ADAPTER = get_text_execution_adapter()
