@@ -323,3 +323,49 @@ Next STEP:
 ```text
 STEP 3 - PATCH_12J3 - Pass active ChatGPT browser adapter into Flow adapter factory
 ```
+
+## STEP 3 - PATCH_12J3 - Pass active ChatGPT browser adapter into Flow adapter factory
+
+Status: APPLIED_COMMITTED_PUSHED
+
+Dry-run:
+
+```text
+PATCH_12J3 dry-run expected=1 actual=1
+```
+
+Files changed:
+
+```text
+workflow_orchestrator.py
+```
+
+Change:
+
+```text
+get_image_execution_adapter() now gets the text adapter, uses it as shared_browser_adapter when it is a BrowserPromptExecutionAdapter, and passes shared_browser_adapter into FlowBrowserImageGenerationAdapter.
+```
+
+Commit:
+
+```text
+99cf0f0 PATCH_12J3 pass shared browser adapter to flow
+```
+
+Push:
+
+```text
+origin/codex_branch updated 25415f5..99cf0f0
+```
+
+Validation:
+
+```text
+NOT RUN - STEP 3 only covers PATCH_12J3 dry-run + apply + commit + push.
+```
+
+Next STEP:
+
+```text
+STEP 4 - J-Validation 1 - Compile
+```
