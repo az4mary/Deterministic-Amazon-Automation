@@ -226,3 +226,42 @@ Expected automation signals to record:
 
 Current block:
 - Do not proceed beyond STEP B until this validation is complete and recorded.
+
+## STEP B execution result - Attachment confirmation failure
+
+Status: BLOCKED - validation prompt was not submitted
+
+Operator instruction:
+- No heartbeat.
+
+Local execution checkpoint:
+- `2026-05-17T15:04:35.336-05:00`
+
+Observed signals that worked:
+- Exact Codex_Tech tab selected.
+- Page readyState was `complete`.
+- Exact conversation URL remained `https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0`.
+- Chat title was `Codex_Tech`.
+- Composer was detected and cleared successfully.
+- Previous latest assistant reply was still visible: `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`.
+- Browser automation found `3` file input elements.
+- Upload attempt was started for exactly one file: `Codex_Tech_Progress.md`.
+
+Observed signals that did not work:
+- Composer-scoped attachment confirmation did not appear.
+- Composer attachment count remained `0`.
+- `Remove file` attachment signal was not detected in the composer.
+- Attachment signal list remained empty.
+- Send button was not detected as enabled.
+
+Timeout / block:
+- Attachment confirmation wait timed out after `90.05` seconds.
+- Browser script blocked with: `composer-scoped single attachment not confirmed, prompt not submitted`.
+- Validation prompt was not submitted.
+- Submitted user message detection was not reached.
+- Assistant response wait was not reached.
+- Fallback transcript extraction was not reached because no prompt was submitted.
+
+Result:
+- STEP B is not confirmed complete.
+- Proceed is blocked until this attachment-confirmation failure is addressed or messenger provides the next concrete validation action.
