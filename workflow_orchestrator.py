@@ -1495,10 +1495,17 @@ class BrowserPromptExecutionAdapter(PromptExecutionAdapter):
 
 
 class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
-    def __init__(self, cdp_url: str, flow_url: str, action_timeout_ms: int) -> None:
+    def __init__(
+        self,
+        cdp_url: str,
+        flow_url: str,
+        action_timeout_ms: int,
+        shared_browser_adapter: Optional[BrowserPromptExecutionAdapter] = None,
+    ) -> None:
         self.cdp_url = cdp_url
         self.flow_url = flow_url
         self.action_timeout_ms = action_timeout_ms
+        self.shared_browser_adapter = shared_browser_adapter
         self._playwright = None
         self._browser = None
         self._context = None
