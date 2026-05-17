@@ -14,3 +14,23 @@
 12. Setup at least 10 minutes WAIT time and resume wherever you stopped if your sandbox is timed out or interrupted due to local PC technical/network issues during a workflow - I don't know if this is feasible or not.
 13. Coming soon
 14. Coming soon
+
+I read `WORKFLOW_RULES.md` successfully from the exact path you gave.
+
+A few questions before we proceed:
+
+1. Which exact local files should I use for this run?
+   You mentioned names may differ, such as `Codex_Tech_response.md`, `Codex_Tech_INSTRUCTIONS.md`, and `Codex_Tech_Progress.md`. Please provide the exact paths for the response, instructions, and progress files. 
+
+```powershell
+"D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\Codex_Tech_response .md”
+"D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\Codex_Tech_INSTRUCTIONS.md"
+"D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\Codex_Tech_Progress.md"
+```
+
+2. Should I interact with the ChatGPT messenger URL directly in the browser, or only prepare local files for you to attach/post manually? - submits the prompts/files through the remote-debugging browser.
+
+3. There is a cleanup-rule tension:
+   `AGENTS.md` says cleanup unnecessary artifacts before patch work, while `WORKFLOW_RULES.md` says do not cleanup without messenger confirmation. Should I treat messenger confirmation as required before any cleanup? -  `WORKFLOW_RULES.md` rules overwrite and other contradictory rule.
+
+Also noted: the file contains some mojibake characters around quotes/dashes, but the intent is still readable. - Explain
