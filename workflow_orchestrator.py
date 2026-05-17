@@ -1523,33 +1523,49 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 self._page_obj = None
 
         if self._browser is None:
-            self._playwright = sync_playwright().start()
-            try:
-                self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
-            except Exception:
-                if "localhost" in self.cdp_url:
-                    alt = self.cdp_url.replace("localhost", "127.0.0.1")
-                    try:
-                        self._browser = self._playwright.chromium.connect_over_cdp(alt)
-                        self.cdp_url = alt
-                    except Exception as exc:
+            shared = self.shared_browser_adapter
+            if shared is not None and getattr(shared, "_browser", None) is not None:
+                self._playwright = getattr(shared, "_playwright", None)
+                self._browser = getattr(shared, "_browser", None)
+                self._context = getattr(shared, "_context", None)
+                json_log(
+                    level="INFO",
+                    message="Flow adapter reused shared browser session",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_reuse_shared_browser_session",
+                        "source_adapter": "BrowserPromptExecutionAdapter",
+                    },
+                )
+            else:
+                self._playwright = sync_playwright().start()
+                try:
+                    self._browser = self._playwright.chromium.connect_over_cdp(self.cdp_url)
+                except Exception:
+                    if "localhost" in self.cdp_url:
+                        alt = self.cdp_url.replace("localhost", "127.0.0.1")
+                        try:
+                            self._browser = self._playwright.chromium.connect_over_cdp(alt)
+                            self.cdp_url = alt
+                        except Exception as exc:
+                            fail(
+                                "FLOW_PAGE_UNAVAILABLE",
+                                "Unable to connect to Chrome over CDP for Flow image generation.",
+                                field="BROWSER_CDP_URL",
+                                expected="reachable Chrome remote debugging endpoint",
+                                actual=f"{alt}: {exc}",
+                                stage="PROCESSING",
+                            )
+                    else:
                         fail(
                             "FLOW_PAGE_UNAVAILABLE",
                             "Unable to connect to Chrome over CDP for Flow image generation.",
                             field="BROWSER_CDP_URL",
                             expected="reachable Chrome remote debugging endpoint",
-                            actual=f"{alt}: {exc}",
+                            actual=self.cdp_url,
                             stage="PROCESSING",
                         )
-                else:
-                    fail(
-                        "FLOW_PAGE_UNAVAILABLE",
-                        "Unable to connect to Chrome over CDP for Flow image generation.",
-                        field="BROWSER_CDP_URL",
-                        expected="reachable Chrome remote debugging endpoint",
-                        actual=self.cdp_url,
-                        stage="PROCESSING",
-                    )
 
         chosen_context = None
         chosen_page = None
@@ -1566,7 +1582,9 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 break
 
         if chosen_context is None:
-            if self._browser.contexts:
+            if self._context is not None:
+                chosen_context = self._context
+            elif self._browser.contexts:
                 chosen_context = self._browser.contexts[0]
             else:
                 chosen_context = self._browser.new_context()
