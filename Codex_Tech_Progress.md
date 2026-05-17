@@ -109,3 +109,29 @@ Current block:
 
 Required Codex_Tech messenger confirmation:
 - `STEP 2 - Validation 2 is confirmed proceed with STEP 3 - Validation 3`
+
+Messenger confirmation observed:
+- Test marker: `STEP2_CONFIRM_DETECTION_TEST_2026-05-17T14-22_RETRY`
+- Local send click timestamp: `2026-05-17T14:29:53.257-05:00`
+- Exact Codex_Tech reply observed: `STEP 2 - Validation 2 is confirmed proceed with STEP 3 - Validation 3`
+- Assistant first real text detected at: `2026-05-17T14:30:14.833-05:00`
+- Assistant wait elapsed: `24.687` seconds
+
+STEP 2 result:
+- STEP 2 is confirmed complete.
+- STEP 3 is authorized by Codex_Tech messenger.
+- Do not begin STEP 3 until the operator confirms to proceed locally.
+
+Automation behavior notes from STEP 2:
+- Target tab was missing at first; only `PROMPTS_GEN` and a generic/new ChatGPT tab were visible in CDP.
+- Opened/navigated Codex_Tech conversation URL to continue the Codex_Tech-only test.
+- File attachment was confirmed before submission.
+- ChatGPT renamed duplicate upload to `Codex_Tech_Progress(1).md`.
+- Attachment signal observed: `Remove file 1: Codex_Tech_Progress(1).md`.
+- Prompt text was detected in composer before submit.
+- Enabled `Send prompt` button was detected after upload processing.
+- User message appeared immediately after send: `0.051` seconds.
+- Initial assistant node showed `Thinking`; this was ignored as a non-final placeholder.
+- Real assistant reply text streamed in chunks and stabilized successfully.
+- Broad page-level generation signals remain unreliable; latest-assistant-node text with `Thinking` ignored is the reliable detector.
+- A later attempt to re-extract the reply after the Codex_Tech tab disappeared failed because navigation from generic ChatGPT returned zero transcript message nodes. That empty extraction was not pushed.
