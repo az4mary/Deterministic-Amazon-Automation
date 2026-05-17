@@ -130,3 +130,149 @@ stop
 report composer form text and last transcript messages
 do not retry blindly
 ```
+
+## Validation from second messenger
+
+## **STEP A -** **Select the correct active ChatGPT tab**
+
+Target URL:
+
+```text
+https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+```
+
+PASS only if the selected automation Page object URL exactly matches the target chat URL.
+
+If no exact tab exists, select an existing ChatGPT tab, navigate it to the target URL, and wait until the loaded URL matches.
+
+## **STEP B -** **Attach exactly one file**
+
+Create and attach only:
+
+```text
+SECOND_MESSENGER_VALIDATION_UPLOAD.txt
+```
+
+File contents:
+
+```text
+SECOND_MESSENGER_VALIDATION_UPLOAD_OK
+```
+
+PASS only if the composer form shows the file chip and no pending/uploading/error/progress state.
+
+Do not attach:
+
+```text
+INSTRUCTIONS.md
+SECOND_MESSENGER_INSTRUCTIONS.md
+PATCH_SET_12 files
+```
+
+## **STEP C -** **Enter prompt only after upload stability**
+
+Prompt prefix:
+
+```text
+SECOND_MESSENGER_VALIDATION_TEST
+```
+
+Exact prompt:
+
+```text
+SECOND_MESSENGER_VALIDATION_TEST
+
+This is a validation test for browser automation. Please confirm that you received the attached file and reply with exactly:
+
+SECOND_MESSENGER_VALIDATION_RESPONSE_OK
+```
+
+PASS only if the composer contains the prompt prefix, the intended file chip, and no unintended files.
+
+## **STEP D -** **Submit prompt and confirm from transcript**
+
+Before clicking send, record:
+
+```text
+assistant_message_count_before
+user_message_count_before
+latest_user_message_before
+```
+
+After clicking send, PASS only if a newer user message appears in the transcript and contains:
+
+```text
+SECOND_MESSENGER_VALIDATION_TEST
+```
+
+Also confirm the composer no longer contains the submitted prompt.
+
+## **STEP E -** **Primary response wait**
+
+Use:
+
+```text
+count assistant messages before submit
+wait for assistant count to increase
+poll latest assistant message text using fresh DOM queries
+wait until text is non-empty and stable
+```
+
+Do not use:
+
+```text
+networkidle
+long-lived element handles
+button state
+```
+
+PASS if latest assistant text becomes stable and preferably contains:
+
+```text
+SECOND_MESSENGER_VALIDATION_RESPONSE_OK
+```
+
+If primary wait fails, proceed to fallback extraction.
+
+## **STEP F -** **Fallback extraction validation**
+
+Preferred controlled test:
+
+```text
+After STEP D submission, intentionally force the primary wait to miss by using primary_wait_timeout_ms = 1, then run fallback transcript extraction once.
+```
+
+PASS if fallback extraction finds a newer assistant reply containing:
+
+```text
+SECOND_MESSENGER_VALIDATION_RESPONSE_OK
+```
+
+Save extracted response to:
+
+```text
+SECOND_MESSENGER_RESPONSE.md
+```
+
+## **STEP G -** **Save and verify response file**
+
+PASS only if `SECOND_MESSENGER_RESPONSE.md` exists and contains:
+
+```text
+SECOND_MESSENGER_VALIDATION_RESPONSE_OK
+```
+
+Final PASS format:
+
+```text
+SECOND_MESSENGER_VALIDATION PASSED
+
+Target tab selected: PASS
+File attached: PASS
+Composer-only upload confirmation: PASS
+Prompt entered after stable upload: PASS
+Transcript submit confirmation: PASS
+Primary response wait: PASS / intentionally missed for fallback test
+Fallback transcript extraction: PASS
+Response saved to SECOND_MESSENGER_RESPONSE.md: PASS
+```
