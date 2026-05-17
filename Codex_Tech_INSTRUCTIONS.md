@@ -5,22 +5,22 @@ Source checkpoint: `2026-05-17T08:48:47-05:00`
 
 ## Current Messenger State
 
-The Codex_Tech messenger transcript contains guidance for diagnosing browser automation readiness before resuming the first messenger workflow.
+The Codex_Tech messenger transcript contains guidance for diagnosing browser automation readiness before resuming the Codex_Tech messenger workflow.
 
-The latest messenger request asks to review an updated `SECOND_MESSENGER_Progress.md` tracker that contains the STEP A-0 readiness probe result, classify STEP A-0 as PASS or FAIL against the prior PASS criteria, and provide the next single validation action.
+The latest messenger request asks to review an updated `Codex_Tech_Progress.md` tracker that contains the STEP A-0 readiness probe result, classify STEP A-0 as PASS or FAIL against the prior PASS criteria, and provide the next single validation action.
 
-The extracted transcript does not include the actual updated STEP A-0 diagnostic block from `SECOND_MESSENGER_Progress.md`. Do not classify STEP A-0 from the transcript alone.
+The extracted transcript does not include the actual updated STEP A-0 diagnostic block from `Codex_Tech_Progress.md`. Do not classify STEP A-0 from the transcript alone.
 
 Do not provide PATCH_SET steps yet.
 Do not upload files to messenger yet.
 Do not submit a prompt to messenger yet.
-Do not resume the first messenger workflow yet.
+Do not resume the Codex_Tech messenger workflow yet.
 
 ## Ready To Execute Steps
 
-**STEP 1 - Validation 1 - Obtain updated SECOND_MESSENGER_Progress.md diagnostic**
+**STEP 1 - Validation 1 - Obtain updated Codex_Tech_Progress.md diagnostic**
 
-Read the updated `SECOND_MESSENGER_Progress.md` tracker that contains the STEP A-0 readiness probe result.
+Read the updated `Codex_Tech_Progress.md` tracker that contains the STEP A-0 readiness probe result.
 
 If the file is not available locally or attached in the active messenger tab, block and ask for the exact file/path or attachment. Do not infer, search broadly, or classify STEP A-0 without the diagnostic.
 
@@ -85,7 +85,7 @@ If STEP A-0 is PASS:
 
 If STEP A-0 is FAIL:
 
-- Do not resume the first messenger workflow.
+- Do not resume the Codex_Tech messenger workflow.
 - Do not upload files.
 - Do not submit prompts.
 - Report the STEP A-0 failure diagnostic exactly and ask messenger for the next concrete validation action.
@@ -98,7 +98,7 @@ Failure condition:
 
 - More than one action would be needed or the action would require a PATCH_SET. Block and ask messenger to confirm the next single validation action.
 
-**STEP 4 - Messenger 1 - Report classification and next action**
+**STEP 4 - Codex_Tech Messenger - Report classification and next action**
 
 After STEP 1 through STEP 3 are complete, update `Codex_Tech_Progress.md` as-is, push it to origin, attach the progress file to the active Codex_Tech ChatGPT messenger tab, and prompt messenger to confirm whether to proceed.
 
