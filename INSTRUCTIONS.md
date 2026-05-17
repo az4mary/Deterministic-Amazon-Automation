@@ -5,7 +5,7 @@ Source response: `chatGPT_messenger_response.md`
 Current messenger decision:
 
 ```text
-STEP 4 - J-Validation 1 - Compile is confirmed proceed with STEP 5 - J-Validation 2 - Static marker check.
+STEP 5 - J-Validation 2 - Static marker check is confirmed proceed with STEP 6 - J-Validation 3 - Routing/session dry-run.
 ```
 
 Previous cleanup decision:
