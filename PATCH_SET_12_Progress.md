@@ -454,3 +454,63 @@ Next STEP:
 ```text
 STEP 6 - J-Validation 3 - Routing/session dry-run
 ```
+
+## STEP 6 - J-Validation 3 - Routing/session dry-run
+
+Status: FAILED_BLOCKED
+
+Blocking rule:
+
+```text
+Proceeding and editing future STEPS is blocked until messenger reviews this failure and confirms the next action.
+```
+
+Command:
+
+```text
+@'
+import workflow_orchestrator as w
+
+w.IMAGE_EXECUTION_ADAPTER = None
+w.TEXT_EXECUTION_ADAPTER = w.BrowserPromptExecutionAdapter(
+    w.BROWSER_CDP_URL,
+    w.BROWSER_CHAT_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+adapter = w.get_image_execution_adapter()
+
+assert isinstance(adapter, w.FlowBrowserImageGenerationAdapter), type(adapter)
+assert adapter.shared_browser_adapter is w.TEXT_EXECUTION_ADAPTER
+assert adapter.cdp_url == w.BROWSER_CDP_URL
+assert adapter.flow_url == w.FLOW_URL
+
+print("PATCH_12J_SHARED_BROWSER_ROUTING_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Observed output:
+
+```text
+Traceback (most recent call last):
+  File "<stdin>", line 12, in <module>
+AssertionError: <class 'workflow_orchestrator.BrowserPromptExecutionAdapter'>
+```
+
+Files changed:
+
+```text
+NONE
+```
+
+Commit:
+
+```text
+NOT APPLICABLE - validation failed
+```
+
+Next STEP:
+
+```text
+BLOCKED - ask messenger what questions or additional files are needed for STEP 6.
+```
