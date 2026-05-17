@@ -7,7 +7,8 @@
 5. STEPS should be labelled in this format - **STEP 1 -** **PATCH_12J1 — Allow Flow adapter to receive a shared browser adapter**
 6. Update the `PATCH_SET_12_Progress.md` file after each STEP as-is, no polish, no fix, push to origin, attached file to the CHAT in the current tab, allow time for file upload and prompt the messenger to confirm that you can proceed to the next STEP. Specify that messenger should just reply “xx is confirmed proceed with yy”.
 7. All and every single STEPS in the [`INSTRUCTIONS.md`](http://INSTRUCTIONS.md)MUST be completed otherwise the next `PATCH_SET` or Task will be blocked.
-8. If messenger wants to fix a STEP, then there next STEP has to be blocked until the current STEP has been confirmed - no changes can be made to future STEPS, focus has to only be on the current STEP to unblock the next STEP.
-9. Always ask the messenger to provide the necessary clean-up before the beginning of a new `PATCH_SET`or whenever you feel current artifacts may pollute next STEPS. Don’t cleanup without confirmation from the messenger in case of there needs to be troubleshooting.
-10. Coming soon
+8. If there is a failure, immediately BLOCK proceed or edit to future STEPS (explicit in your report) then report directly to the messenger and attach necessary artifacts/logs needed to troubleshoot and specifically ask messenger for any questions or addtitional files  - dont recommend any fix - all recommendations must come from the messenger.
+9. If messenger wants to fix a STEP, then there next STEP has to be blocked until the current STEP has been confirmed - no changes can be made to future STEPS, focus has to only be on the current STEP to unblock the next STEP.
+10. Always ask the messenger to provide the necessary clean-up before the beginning of a new `PATCH_SET`or whenever you feel current artifacts may pollute next STEPS. Don’t cleanup without confirmation from the messenger in case of there needs to be troubleshooting.
 11. Coming soon
+12. Coming soon
