@@ -3,18 +3,25 @@
 Source transcript: `Codex_Tech_response.md`
 Source checkpoint: `2026-05-17T08:48:47-05:00`
 
+## Messenger Mapping
+
+- 1st messenger: PROMPTS_GEN
+- 2nd messenger: Codex_Tech
+- PROMPTS_GEN and Codex_Tech are completely independent messenger workflows.
+- Codex_Tech files track guidance from the 2nd messenger about whether and how PROMPTS_GEN can safely resume.
+
 ## Current Messenger State
 
-The Codex_Tech messenger transcript contains guidance for diagnosing browser automation readiness before resuming the Codex_Tech messenger workflow.
+The Codex_Tech messenger transcript contains guidance for diagnosing browser automation readiness before resuming the PROMPTS_GEN messenger workflow.
 
-The latest messenger request asks to review an updated `Codex_Tech_Progress.md` tracker that contains the STEP A-0 readiness probe result, classify STEP A-0 as PASS or FAIL against the prior PASS criteria, and provide the next single validation action.
+The latest Codex_Tech messenger request asks to review an updated `Codex_Tech_Progress.md` tracker that contains the STEP A-0 readiness probe result, classify STEP A-0 as PASS or FAIL against the prior PASS criteria, and provide the next single validation action.
 
 The extracted transcript does not include the actual updated STEP A-0 diagnostic block from `Codex_Tech_Progress.md`. Do not classify STEP A-0 from the transcript alone.
 
 Do not provide PATCH_SET steps yet.
 Do not upload files to messenger yet.
 Do not submit a prompt to messenger yet.
-Do not resume the Codex_Tech messenger workflow yet.
+Do not resume the PROMPTS_GEN messenger workflow yet.
 
 ## Ready To Execute Steps
 
@@ -85,7 +92,7 @@ If STEP A-0 is PASS:
 
 If STEP A-0 is FAIL:
 
-- Do not resume the Codex_Tech messenger workflow.
+- Do not resume the PROMPTS_GEN messenger workflow.
 - Do not upload files.
 - Do not submit prompts.
 - Report the STEP A-0 failure diagnostic exactly and ask messenger for the next concrete validation action.
