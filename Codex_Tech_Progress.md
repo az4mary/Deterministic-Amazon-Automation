@@ -168,3 +168,30 @@ Current block:
 
 Required Codex_Tech messenger confirmation:
 - `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`
+
+Messenger confirmation received:
+- Checkpoint: `2026-05-17T14:52:58-05:00`
+- Extracted to: `Codex_Tech_response.md`
+- Exact Codex_Tech reply: `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`
+
+STEP 3 result:
+- STEP 3 is confirmed complete.
+- STEP B validation is authorized by Codex_Tech messenger.
+- Do not begin STEP B until the operator confirms to proceed locally.
+
+Automation behavior notes from STEP 3:
+- No heartbeat was used by operator request.
+- Exact Codex_Tech tab was visible before interaction.
+- File attachment was confirmed before submission.
+- ChatGPT renamed duplicate upload to `Codex_Tech_Progress(2).md`.
+- Attachment signal observed: `Remove file 1: Codex_Tech_Progress(2).md`.
+- Prompt text was detected in composer before submit.
+- Enabled `Send prompt` button was detected after upload processing.
+- User message appeared after send in `0.078` seconds.
+- Initial assistant node showed `Thinking`; this was ignored as a non-final placeholder.
+- First detector stopped too early on partial text `STEP 3 - Validation 3`; this was not accepted as confirmation.
+- Stricter exact-phrase detector continued waiting.
+- Exact confirmation phrase first appeared after `125.618` seconds in the stricter wait.
+- Stable exact confirmation was detected after `129.634` seconds in the stricter wait.
+- No timeout occurred.
+- Reliable rule: for confirmation prompts, wait for the exact expected phrase, not merely stable non-placeholder text.
