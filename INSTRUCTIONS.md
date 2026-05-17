@@ -5,6 +5,12 @@ Source response: `chatGPT_messenger_response.md`
 Current messenger decision:
 
 ```text
+STEP 1 - PATCH_12J1 is confirmed proceed with STEP 2 - PATCH_12J2.
+```
+
+Previous cleanup decision:
+
+```text
 No cleanup is needed.
 ```
 
