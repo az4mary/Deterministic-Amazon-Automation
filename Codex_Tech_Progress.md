@@ -195,3 +195,34 @@ Automation behavior notes from STEP 3:
 - Stable exact confirmation was detected after `129.634` seconds in the stricter wait.
 - No timeout occurred.
 - Reliable rule: for confirmation prompts, wait for the exact expected phrase, not merely stable non-placeholder text.
+
+## STEP B - Validation - End-to-end messenger automation check
+
+Status: IN PROGRESS - VALIDATION PROMPT READY TO SEND
+
+Validation objective:
+- Prove the Codex_Tech automation can select the correct active ChatGPT tab, attach exactly one file, confirm upload from the composer only, submit a prompt, confirm the user message appears in the transcript, wait for a response, and use fallback transcript extraction if the primary wait misses the reply.
+
+Validation file:
+- `Codex_Tech_Progress.md`
+
+Validation prompt to Codex_Tech:
+- Review the attached `Codex_Tech_Progress.md`.
+- Confirm whether STEP B validation should be treated as PASS or FAIL based on the browser automation signals reported after submission.
+- Reply with the exact confirmation phrase if PASS: `STEP B validation is confirmed complete`
+- If FAIL, provide only the failed signal and the next concrete validation action.
+
+Expected automation signals to record:
+- exact Codex_Tech tab selected
+- one composer attachment tile observed
+- duplicate-renamed attachment accepted if ChatGPT appends `(1)`, `(2)`, or similar
+- prompt text detected in composer
+- send button enabled after upload processing
+- send click succeeded
+- submitted user message detected in transcript
+- assistant placeholder `Thinking` ignored
+- assistant response detected from latest assistant node
+- exact expected phrase detected or fallback extraction result recorded
+
+Current block:
+- Do not proceed beyond STEP B until this validation is complete and recorded.
