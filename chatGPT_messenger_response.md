@@ -1,21 +1,23 @@
-Needed next for STEP 2 - PATCH_12J2:
+Use a method-body replacement, not the failed hunk.
 
-The exact apply_patch payload/command used for PATCH_12J2, including the full *** Begin Patch → *** End Patch text.
+For STEP 2, replace the entire FlowBrowserImageGenerationAdapter._page() method from:
 
-The full terminal output from the failed apply_patch, not only the summary line.
+Python
+Run
+    def _page(self):
 
-The output of:
+through the line immediately before:
 
-PowerShell
-git diff -- workflow_orchestrator.py
-git status --short
+Python
+Run
+    def _flow_ready(self, page) -> bool:
 
-Confirm whether workflow_orchestrator.py had any manual formatting, line-ending, or whitespace changes after PATCH_12J1 and before attempting PATCH_12J2.
+This is needed because the failed patch payload targeted stale context containing:
 
-No additional source files are needed right now. The current uploaded workflow_orchestrator(31).py is enough to inspect the target state, and it confirms PATCH_12J1 is present while the original Flow _page() block targeted by PATCH_12J2 is still present. 
+Python
+Run
+from playwright.sync_api import sync_playwright
+
+inside _page(), but the current file does not have that line there. 
 
 PATCH_SET_12_Progress
-
- 
-
-workflow_orchestrator
