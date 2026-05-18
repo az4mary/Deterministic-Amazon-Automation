@@ -710,3 +710,78 @@ Report:
 STEP B-3 FAILED - composer accepted attachment and prompt but ChatGPT did not expose an enabled submit path
 
 Do not resume the first messenger workflow yet.
+
+
+## Codex_Tech Messenger Checkpoint - 2026-05-18T17:09:24-05:00
+
+- Source URL: https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+- Page title: Codex_Tech
+- Prompt submitted: STEP B-3 FAILED - composer accepted attachment and prompt but ChatGPT did not expose an enabled submit path. Do you need any additional files/logs for troubleshooting?
+- Response detection: latest assistant response detected and stable
+
+### Latest User Message
+
+STEP B-3 FAILED - composer accepted attachment and prompt but ChatGPT did not expose an enabled submit path. Do you need any additional files/logs for troubleshooting?
+
+### Latest Assistant Message
+
+No additional files/logs are needed yet.
+
+Next concrete action: STEP B-4 - isolate whether the file attachment is blocking submit
+
+Run a clean diagnostic with no file attached.
+
+STEP B-4 action
+
+Select the exact Codex_Tech tab.
+
+Clear the composer.
+
+Ensure there are zero attachments in the composer.
+
+Type this exact no-file diagnostic prompt using real keyboard input into DIV#prompt-textarea:
+
+STEP_B4_NO_FILE_SEND_PATH_TEST
+
+Reply exactly:
+STEP_B4_NO_FILE_SEND_PATH_OK
+
+Check whether the send path becomes available:
+
+enabled send button, or
+
+Enter-to-send creates a user transcript message.
+
+Submit only this no-file diagnostic prompt.
+
+Confirm the user message appears in the transcript.
+
+Wait for the exact assistant reply:
+
+STEP_B4_NO_FILE_SEND_PATH_OK
+
+PASS criteria
+
+STEP B-4 passes if:
+
+no attachment present
+prompt text present
+send path available
+user message appears in transcript
+assistant exact reply appears
+
+If STEP B-4 passes
+
+Report:
+
+STEP B-4 PASS - no-file send path works; submit failure is attachment-state-specific
+
+Then the next action will be to test a small fresh .txt file instead of Codex_Tech_Progress.md.
+
+If STEP B-4 fails
+
+Report only:
+
+STEP B-4 FAILED - ChatGPT submit path unavailable even without attachment
+
+Do not resume the first messenger workflow.
