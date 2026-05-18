@@ -1,27 +1,38 @@
 # WORKFLOW_RULES
 
-1. Always check this file for new rules as it will be updated constantly.
-2. Always setup `heartbeat` with required automation settings for each WAIT time.
-3. WAIT Time between messenger last response and new input PROMPT - atleast 5 minutes. Use the time when your Python script saved the messenger response as the local checkpoint.
-4. Always use python script to extract messenger response and add to `chatGPT_messenger_response.md` file so not to crowd the [`INSTRUCTIONS.md`](http://INSTRUCTIONS.md)  and immediately push `chatGPT_messenger_response.md`to origin.
-5. Read the current `chatGPT_messenger_response.md`  map and write them into the [`INSTRUCTIONS.md`](http://INSTRUCTIONS.md) file with sequence of next STEP(s) and immediately push [`INSTRUCTIONS.md`](http://INSTRUCTIONS.md)to origin. Ensure they are clearly labelled ready to execute STEPS for each sub-patch (eg. PATCH_12J1, PATCH_12J2 etc are separate - dry-run + apply + commit + push to origin), sub-validation (e.g. Validation 1, Validation 2 etc are separate), Clean-up etc must be individual STEPS. 
-6. STEPS should be labelled in this format - **STEP 1 -** **PATCH_12J1 - Allow Flow adapter to receive a shared browser adapter**
-7. Update the `PATCH_SET_12_Progress.md` file after each STEP as-is, no polish, no fix, push to origin, attached file to the CHAT in the current tab, allow time for file upload and prompt the messenger to confirm that you can proceed to the next STEP. Specify that messenger should just reply "xx is confirmed proceed with yy".
-8. All and every single STEPS in the [`INSTRUCTIONS.md`](http://INSTRUCTIONS.md)MUST be completed otherwise the next `PATCH_SET` or Task will be blocked.
-9. If there is a failure, immediately BLOCK proceed or edit to future STEPS (explicit in your report) then report directly to the messenger and attach necessary artifacts/logs needed to troubleshoot and specifically ask messenger for any questions or additional files  - don't recommend any fix - all recommendations must come from the messenger.
-10. If messenger wants to fix a STEP, then there next STEP has to be blocked until the current STEP has been confirmed - no changes can be made to future STEPS, focus has to only be on the current STEP to unblock the next STEP.
-11. Always ask the messenger to provide the necessary clean-up before the beginning of a new `PATCH_SET`or whenever you feel current artifacts may pollute next STEPS. Don't cleanup without confirmation from the messenger in case of there needs to be troubleshooting.
-12. Setup at least 10 minutes WAIT time and resume wherever you stopped if your sandbox is timed out or interrupted due to local PC technical/network issues during a workflow - I don't know if this is feasible or not.
-13. Coming soon
-14. Coming soon
+1. Always read this file before starting or resuming messenger workflow work. Treat this file as the live operating rule source.
 
-15. Messenger response extraction and translation discipline:
-    - Detect any new assistant response from the messenger after a submitted prompt. Do not wait only for a predicted PASS or FAIL phrase.
-    - First extract the full messenger response into the messenger response file and immediately push that file to origin.
-    - Do not analyze, summarize, classify, or decide the next action before the response has been extracted and pushed.
-    - After extraction, translate the messenger response into the correct live instruction/progress file and immediately push that file to origin.
-    - Composer messages must be short, normally one or two lines. Put requested diagnostic data in the progress file, not in the composer.
-    - Progress files must contain only the diagnostic fields or troubleshooting details the messenger explicitly requested, in the same format the messenger requested. Do not add unrelated local browser notes, helper-command notes, or extra local activity that may confuse the messenger.
-    - If a step is blocked, the report must explicitly state `NEXT STEP BLOCKED` and `No future-step edits/proceeding`.
-    - When blocked or failed, explicitly ask the messenger whether any additional files or logs are needed for troubleshooting.
-    - All recommendations, next diagnostic actions, and cleanup instructions must come from the messenger after the extracted response is processed.
+2. Do not create automation-based waits for messenger workflow pauses. Waits are tracked by local time.
+
+3. Before sending a new messenger prompt, wait at least 5 minutes from the local time when the last messenger response was detected or extracted. Record the local checkpoint time in the appropriate response/progress file.
+
+4. Messenger response handling order is mandatory:
+    - Detect any new assistant response after the submitted prompt.
+    - Do not wait only for a predicted PASS or FAIL phrase.
+    - Extract the full new assistant response into the active messenger response file first, such as `Codex_Tech_response.md`.
+    - Immediately push the response file to origin.
+    - Only after that push, process the response into the active instruction or progress file.
+
+5. Do not analyze, summarize, classify, recommend fixes, choose cleanup, or decide the next action before the messenger response has been extracted into the response file and pushed. All analysis must come after extraction.
+
+6. Translate the extracted messenger response into the active instruction file only when it creates real executable next steps. For this messenger, use `Codex_Tech_INSTRUCTIONS.md`. Immediately push the instruction file after editing it.
+
+7. Write executable steps clearly and separately. Each patch, validation, cleanup, diagnostic, and follow-up must be its own STEP. Use this label style: `STEP 1 - PATCH_12J1 - Allow Flow adapter to receive a shared browser adapter`.
+
+8. Update the active progress file after each STEP or diagnostic. For this messenger, use `Codex_Tech_Progress.md`. The progress file must contain only what the messenger explicitly requested, in the same format the messenger requested. Do not add unrelated local browser notes, helper-command notes, speculation, or extra local activity that may confuse the messenger.
+
+9. Composer prompts to the messenger must be short, normally 1 or 2 lines. Put requested diagnostic details in the progress file, attach the progress file, allow upload to complete, then ask the messenger to review the attached progress file and confirm the next action.
+
+10. If the messenger asks for a specific response format, follow that exact format. If the messenger asks for diagnostic fields, provide only those fields unless the messenger asks for more.
+
+11. Every STEP in the instruction file must be completed and confirmed before the next workflow task or patch set can proceed. If a step is not confirmed, the next step is blocked.
+
+12. If a failure, mismatch, timeout, missing confirmation, or troubleshooting request occurs, immediately state `NEXT STEP BLOCKED` and `No future-step edits/proceeding` in the report/progress file. Do not edit future steps. Focus only on the current blocked step.
+
+13. When blocked or failed, report to the messenger with the requested artifacts/logs only, and explicitly ask: `Do you need any additional files/logs for troubleshooting?`
+
+14. Do not recommend fixes, cleanup, next diagnostics, or future edits yourself. Recommendations, cleanup instructions, and next diagnostic actions must come from the messenger after the extracted response is processed.
+
+15. Do not cleanup temporary files, generated artifacts, caches, logs, or troubleshooting evidence unless the messenger or user confirms cleanup. Ask the messenger for cleanup instructions before a new patch set or whenever artifacts may affect later steps.
+
+16. If local PC, browser, network, or sandbox interruption stops a workflow, resume from the last local checkpoint. Record the interruption and local resume time in the appropriate response/progress file before continuing.
