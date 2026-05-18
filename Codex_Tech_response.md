@@ -533,3 +533,80 @@ Failed signal: STEP B = FAIL - composer-scoped attachment confirmation did not a
 Codex_Tech_Progress
 
 Next concrete validation action: Run STEP B-1 attachment-input diagnostic only. Select the exact Codex_Tech tab, clear the composer, then attach exactly one file using each discovered file input one at a time until the composer-scoped attachment tile appears. After each attempt, record: file input index used, whether the input is inside/nearest the active composer form, composer attachment count, page-wide attachment signals, Remove file signal text, upload/pending/error/progress state, and send-button enabled state. Do not type or submit the prompt unless composer-scoped attachment confirmation succeeds.
+
+
+## Codex_Tech Messenger Checkpoint - 2026-05-18T16:50:12-05:00
+
+- Source URL: https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+- Page title: Codex_Tech
+- Prompt submitted: STEP B-1 diagnostic complete. Please review the attached Codex_Tech_Progress.md and confirm the next action.
+- Attached file observed by ChatGPT: Codex_Tech_Progress(4).md
+- Response detection: latest assistant response detected and stable
+
+### Latest User Message
+
+Codex_Tech_Progress(4).md
+File
+STEP B-1 diagnostic complete. Please review the attached Codex_Tech_Progress.md and confirm the next action.
+
+### Latest Assistant Message
+
+STEP B-1 diagnostic is sufficient. No additional files/logs are needed.
+
+Next action: Run STEP B-2 using file input index 2 as the validated attachment path.
+
+Failed inputs/signals to avoid:
+
+Do not use file input index 0: it was inside/nearest the active composer but produced composer attachment count: 0.
+
+Do not use file input index 1: it was not composer-associated and produced composer attachment count: 0.
+
+Validated signal:
+
+File input index 2 produced composer attachment count: 1.
+
+It produced the expected composer removal signal: Remove file 1: Codex_Tech_Progress.md.
+
+Upload state was stable: uploading=false; pending=false; error=false; progress=false.
+
+Codex_Tech_Progress
+
+STEP B-2 next validation action
+
+Select the exact Codex_Tech tab.
+
+Clear the composer.
+
+Attach exactly one file using file input index 2.
+
+Confirm upload from composer-scoped signals:
+
+composer attachment count == 1
+
+Remove file 1: Codex_Tech_Progress.md present
+
+uploading=false
+
+pending=false
+
+error=false
+
+progress=false
+
+Type the STEP B validation prompt.
+
+Confirm prompt text is present in composer.
+
+Re-check send button after prompt entry.
+
+Submit only if send button becomes enabled.
+
+Confirm submitted user message appears in transcript.
+
+Wait for assistant response using latest-assistant-node detection, ignoring Thinking.
+
+If primary wait misses the reply, run fallback transcript extraction.
+
+If the send button remains disabled after prompt text is entered and the attachment is confirmed, report only:
+
+STEP B-2 FAILED - send button remained disabled after confirmed attachment and prompt entry
