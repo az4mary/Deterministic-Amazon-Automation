@@ -746,6 +746,78 @@ STEP_B4_NO_FILE_SEND_PATH_TEST
 Reply exactly:
 STEP_B4_NO_FILE_SEND_PATH_OK
 
+
+## Codex_Tech Messenger Checkpoint - 2026-05-18T17:25:13-05:00
+
+- Source URL: https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+- Page title: Codex_Tech
+- Prompt submitted: STEP B-5 FAILED - small fresh txt attachment was confirmed but ChatGPT submit path was unavailable. Do you need any additional files/logs for troubleshooting?
+- Response detection: latest assistant response detected and stable
+
+### Latest User Message
+
+STEP B-5 FAILED - small fresh txt attachment was confirmed but ChatGPT submit path was unavailable. Do you need any additional files/logs for troubleshooting?
+
+### Latest Assistant Message
+
+No additional files are needed.
+
+Next concrete action: STEP B-6 - bypass click/disabled-state assumptions and test keyboard submit with confirmed attachment
+
+The current evidence means:
+
+no-file send path works
+file attachment confirms successfully
+submit path becomes unavailable only when an attachment exists
+
+Run one controlled test using keyboard submit only, not send-button enablement.
+
+STEP B-6 action
+
+Select the exact Codex_Tech tab.
+
+Clear the composer.
+
+Attach the same small fresh .txt file.
+
+Confirm:
+
+composer attachment count is 1
+
+Remove file 1: <filename>.txt is present
+
+uploading=false
+
+pending=false
+
+error=false
+
+progress=false
+
+Type the validation prompt into DIV#prompt-textarea using real keyboard input.
+
+Confirm prompt text is visible in the composer.
+
+Do not require the send button to be enabled.
+
+Press Enter once.
+
+Wait up to 10 seconds for a new user transcript message containing the validation prompt prefix.
+
+PASS criteria
+
+STEP B-6 passes if pressing Enter creates a new user transcript message.
+
+Then continue with the normal assistant response wait and fallback extraction validation.
+
+If STEP B-6 fails
+
+Report only:
+
+STEP B-6 FAILED - confirmed attachment plus prompt cannot be submitted by button or Enter; attachment submit path is blocked in this browser session
+
+Do not resume the first messenger workflow.
+
 Check whether the send path becomes available:
 
 enabled send button, or
