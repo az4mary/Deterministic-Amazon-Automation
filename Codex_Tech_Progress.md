@@ -1,8 +1,14 @@
 # Codex_Tech Progress
 
-## STEP B-4 - PASS report
+## STEP B-5 - Failure report
 
 Local checkpoint time:
-- `2026-05-18T17:15:34.667-05:00`
+- `2026-05-18T17:22:42.050-05:00`
 
-STEP B-4 PASS - no-file send path works; submit failure is attachment-state-specific
+NEXT STEP BLOCKED
+
+No future-step edits/proceeding
+
+STEP B-5 FAILED - small fresh txt attachment was confirmed but ChatGPT submit path was unavailable.
+
+Do you need any additional files/logs for troubleshooting?
