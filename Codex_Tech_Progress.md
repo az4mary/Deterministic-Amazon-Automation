@@ -1,319 +1,55 @@
 # Codex_Tech Progress
 
-## STEP 1 - Validation 1 - Obtain updated Codex_Tech_Progress.md diagnostic
+## STEP B-1 - Attachment-input diagnostic only
 
-Status: COMPLETED WITH DIAGNOSTIC AVAILABLE
+Local checkpoint time:
+- `2026-05-18T16:42:55.728-05:00`
 
-Checkpoint:
-- Local progress file was empty before this update.
-- Global `WORKFLOW_RULES.md` was re-read before execution.
-- `Codex_Tech_INSTRUCTIONS.md` was re-read before execution.
-- Existing unrelated workspace artifacts were not cleaned because cleanup requires confirmation.
+NEXT STEP BLOCKED
 
-Action taken:
-- Inspected remote-debugging browser on port `9222`.
-- Selected the exact target Codex_Tech ChatGPT tab when available.
-- Ran a read-only STEP A-0 readiness probe.
-- Did not attach files.
-- Did not submit a validation prompt for STEP A-0.
-- Did not run PATCH_SET steps.
+No future-step edits/proceeding
 
-Observed CDP pages:
-- URL: `file:///D:/PROJECTS/GITHUB/az4mary/Deterministic-Amazon-Automation-codex_branch/WORKFLOW_RULES.md`
-  title: `WORKFLOW_RULES.md`
-  type: `page`
-- URL: `https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0`
-  title: `Codex_Tech`
-  type: `page`
+### Attempt 1
 
-STEP A-0 readiness probe diagnostic:
-- selected page URL: `https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0`
-- selected page title: `Codex_Tech`
-- `document.readyState`: `complete`
-- exact target URL matched: `yes`
-- `composer_present`: `yes`
-- `composer_visible`: `yes`
-- `composer_enabled`: `yes`
-- `transcript_present`: `yes`
-- `assistant_message_count`: `4`
-- `user_message_count`: `5`
-- `login_or_auth_gate_present`: `no`
-- `conversation_not_found_present`: `keyword observed in visible transcript text only; not treated as page-level error in STEP 1`
-- `error_banner_present`: `no`
-- `captcha_or_cloudflare_present`: `keyword observed in visible transcript text only; not treated as page-level gate in STEP 1`
-- selected exact target tab: `yes`
-- navigated existing ChatGPT tab to target: `no`
-- scrolled bottom and re-probed: `no`
-- reloaded once and re-probed: `no`
+- file input index used: `0`
+- whether the input is inside/nearest the active composer form: `insideActiveComposerForm=true; nearestActiveComposerForm=true`
+- composer attachment count: `0`
+- page-wide attachment signals:
+  - `Codex_Tech_Progress.md`
+  - `Codex_Tech_Progress(1).md`
+  - `Codex_Tech_Progress(2).md`
+  - `Codex_Tech_Progress(3).md`
+- `Remove file` signal text: none
+- upload/pending/error/progress state: `uploading=false; pending=false; error=false; progress=false`
+- send-button enabled state: none detected
 
-Composer candidates observed:
-- `textarea`: count present, hidden textarea, enabled
-- `[contenteditable="true"]`: visible enabled `DIV#prompt-textarea`
-- `form textarea`: count present, hidden textarea, enabled
-- `form [contenteditable="true"]`: visible enabled `DIV#prompt-textarea`
-- `#prompt-textarea`: visible enabled `DIV#prompt-textarea`
-- `[data-testid*="composer"]`: visible enabled `BUTTON#composer-plus-btn`
+### Attempt 2
 
-Visible text sample note:
-- The page visible text sample includes older transcript content and can trigger naive keyword checks for terms such as `not found` or `cloudflare`. STEP 1 records the diagnostic but does not classify PASS/FAIL.
+- file input index used: `1`
+- whether the input is inside/nearest the active composer form: `insideActiveComposerForm=false; nearestActiveComposerForm=false`
+- composer attachment count: `0`
+- page-wide attachment signals:
+  - `Codex_Tech_Progress.md`
+  - `Codex_Tech_Progress(1).md`
+  - `Codex_Tech_Progress(2).md`
+  - `Codex_Tech_Progress(3).md`
+- `Remove file` signal text: none
+- upload/pending/error/progress state: `uploading=false; pending=false; error=false; progress=false`
+- send-button enabled state: none detected
 
-Completion condition:
-- The STEP A-0 diagnostic is now available in `Codex_Tech_Progress.md`.
+### Attempt 3
 
-Current block:
-- Do not proceed to STEP 2 until Codex_Tech messenger confirms STEP 1 and authorizes classification.
+- file input index used: `2`
+- whether the input is inside/nearest the active composer form: `insideActiveComposerForm=false; nearestActiveComposerForm=false`
+- composer attachment count: `1`
+- page-wide attachment signals:
+  - `Codex_Tech_Progress.md`
+  - `Codex_Tech_Progress(1).md`
+  - `Codex_Tech_Progress(2).md`
+  - `Codex_Tech_Progress(3).md`
+  - `Remove file 1: Codex_Tech_Progress.md`
+- `Remove file` signal text: `Remove file 1: Codex_Tech_Progress.md`
+- upload/pending/error/progress state: `uploading=false; pending=false; error=false; progress=false`
+- send-button enabled state: `Send prompt enabled=false`
 
-Required Codex_Tech messenger confirmation:
-- `STEP 1 - Validation 1 is confirmed proceed with STEP 2 - Validation 2`
-
-Messenger confirmation received:
-- Checkpoint: `2026-05-17T13:43:41-05:00`
-- Extracted to: `Codex_Tech_response.md`
-- Exact Codex_Tech reply: `STEP 1 - Validation 1 is confirmed proceed with STEP 2 - Validation 2`
-
-STEP 1 result:
-- STEP 1 is confirmed complete.
-- STEP 2 is authorized by Codex_Tech messenger.
-- Do not begin STEP 2 until the operator confirms to proceed locally.
-
-## STEP 2 - Validation 2 - Classify STEP A-0 readiness probe
-
-Status: COMPLETED - STEP A-0 CLASSIFIED AS PASS
-
-Classification basis:
-- current URL starts with or equals target URL: `yes`
-- `composer_present`: `yes`
-- `composer_visible`: `yes`
-- `composer_enabled`: `yes`
-- `login_or_auth_gate_present`: `no`
-- `conversation_not_found_present`: `no page-level conversation-not-found state detected; keyword existed only inside older transcript text`
-- `error_banner_present`: `no`
-- `captcha_or_cloudflare_present`: `no page-level captcha/cloudflare gate detected; keyword existed only inside older transcript text`
-
-Classification result:
-- STEP A-0 readiness probe: `PASS`
-
-Reasoning:
-- The exact Codex_Tech conversation URL was selected.
-- The page title was `Codex_Tech`.
-- `document.readyState` was `complete`.
-- The transcript was present.
-- The composer was present, visible, and enabled through `DIV#prompt-textarea`.
-- There was no observed auth/login gate.
-- There was no observed active error banner.
-- There was no observed active captcha or Cloudflare gate.
-- Text samples contained stale diagnostic words from previous transcript messages; those words were not treated as active page-level failure states.
-
-Current block:
-- Do not proceed to STEP 3 until Codex_Tech messenger confirms STEP 2 and authorizes the next validation action.
-
-Required Codex_Tech messenger confirmation:
-- `STEP 2 - Validation 2 is confirmed proceed with STEP 3 - Validation 3`
-
-Messenger confirmation observed:
-- Test marker: `STEP2_CONFIRM_DETECTION_TEST_2026-05-17T14-22_RETRY`
-- Local send click timestamp: `2026-05-17T14:29:53.257-05:00`
-- Exact Codex_Tech reply observed: `STEP 2 - Validation 2 is confirmed proceed with STEP 3 - Validation 3`
-- Assistant first real text detected at: `2026-05-17T14:30:14.833-05:00`
-- Assistant wait elapsed: `24.687` seconds
-
-STEP 2 result:
-- STEP 2 is confirmed complete.
-- STEP 3 is authorized by Codex_Tech messenger.
-- Do not begin STEP 3 until the operator confirms to proceed locally.
-
-Automation behavior notes from STEP 2:
-- Target tab was missing at first; only `PROMPTS_GEN` and a generic/new ChatGPT tab were visible in CDP.
-- Opened/navigated Codex_Tech conversation URL to continue the Codex_Tech-only test.
-- File attachment was confirmed before submission.
-- ChatGPT renamed duplicate upload to `Codex_Tech_Progress(1).md`.
-- Attachment signal observed: `Remove file 1: Codex_Tech_Progress(1).md`.
-- Prompt text was detected in composer before submit.
-- Enabled `Send prompt` button was detected after upload processing.
-- User message appeared immediately after send: `0.051` seconds.
-- Initial assistant node showed `Thinking`; this was ignored as a non-final placeholder.
-- Real assistant reply text streamed in chunks and stabilized successfully.
-- Broad page-level generation signals remain unreliable; latest-assistant-node text with `Thinking` ignored is the reliable detector.
-- A later attempt to re-extract the reply after the Codex_Tech tab disappeared failed because navigation from generic ChatGPT returned zero transcript message nodes. That empty extraction was not pushed.
-
-## STEP 3 - Validation 3 - Provide next single validation action
-
-Status: COMPLETED - NEXT SINGLE VALIDATION ACTION READY
-
-Input condition:
-- STEP A-0 readiness probe was classified as `PASS`.
-
-Next single validation action:
-- Run the original validation from STEP B.
-
-STEP B action scope:
-- Attach exactly one validation file.
-- Confirm the upload from the composer only.
-- Submit the validation prompt.
-- Confirm the user message appears in the transcript.
-- Wait for the assistant response.
-- Use fallback transcript extraction if the primary wait misses the reply.
-
-STEP B expected PASS criteria:
-- Correct Codex_Tech tab is selected.
-- Exactly one validation file is attached and visible as a composer attachment tile, including duplicate-renamed filenames such as `(1)`.
-- The send button becomes enabled after upload processing.
-- The submitted user message appears in the transcript.
-- A new assistant response appears after submission.
-- The latest assistant response text is non-empty and stable after ignoring transient `Thinking` placeholder text.
-- If the primary stability wait misses the reply, fallback extraction reads the latest assistant message from the transcript.
-
-Current block:
-- Do not run STEP B until Codex_Tech messenger confirms STEP 3.
-
-Required Codex_Tech messenger confirmation:
-- `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`
-
-Messenger confirmation received:
-- Checkpoint: `2026-05-17T14:52:58-05:00`
-- Extracted to: `Codex_Tech_response.md`
-- Exact Codex_Tech reply: `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`
-
-STEP 3 result:
-- STEP 3 is confirmed complete.
-- STEP B validation is authorized by Codex_Tech messenger.
-- Do not begin STEP B until the operator confirms to proceed locally.
-
-Automation behavior notes from STEP 3:
-- No heartbeat was used by operator request.
-- Exact Codex_Tech tab was visible before interaction.
-- File attachment was confirmed before submission.
-- ChatGPT renamed duplicate upload to `Codex_Tech_Progress(2).md`.
-- Attachment signal observed: `Remove file 1: Codex_Tech_Progress(2).md`.
-- Prompt text was detected in composer before submit.
-- Enabled `Send prompt` button was detected after upload processing.
-- User message appeared after send in `0.078` seconds.
-- Initial assistant node showed `Thinking`; this was ignored as a non-final placeholder.
-- First detector stopped too early on partial text `STEP 3 - Validation 3`; this was not accepted as confirmation.
-- Stricter exact-phrase detector continued waiting.
-- Exact confirmation phrase first appeared after `125.618` seconds in the stricter wait.
-- Stable exact confirmation was detected after `129.634` seconds in the stricter wait.
-- No timeout occurred.
-- Reliable rule: for confirmation prompts, wait for the exact expected phrase, not merely stable non-placeholder text.
-
-## STEP B - Validation - End-to-end messenger automation check
-
-Status: IN PROGRESS - VALIDATION PROMPT READY TO SEND
-
-Validation objective:
-- Prove the Codex_Tech automation can select the correct active ChatGPT tab, attach exactly one file, confirm upload from the composer only, submit a prompt, confirm the user message appears in the transcript, wait for a response, and use fallback transcript extraction if the primary wait misses the reply.
-
-Validation file:
-- `Codex_Tech_Progress.md`
-
-Validation prompt to Codex_Tech:
-- Review the attached `Codex_Tech_Progress.md`.
-- Confirm whether STEP B validation should be treated as PASS or FAIL based on the browser automation signals reported after submission.
-- Reply with the exact confirmation phrase if PASS: `STEP B validation is confirmed complete`
-- If FAIL, provide only the failed signal and the next concrete validation action.
-
-Expected automation signals to record:
-- exact Codex_Tech tab selected
-- one composer attachment tile observed
-- duplicate-renamed attachment accepted if ChatGPT appends `(1)`, `(2)`, or similar
-- prompt text detected in composer
-- send button enabled after upload processing
-- send click succeeded
-- submitted user message detected in transcript
-- assistant placeholder `Thinking` ignored
-- assistant response detected from latest assistant node
-- exact expected phrase detected or fallback extraction result recorded
-
-Current block:
-- Do not proceed beyond STEP B until this validation is complete and recorded.
-
-## STEP B execution result - Attachment confirmation failure
-
-Status: BLOCKED - validation prompt was not submitted
-
-Operator instruction:
-- No heartbeat.
-
-Local execution checkpoint:
-- `2026-05-17T15:04:35.336-05:00`
-
-Observed signals that worked:
-- Exact Codex_Tech tab selected.
-- Page readyState was `complete`.
-- Exact conversation URL remained `https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0`.
-- Chat title was `Codex_Tech`.
-- Composer was detected and cleared successfully.
-- Previous latest assistant reply was still visible: `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`.
-- Browser automation found `3` file input elements.
-- Upload attempt was started for exactly one file: `Codex_Tech_Progress.md`.
-
-Observed signals that did not work:
-- Composer-scoped attachment confirmation did not appear.
-- Composer attachment count remained `0`.
-- `Remove file` attachment signal was not detected in the composer.
-- Attachment signal list remained empty.
-- Send button was not detected as enabled.
-
-Timeout / block:
-- Attachment confirmation wait timed out after `90.05` seconds.
-- Browser script blocked with: `composer-scoped single attachment not confirmed, prompt not submitted`.
-- Validation prompt was not submitted.
-- Submitted user message detection was not reached.
-- Assistant response wait was not reached.
-- Fallback transcript extraction was not reached because no prompt was submitted.
-
-Result:
-- STEP B is not confirmed complete.
-- Proceed is blocked until this attachment-confirmation failure is addressed or messenger provides the next concrete validation action.
-
-## STEP B retry execution result - Messenger returned FAIL
-
-Status: BLOCKED - Codex_Tech did not confirm STEP B complete
-
-Operator instruction:
-- Retry STEP B.
-- No heartbeat.
-
-Local execution checkpoint:
-- `2026-05-18T14:37:04.332-05:00`
-
-Browser access notes:
-- In-app browser did not expose the existing Codex_Tech ChatGPT tab.
-- Remote-debuggable Edge initially exposed no Codex_Tech conversation tab.
-- Remote-debuggable Edge exposed an existing `edge://newtab/` target.
-- Attempt to open the URL through `/json/new?...` failed with HTTP `405 Method Not Allowed`; no submission occurred during that failed command.
-- Existing Edge new-tab target was then navigated through CDP `Page.navigate` to the exact Codex_Tech URL.
-- Conversation loaded successfully with title `Codex_Tech`.
-
-Observed signals that worked on retry:
-- Exact Codex_Tech conversation URL loaded.
-- Page readyState was `complete`.
-- Latest prior assistant reply was detected: `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`.
-- Composer was detected and cleared.
-- Browser automation found `3` file input elements.
-- File input index `0` accepted exactly one local file: `Codex_Tech_Progress.md`.
-- Composer-scoped attachment confirmation appeared after `0.123` seconds.
-- One `Remove file` signal was detected.
-- Attachment initially appeared as `Codex_Tech_Progress.md`, then ChatGPT renamed it to `Codex_Tech_Progress(3).md`.
-- Prompt text was detected in the composer.
-- Send button became enabled.
-- Send click succeeded.
-- Submitted user message appeared in transcript after `0.049` seconds.
-- Assistant placeholder `Thinking` appeared and was ignored.
-- Latest assistant response was detected after wait.
-
-Observed result from Codex_Tech:
-- Expected PASS phrase `STEP B validation is confirmed complete` was not detected.
-- Exact PASS phrase first-seen elapsed value: `null`.
-- Stable exact PASS confirmation: `false`.
-- Assistant wait elapsed: `240.695` seconds.
-
-Codex_Tech latest assistant response:
-- `Failed signal: STEP B = FAIL - composer-scoped attachment confirmation did not appear: attachment count stayed 0, no Remove file signal was detected, send button was not enabled, and the validation prompt was not submitted.`
-- `Next concrete validation action: Run STEP B-1 attachment-input diagnostic only. Select the exact Codex_Tech tab, clear the composer, then attach exactly one file using each discovered file input one at a time until the composer-scoped attachment tile appears. After each attempt, record: file input index used, whether the input is inside/nearest the active composer form, composer attachment count, page-wide attachment signals, Remove file signal text, upload/pending/error/progress state, and send-button enabled state. Do not type or submit the prompt unless composer-scoped attachment confirmation succeeds.`
-
-Result:
-- STEP B retry is not confirmed complete.
-- Proceed is blocked.
-- Next allowed action from messenger is STEP B-1 attachment-input diagnostic only.
-- Do not type or submit another validation prompt unless composer-scoped attachment confirmation succeeds.
+Do you need any additional files/logs for troubleshooting?
