@@ -610,3 +610,103 @@ If primary wait misses the reply, run fallback transcript extraction.
 If the send button remains disabled after prompt text is entered and the attachment is confirmed, report only:
 
 STEP B-2 FAILED - send button remained disabled after confirmed attachment and prompt entry
+
+
+## Codex_Tech Messenger Checkpoint - 2026-05-18T16:58:53-05:00
+
+- Source URL: https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+- Page title: Codex_Tech
+- Prompt submitted: STEP B-2 FAILED - send button remained disabled after confirmed attachment and prompt entry. Do you need any additional files/logs for troubleshooting?
+- Response detection: latest assistant response detected and stable
+
+### Latest User Message
+
+STEP B-2 FAILED - send button remained disabled after confirmed attachment and prompt entry. Do you need any additional files/logs for troubleshooting?
+
+### Latest Assistant Message
+
+No additional files are needed yet.
+
+Next concrete diagnostic: STEP B-3 - composer text/send-button state probe
+
+The failure is now narrowed to send enablement after confirmed attachment + prompt entry, not upload confirmation.
+
+Run one read-only diagnostic after reproducing the same state:
+
+confirmed attachment present
+prompt text visibly present
+send button still disabled
+
+Record these fields:
+
+STEP B-3 FAILED - send button disabled state diagnostic
+
+selected_url:
+selected_title:
+
+composer_attachment_count:
+remove_file_signal:
+uploading:
+pending:
+error:
+progress:
+
+prompt_text_visible_in_composer:
+prompt_text_from_innerText:
+prompt_text_from_textContent:
+prompt_text_from_textarea_value:
+prompt_text_from_prosemirror_doc_if_available:
+
+active_element_tag:
+active_element_id:
+active_element_role:
+active_element_contenteditable:
+active_element_text:
+
+composer_focused:
+input_event_dispatched_after_fill:
+beforeinput_event_dispatched_after_fill:
+change_event_dispatched_after_fill:
+keyboard_typing_used_instead_of_dom_fill:
+
+send_button_count:
+send_button_candidates:
+- index:
+  tag:
+  aria_label:
+  data_testid:
+  text:
+  disabled_attr:
+  aria_disabled:
+  enabled_by_playwright:
+  visible:
+  bounding_box:
+  nearest_form_text_sample:
+
+composer_form_text_sample:
+composer_form_html_sample_truncated:
+page_error_text:
+Next action based on result
+If prompt text is not actually present in the editable composer model
+
+Then rerun STEP B-2 using real keyboard typing into DIV#prompt-textarea, not DOM value assignment or fill() on the hidden textarea.
+
+If prompt text is present, attachment is confirmed, and only the send button is disabled
+
+Then rerun STEP B-2 with this sequence:
+
+1. focus DIV#prompt-textarea
+2. type the prompt using keyboard input
+3. dispatch input/beforeinput events only if keyboard typing fails
+4. wait 1 second
+5. re-check composer text and attachment tile
+6. locate send button by aria-label / data-testid, not text alone
+7. if button is still disabled, press Enter once only if the composer supports Enter-to-send and Shift+Enter is not required for newline
+8. confirm submission from transcript, not button state
+If pressing Enter does not create a user transcript message
+
+Report:
+
+STEP B-3 FAILED - composer accepted attachment and prompt but ChatGPT did not expose an enabled submit path
+
+Do not resume the first messenger workflow yet.
