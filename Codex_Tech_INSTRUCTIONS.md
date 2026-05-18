@@ -1,44 +1,47 @@
 # Codex_Tech Instructions
 
 Source response file: `Codex_Tech_response.md`
-Source checkpoint: `2026-05-18T17:15:34-05:00`
+Source checkpoint: `2026-05-18T17:25:13-05:00`
 
 ## Current State
 
-STEP B-4 passed.
+STEP B-5 failed because the small fresh `.txt` attachment was confirmed but ChatGPT submit path was unavailable.
 
-No-file send path works.
+No additional files are needed.
 
-Submit failure is attachment-state-specific.
-
-Codex_Tech provided the next action: test a small fresh `.txt` file instead of `Codex_Tech_Progress.md`.
+Codex_Tech provided one next diagnostic action.
 
 ## Ready To Execute Steps
 
-**STEP B-5 - Small fresh txt attachment test**
+**STEP B-6 - Keyboard submit with confirmed attachment**
 
-Test a small fresh `.txt` file instead of `Codex_Tech_Progress.md`.
+Run one controlled test using keyboard submit only, not send-button enablement.
 
 Procedure:
 
 - Select the exact Codex_Tech tab.
 - Clear the composer.
-- Ensure there are zero existing attachments in the composer.
-- Create a small fresh `.txt` diagnostic file.
-- Attach exactly one file using the validated attachment path.
-- Confirm upload from composer-scoped signals:
-  - composer attachment count == `1`
-  - `Remove file 1:` signal is present for the `.txt` file
+- Attach the same small fresh `.txt` file.
+- Confirm:
+  - composer attachment count is `1`
+  - `Remove file 1: <filename>.txt` is present
   - uploading=false
   - pending=false
   - error=false
   - progress=false
-- Type a short diagnostic prompt using real keyboard input into `DIV#prompt-textarea`.
-- Check whether the send path becomes available.
-- Submit only if the send path becomes available.
-- Confirm the user message appears in the transcript.
-- Detect any new assistant response after submission.
+- Type the validation prompt into `DIV#prompt-textarea` using real keyboard input.
+- Confirm prompt text is visible in the composer.
+- Do not require the send button to be enabled.
+- Press Enter once.
+- Wait up to 10 seconds for a new user transcript message containing the validation prompt prefix.
 
-If the small fresh `.txt` attachment succeeds, extract the messenger response before processing the next action.
+PASS criteria:
 
-If the small fresh `.txt` attachment does not expose a submit path, report that failure to Codex_Tech and ask whether any additional files/logs are needed.
+- STEP B-6 passes if pressing Enter creates a new user transcript message.
+- Then continue with the normal assistant response wait and fallback extraction validation.
+
+If STEP B-6 fails, report only:
+
+`STEP B-6 FAILED - confirmed attachment plus prompt cannot be submitted by button or Enter; attachment submit path is blocked in this browser session`
+
+Do not resume the first messenger workflow.
