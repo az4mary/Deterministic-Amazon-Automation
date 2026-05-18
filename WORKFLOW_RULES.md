@@ -14,3 +14,14 @@
 12. Setup at least 10 minutes WAIT time and resume wherever you stopped if your sandbox is timed out or interrupted due to local PC technical/network issues during a workflow - I don't know if this is feasible or not.
 13. Coming soon
 14. Coming soon
+
+15. Messenger response extraction and translation discipline:
+    - Detect any new assistant response from the messenger after a submitted prompt. Do not wait only for a predicted PASS or FAIL phrase.
+    - First extract the full messenger response into the messenger response file and immediately push that file to origin.
+    - Do not analyze, summarize, classify, or decide the next action before the response has been extracted and pushed.
+    - After extraction, translate the messenger response into the correct live instruction/progress file and immediately push that file to origin.
+    - Composer messages must be short, normally one or two lines. Put requested diagnostic data in the progress file, not in the composer.
+    - Progress files must contain only the diagnostic fields or troubleshooting details the messenger explicitly requested, in the same format the messenger requested. Do not add unrelated local browser notes, helper-command notes, or extra local activity that may confuse the messenger.
+    - If a step is blocked, the report must explicitly state `NEXT STEP BLOCKED` and `No future-step edits/proceeding`.
+    - When blocked or failed, explicitly ask the messenger whether any additional files or logs are needed for troubleshooting.
+    - All recommendations, next diagnostic actions, and cleanup instructions must come from the messenger after the extracted response is processed.
