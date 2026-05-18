@@ -1,115 +1,51 @@
 # Codex_Tech Instructions
 
-Source transcript: `Codex_Tech_response.md`
-Source checkpoint: `2026-05-17T08:48:47-05:00`
+Source response file: `Codex_Tech_response.md`
+Source checkpoint: `2026-05-18T14:41:05-05:00`
 
-## Current Messenger State
+## Current State
 
-The Codex_Tech messenger transcript contains guidance for diagnosing browser automation readiness for the Codex_Tech workflow.
+STEP B retry was not confirmed complete.
 
-The latest Codex_Tech messenger request asks to review an updated `Codex_Tech_Progress.md` tracker that contains the STEP A-0 readiness probe result, classify STEP A-0 as PASS or FAIL against the prior PASS criteria, and provide the next single validation action.
+NEXT STEP BLOCKED
+No future-step edits/proceeding
 
-The extracted transcript does not include the actual updated STEP A-0 diagnostic block from `Codex_Tech_Progress.md`. Do not classify STEP A-0 from the transcript alone.
-
-Do not provide PATCH_SET steps yet.
-Do not upload files to messenger yet.
-Do not submit a prompt to messenger yet.
-Do not proceed beyond the current Codex_Tech validation sequence yet.
+Codex_Tech requested one current diagnostic action only.
 
 ## Ready To Execute Steps
 
-**STEP 1 - Validation 1 - Obtain updated Codex_Tech_Progress.md diagnostic**
+**STEP B-1 - Attachment-input diagnostic only**
 
-Read the updated `Codex_Tech_Progress.md` tracker that contains the STEP A-0 readiness probe result.
+Run only the attachment-input diagnostic requested by Codex_Tech.
 
-If the file is not available locally or attached in the active messenger tab, block and ask for the exact file/path or attachment. Do not infer, search broadly, or classify STEP A-0 without the diagnostic.
+Do not type or submit a messenger prompt unless composer-scoped attachment confirmation succeeds.
 
-Expected evidence to collect from the tracker:
+Diagnostic procedure:
 
-- selected page URL
-- selected page title
-- `document.readyState`
-- exact target URL matched: yes/no
-- `composer_present`
-- `composer_visible`
-- `composer_enabled`
-- `transcript_present`
-- `assistant_message_count`
-- `user_message_count`
-- `login_or_auth_gate_present`
-- `conversation_not_found_present`
-- `error_banner_present`
-- `captcha_or_cloudflare_present`
-- visible text sample
-- observed CDP pages
-- actions taken: exact target tab selection, navigation, bottom scroll/re-probe, reload/re-probe
+- Select the exact Codex_Tech tab.
+- Clear the composer.
+- Attach exactly one file using each discovered file input one at a time until the composer-scoped attachment tile appears.
+- After each attempt, record only the requested fields:
+  - file input index used
+  - whether the input is inside/nearest the active composer form
+  - composer attachment count
+  - page-wide attachment signals
+  - `Remove file` signal text
+  - upload/pending/error/progress state
+  - send-button enabled state
 
 Completion condition:
 
-- The STEP A-0 diagnostic is available and can be evaluated.
+- `Codex_Tech_Progress.md` contains the STEP B-1 diagnostic fields in the requested format.
+- `Codex_Tech_Progress.md` states `NEXT STEP BLOCKED`.
+- `Codex_Tech_Progress.md` states `No future-step edits/proceeding`.
+- `Codex_Tech_Progress.md` asks: `Do you need any additional files/logs for troubleshooting?`
+- The progress file is pushed to origin.
+- The progress file is attached to Codex_Tech messenger.
+- The composer prompt is short and asks Codex_Tech to review the attached progress file and confirm the next action.
 
 Failure condition:
 
-- The tracker is missing, inaccessible, or does not include enough STEP A-0 diagnostic fields to classify PASS/FAIL.
-
-**STEP 2 - Validation 2 - Classify STEP A-0 readiness probe**
-
-Classify STEP A-0 using only the diagnostic evidence from the updated tracker.
-
-STEP A-0 PASS requires all of the following:
-
-- current URL starts with or equals `https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0`
-- `composer_present: yes`
-- `composer_visible: yes`
-- `composer_enabled: yes`
-- `login_or_auth_gate_present: no`
-- `conversation_not_found_present: no`
-- `error_banner_present: no`
-- `captcha_or_cloudflare_present: no`
-
-If any required PASS criterion is missing or false, classify STEP A-0 as FAIL.
-
-Completion condition:
-
-- STEP A-0 is explicitly classified as PASS or FAIL.
-
-Failure condition:
-
-- The diagnostic is ambiguous or incomplete. Block and ask messenger for the missing diagnostic fields.
-
-**STEP 3 - Validation 3 - Provide next single validation action**
-
-If STEP A-0 is PASS:
-
-- Next action is to rerun the original validation from STEP B: attach exactly one validation file, confirm the upload from the composer only, submit the validation prompt, confirm the user message appears in the transcript, wait for the assistant response, and use fallback transcript extraction if the primary wait misses the reply.
-
-If STEP A-0 is FAIL:
-
-- Do not proceed beyond the current Codex_Tech validation sequence.
-- Do not upload files.
-- Do not submit prompts.
-- Report the STEP A-0 failure diagnostic exactly and ask messenger for the next concrete validation action.
-
-Completion condition:
-
-- One next validation action is ready to send to messenger.
-
-Failure condition:
-
-- More than one action would be needed or the action would require a PATCH_SET. Block and ask messenger to confirm the next single validation action.
-
-**STEP 4 - Codex_Tech Messenger - Report classification and next action**
-
-After STEP 1 through STEP 3 are complete, update `Codex_Tech_Progress.md` as-is, push it to origin, attach the progress file to the active Codex_Tech ChatGPT messenger tab, and prompt messenger to confirm whether to proceed.
-
-Required confirmation phrasing:
-
-`Codex_Tech Validation 1-3 is confirmed proceed with the next validation action`
-
-Completion condition:
-
-- Messenger confirmation is received.
-
-Failure condition:
-
-- Messenger does not confirm, asks for a correction, or the wait times out. Block future steps and extract the messenger response before continuing.
+- If composer-scoped attachment confirmation does not succeed, do not type or submit a messenger prompt.
+- Record the requested diagnostic fields only.
+- Keep `NEXT STEP BLOCKED` and `No future-step edits/proceeding`.
