@@ -265,3 +265,55 @@ Timeout / block:
 Result:
 - STEP B is not confirmed complete.
 - Proceed is blocked until this attachment-confirmation failure is addressed or messenger provides the next concrete validation action.
+
+## STEP B retry execution result - Messenger returned FAIL
+
+Status: BLOCKED - Codex_Tech did not confirm STEP B complete
+
+Operator instruction:
+- Retry STEP B.
+- No heartbeat.
+
+Local execution checkpoint:
+- `2026-05-18T14:37:04.332-05:00`
+
+Browser access notes:
+- In-app browser did not expose the existing Codex_Tech ChatGPT tab.
+- Remote-debuggable Edge initially exposed no Codex_Tech conversation tab.
+- Remote-debuggable Edge exposed an existing `edge://newtab/` target.
+- Attempt to open the URL through `/json/new?...` failed with HTTP `405 Method Not Allowed`; no submission occurred during that failed command.
+- Existing Edge new-tab target was then navigated through CDP `Page.navigate` to the exact Codex_Tech URL.
+- Conversation loaded successfully with title `Codex_Tech`.
+
+Observed signals that worked on retry:
+- Exact Codex_Tech conversation URL loaded.
+- Page readyState was `complete`.
+- Latest prior assistant reply was detected: `STEP 3 - Validation 3 is confirmed proceed with STEP B validation`.
+- Composer was detected and cleared.
+- Browser automation found `3` file input elements.
+- File input index `0` accepted exactly one local file: `Codex_Tech_Progress.md`.
+- Composer-scoped attachment confirmation appeared after `0.123` seconds.
+- One `Remove file` signal was detected.
+- Attachment initially appeared as `Codex_Tech_Progress.md`, then ChatGPT renamed it to `Codex_Tech_Progress(3).md`.
+- Prompt text was detected in the composer.
+- Send button became enabled.
+- Send click succeeded.
+- Submitted user message appeared in transcript after `0.049` seconds.
+- Assistant placeholder `Thinking` appeared and was ignored.
+- Latest assistant response was detected after wait.
+
+Observed result from Codex_Tech:
+- Expected PASS phrase `STEP B validation is confirmed complete` was not detected.
+- Exact PASS phrase first-seen elapsed value: `null`.
+- Stable exact PASS confirmation: `false`.
+- Assistant wait elapsed: `240.695` seconds.
+
+Codex_Tech latest assistant response:
+- `Failed signal: STEP B = FAIL - composer-scoped attachment confirmation did not appear: attachment count stayed 0, no Remove file signal was detected, send button was not enabled, and the validation prompt was not submitted.`
+- `Next concrete validation action: Run STEP B-1 attachment-input diagnostic only. Select the exact Codex_Tech tab, clear the composer, then attach exactly one file using each discovered file input one at a time until the composer-scoped attachment tile appears. After each attempt, record: file input index used, whether the input is inside/nearest the active composer form, composer attachment count, page-wide attachment signals, Remove file signal text, upload/pending/error/progress state, and send-button enabled state. Do not type or submit the prompt unless composer-scoped attachment confirmation succeeds.`
+
+Result:
+- STEP B retry is not confirmed complete.
+- Proceed is blocked.
+- Next allowed action from messenger is STEP B-1 attachment-input diagnostic only.
+- Do not type or submit another validation prompt unless composer-scoped attachment confirmation succeeds.

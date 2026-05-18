@@ -501,3 +501,35 @@ STEP 3 - Validation 3 is confirmed proceed with STEP B validation
 ### Latest Assistant Message
 
 STEP 3 - Validation 3 is confirmed proceed with STEP B validation
+
+
+## Codex_Tech Messenger Checkpoint - 2026-05-18T14:41:05-05:00
+
+- Source URL: https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+- Page title: Codex_Tech
+- Test id: STEPB_RETRY_VALIDATION_TEST_2026-05-18T14-12
+- Expected PASS phrase: STEP B validation is confirmed complete
+- Exact PASS phrase observed: no
+
+### Latest User Message
+
+Codex_Tech_Progress(3).md
+File
+STEPB_RETRY_VALIDATION_TEST_2026-05-18T14-12
+
+STEP B validation retry. I attached exactly one validation file: Codex_Tech_Progress.md.
+
+Please review the attached progress file and confirm whether STEP B validation should be treated as PASS or FAIL based on the browser automation signals reported in that file.
+
+If PASS, reply exactly:
+STEP B validation is confirmed complete
+
+If FAIL, provide only the failed signal and the next concrete validation action.
+
+### Latest Assistant Message
+
+Failed signal: STEP B = FAIL - composer-scoped attachment confirmation did not appear: attachment count stayed 0, no Remove file signal was detected, send button was not enabled, and the validation prompt was not submitted.
+
+Codex_Tech_Progress
+
+Next concrete validation action: Run STEP B-1 attachment-input diagnostic only. Select the exact Codex_Tech tab, clear the composer, then attach exactly one file using each discovered file input one at a time until the composer-scoped attachment tile appears. After each attempt, record: file input index used, whether the input is inside/nearest the active composer form, composer attachment count, page-wide attachment signals, Remove file signal text, upload/pending/error/progress state, and send-button enabled state. Do not type or submit the prompt unless composer-scoped attachment confirmation succeeds.
