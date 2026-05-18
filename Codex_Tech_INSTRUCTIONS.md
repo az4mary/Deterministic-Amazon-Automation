@@ -1,47 +1,63 @@
 # Codex_Tech Instructions
 
 Source response file: `Codex_Tech_response.md`
-Source checkpoint: `2026-05-18T17:25:13-05:00`
+Source checkpoint: `2026-05-18T17:32:49-05:00`
 
 ## Current State
 
-STEP B-5 failed because the small fresh `.txt` attachment was confirmed but ChatGPT submit path was unavailable.
+STEP B validation remains FAIL.
 
-No additional files are needed.
+Failed signal: confirmed attachment plus prompt cannot be submitted by button or Enter; attachment submit path is blocked in this browser session.
 
-Codex_Tech provided one next diagnostic action.
+Codex_Tech provided one next validation action.
 
 ## Ready To Execute Steps
 
-**STEP B-6 - Keyboard submit with confirmed attachment**
+**STEP B-7 - Reset ChatGPT tab/session state and retest attachment submit path**
 
-Run one controlled test using keyboard submit only, not send-button enablement.
+Run this before resuming the first messenger workflow.
 
 Procedure:
 
-- Select the exact Codex_Tech tab.
-- Clear the composer.
-- Attach the same small fresh `.txt` file.
-- Confirm:
-  - composer attachment count is `1`
-  - `Remove file 1: <filename>.txt` is present
+- Close the current Codex_Tech ChatGPT tab.
+- Open a fresh ChatGPT tab directly to:
+
+```text
+https://chatgpt.com/c/6a09a61f-6f94-83ea-bdc6-47089291cea0
+```
+
+- Wait for STEP A-0 readiness conditions:
+  - exact target URL selected
+  - transcript present
+  - composer present
+  - composer visible
+  - composer enabled
+  - no login/auth gate
+  - no active error banner
+  - no active captcha/Cloudflare gate
+- Clear composer.
+- Attach a small fresh `.txt` file.
+- Confirm attachment from composer-scoped signals:
+  - attachment count `1`
+  - `Remove file 1: <filename>.txt`
   - uploading=false
   - pending=false
   - error=false
   - progress=false
-- Type the validation prompt into `DIV#prompt-textarea` using real keyboard input.
-- Confirm prompt text is visible in the composer.
-- Do not require the send button to be enabled.
-- Press Enter once.
-- Wait up to 10 seconds for a new user transcript message containing the validation prompt prefix.
+- Type prompt using real keyboard input.
+- Test submit by:
+  - enabled send button if available;
+  - otherwise Enter once.
+- Confirm submission only from the transcript.
 
 PASS criteria:
 
-- STEP B-6 passes if pressing Enter creates a new user transcript message.
-- Then continue with the normal assistant response wait and fallback extraction validation.
+`STEP B-7 PASS - fresh tab restored attachment submit path`
 
-If STEP B-6 fails, report only:
+Then continue the original STEP B response-wait/fallback validation.
 
-`STEP B-6 FAILED - confirmed attachment plus prompt cannot be submitted by button or Enter; attachment submit path is blocked in this browser session`
+If STEP B-7 fails, report:
 
-Do not resume the first messenger workflow.
+`STEP B-7 FAILED - attachment submit path remains blocked after fresh target tab reload`
+
+Then stop. Do not resume the first messenger workflow.
