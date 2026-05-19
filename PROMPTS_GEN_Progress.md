@@ -579,3 +579,90 @@ Next STEP:
 ```text
 STEP 7 - Resume Validation 5 - Step 12 Flow actual generation smoke test
 ```
+
+## STEP 7 - Resume Validation 5 - Step 12 Flow actual generation smoke test
+
+Status: FAILED_BLOCKED
+
+Local checkpoint time:
+- `2026-05-19T08:01:12.9052623-05:00`
+
+Blocking rule:
+
+```text
+NEXT STEP BLOCKED
+No future-step edits/proceeding
+```
+
+Command:
+
+```text
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:FLOW_IMAGE_MODEL="Nano Banana 2"
+$env:FLOW_MODEL_STRICT="1"
+$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+$env:FLOW_REFERENCE_STRICT="1"
+$env:FLOW_ASPECT_RATIO="9:16"
+$env:FLOW_OUTPUT_COUNT="1"
+
+$env:TEXT_STEP_WAIT_SECONDS="300"
+$env:IMAGE_STEP_WAIT_SECONDS="600"
+
+D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
+```
+
+Exit result:
+
+```text
+Exit code: 1
+```
+
+Observed terminal output:
+
+```text
+{"error_code": "FLOW_IMAGE_GENERATION_TIMEOUT", "field": "flow_generated_image", "expected": "generated Flow output captured as base64 image", "actual": "Timeout 3000ms exceeded while waiting for event \"download\"\n=========================== logs ===========================\nwaiting for event \"download\"\n============================================================", "file": "D:\\PROJECTS\\GITHUB\\az4mary\\Deterministic-Amazon-Automation-codex_branch\\workflow_orchestrator.py", "line": 2152, "snippet": "fail(", "trace_id": "fe78c8d6703134fe6184bd624f9936e8"}
+```
+
+Artifact check:
+
+```text
+output/generated_images/image_12.png exists: False
+```
+
+Relevant final log records:
+
+```text
+Flow page ready
+Flow reference images attached
+Flow model selected
+Flow image prompt submitted
+Flow image generation wait started
+FLOW_IMAGE_GENERATION_TIMEOUT
+```
+
+Files changed by STEP 7:
+
+```text
+output/logs/execution.jsonl
+output/workflow_state.json
+```
+
+Current workspace status after failure:
+
+```text
+ D output/image_prompts.json
+ M output/logs/execution.jsonl
+ M output/workflow_state.json
+?? __pycache__/
+?? output/_archive/
+```
+
+Messenger request:
+
+```text
+Do you need any additional files/logs for troubleshooting?
+```
