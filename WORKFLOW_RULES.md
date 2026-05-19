@@ -28,6 +28,7 @@ In `Codex_Tech_response.md`, place it in the checkpoint title and repeat it in t
     - Detect any new assistant response after the submitted prompt.
     - Do not wait only for a predicted PASS or FAIL phrase.
     - Extract the full new assistant response into the active messenger response file first, such as `Codex_Tech_response.md`.
+    - The active messenger response file must contain only the extracted messenger response/checkpoint fields and the format requested by the messenger. Do not add unrelated local command output, browser helper notes, speculation, diagnostics, or extra activity unless the messenger explicitly requested those fields.
     - For future messengers, use `<MessengerName>_response.md` unless the user specifies a different active response file.
     - Immediately commit the response file with a task-specific commit title/message, then push it to `origin codex_branch`.
     - Only after that push, process the response into the active instruction or progress file.
