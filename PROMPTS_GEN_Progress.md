@@ -459,6 +459,9 @@ STEP 6 - J-Validation 3 - Routing/session dry-run
 
 Status: FAILED_BLOCKED
 
+Local checkpoint time:
+- `2026-05-19T07:17:04.8519809-05:00`
+
 Blocking rule:
 
 ```text
