@@ -1,12 +1,48 @@
 # WORKFLOW_RULES
 
+## PART 0 - Scope And Clarifications
+
+These rules apply to any task assigned to Codex that involves interacting with a messenger, including Codex_Tech, PROMPTS_GEN, or any future ChatGPT messenger used as a workflow partner. They do not automatically apply to ordinary repo work that does not involve messenger interaction.
+
+1. Messenger file updates must be titled, committed, and pushed separately for tracking purposes. Each reasonable update to a response, instruction, progress, workflow, or messenger-support file should have its own task-specific commit message.
+
+2. Push messenger workflow commits to `origin codex_branch`. For now, `codex_branch` is the only available branch for this workflow.
+
+3. Commit messages do not need to copy examples exactly. Use task-specific messages that clearly identify the file role and step, such as `Extract Codex_Tech STEP B response`, `Translate Codex_Tech STEP B instructions`, or `Record Codex_Tech STEP B progress`.
+
+4. Cleanup conflict is resolved as follows: for messenger workflows, preserve temporary files, generated artifacts, logs, screenshots, and troubleshooting evidence until the messenger or user explicitly confirms cleanup. If the user explicitly requests cleanup, clean only the confirmed artifacts and leave unrelated dirty worktree entries untouched.
+
+5. If a local tool, browser, sandbox, filesystem, or environment issue blocks the assigned task and is not part of the current messenger troubleshooting task, report it directly to the user. If the issue is part of the current messenger task, record it in the active progress file using the blocked-state rules and ask the messenger whether additional files or logs are needed.
+
+6. Local checkpoint times must use PowerShell `Get-Date -Format o` ISO format, including fractional seconds and UTC offset, for example `2026-05-19T00:42:30.9338090-05:00`.
+
+7. In `Codex_Tech_Progress.md`, place the checkpoint under the current step heading in this exact shape:
+
+```md
+## STEP B-9 - Result
+
+Local checkpoint time:
+- `2026-05-19T00:42:30.9338090-05:00`
+```
+
+8. In `Codex_Tech_response.md`, place the checkpoint in the checkpoint title and repeat it in the metadata block:
+
+```md
+# Codex_Tech Messenger Checkpoint - 2026-05-19T00:41:43.7506145-05:00
+
+- Source URL: https://chatgpt.com/c/...
+- Page title: ...
+- Local checkpoint time: `2026-05-19T00:41:43.7506145-05:00`
+- Response detection: latest assistant response detected and stable
+```
+
 ## PART 1 - Mandatory Messenger Workflow Rules
 
 1. Always read this file before starting or resuming messenger workflow work. Treat this file as the live operating rule source.
 
 2. Do not create automation-based waits for messenger workflow pauses. Waits are tracked by local time.
 
-3. Before sending a new messenger prompt, wait at least 5 minutes from the local time when the last messenger response was detected or extracted. Record the local checkpoint time in the appropriate response/progress file.
+3. Before sending a new messenger prompt, wait at least 5 minutes from the local time when the last messenger response was detected or extracted. Record the local checkpoint time in the appropriate response/progress file using the exact format and location rules in PART 0.
 
 4. Messenger response handling order is mandatory:
     - Detect any new assistant response after the submitted prompt.
