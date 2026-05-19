@@ -517,3 +517,62 @@ Next STEP:
 ```text
 BLOCKED - ask messenger what questions or additional files are needed for STEP 6.
 ```
+
+## STEP 6 - J-Validation 3 - Routing/session dry-run - Rerun with flow_browser backend
+
+Status: PASS
+
+Messenger instruction:
+
+```text
+No additional files/logs are needed. Re-run STEP 6 with IMAGE_EXECUTION_BACKEND=flow_browser before the Python dry-run.
+```
+
+Command:
+
+```text
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+@'
+import workflow_orchestrator as w
+
+w.IMAGE_EXECUTION_ADAPTER = None
+w.TEXT_EXECUTION_ADAPTER = w.BrowserPromptExecutionAdapter(
+    w.BROWSER_CDP_URL,
+    w.BROWSER_CHAT_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+adapter = w.get_image_execution_adapter()
+
+assert isinstance(adapter, w.FlowBrowserImageGenerationAdapter), type(adapter)
+assert adapter.shared_browser_adapter is w.TEXT_EXECUTION_ADAPTER
+assert adapter.cdp_url == w.BROWSER_CDP_URL
+assert adapter.flow_url == w.FLOW_URL
+
+print("PATCH_12J_SHARED_BROWSER_ROUTING_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Observed output:
+
+```text
+PATCH_12J_SHARED_BROWSER_ROUTING_OK
+```
+
+Files changed:
+
+```text
+NONE
+```
+
+Commit:
+
+```text
+NOT APPLICABLE - validation only
+```
+
+Next STEP:
+
+```text
+STEP 7 - Resume Validation 5 - Step 12 Flow actual generation smoke test
+```
