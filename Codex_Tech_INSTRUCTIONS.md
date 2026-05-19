@@ -1,55 +1,33 @@
 # Codex_Tech Instructions
 
 Source response file: `Codex_Tech_response.md`
-Source checkpoint: `2026-05-18T17:43:00-05:00`
+Source checkpoint: `2026-05-19T00:25:54.2915813-05:00`
 
 ## Current State
 
-STEP B validation remains FAIL.
+STEP B-8 passed.
 
-Failed signal: attachment submit path remains blocked after fresh target tab reload.
+Result: attachment submit works in a new ChatGPT conversation.
 
-Codex_Tech provided one next validation action.
+Conclusion from Codex_Tech: the issue is target-conversation-specific.
 
 ## Ready To Execute Steps
 
-**STEP B-8 - Isolate target-conversation vs browser/account attachment block**
+**STEP B-9 - Create a new dedicated Codex_Tech messenger conversation**
 
-Run a clean attachment-send test in a new temporary ChatGPT conversation, not the Codex_Tech target conversation.
+Create a new dedicated Codex_Tech messenger conversation in the same remote-debugging browser session.
 
-Procedure:
+Migrate only the validated instructions and current progress state. Do not migrate the full old transcript.
 
-- Open a brand-new ChatGPT conversation in the same remote-debugging browser session.
-- Confirm composer is present, visible, and enabled.
-- Attach a small fresh `.txt` file.
-- Confirm attachment from composer-scoped signals:
-  - attachment count `1`
-  - `Remove file 1: <filename>.txt`
-  - uploading=false
-  - pending=false
-  - error=false
-  - progress=false
-- Type this prompt using real keyboard input:
+Use the active files for this messenger:
 
-```text
-STEP_B8_NEW_CHAT_ATTACHMENT_SEND_TEST
+- `Codex_Tech_INSTRUCTIONS.md`
+- `Codex_Tech_Progress.md`
 
-Reply exactly:
-STEP_B8_NEW_CHAT_ATTACHMENT_SEND_OK
-```
+After the new dedicated messenger conversation is ready:
 
-- Try submit by enabled send button first, then Enter if needed.
-- Confirm submission only by detecting the new user message in the transcript.
-- Wait for the exact assistant reply.
-
-PASS criteria:
-
-`STEP B-8 PASS - attachment submit works in a new ChatGPT conversation`
-
-If STEP B-8 passes, the issue is target-conversation-specific. Next action would be to create a new dedicated Codex_Tech messenger conversation and migrate only the validated instructions, not the full old transcript.
-
-FAIL criteria:
-
-`STEP B-8 FAILED - attachment submit is blocked even in a new ChatGPT conversation`
-
-If STEP B-8 fails, the issue is browser/session/account-level attachment submit blocking. Do not resume the first messenger workflow until the browser profile/session is reset or a different controlled browser profile is validated.
+- attach the active instruction/progress files if the attachment path confirms successfully;
+- send a short 1-2 line composer prompt asking the messenger to review the attached files and confirm the next concrete action;
+- detect any new assistant response;
+- extract the full assistant response into `Codex_Tech_response.md`;
+- push `Codex_Tech_response.md` before processing the reply.
