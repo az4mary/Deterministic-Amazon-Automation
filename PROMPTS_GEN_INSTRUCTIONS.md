@@ -1,11 +1,11 @@
 # INSTRUCTIONS
 
-Source response: `chatGPT_messenger_response.md`
+Source response: `PROMPTS_GEN_response.md`
 
 Current messenger decision:
 
 ```text
-STEP 5 - J-Validation 2 - Static marker check is confirmed proceed with STEP 6 - J-Validation 3 - Routing/session dry-run.
+No additional files/logs are needed. Re-run STEP 6 - J-Validation 3 - Routing/session dry-run with IMAGE_EXECUTION_BACKEND set to flow_browser before the Python dry-run.
 ```
 
 Previous cleanup decision:
@@ -386,6 +386,8 @@ PATCH_12J_SHARED_BROWSER_STATIC_OK
 Run only after J-Validation 2 is confirmed. No browser call.
 
 ```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
 @'
 import workflow_orchestrator as w
 
