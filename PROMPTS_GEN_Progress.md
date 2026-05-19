@@ -666,3 +666,76 @@ Messenger request:
 ```text
 Do you need any additional files/logs for troubleshooting?
 ```
+
+```powershell
+PS D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch> $env:EXECUTION_BACKEND="browser"
+>> $env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+>>
+>> $env:IMAGE_EXECUTION_BACKEND="flow_browser"
+>> $env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+>> $env:FLOW_IMAGE_MODEL="Nano Banana 2"
+>> $env:FLOW_MODEL_STRICT="1"
+>> $env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+>> $env:FLOW_REFERENCE_STRICT="1"
+>> $env:FLOW_ASPECT_RATIO="9:16"
+>> $env:FLOW_OUTPUT_COUNT="1"
+>>
+>> $env:TEXT_STEP_WAIT_SECONDS="300"
+>> $env:IMAGE_STEP_WAIT_SECONDS="600"
+>>
+>> D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
+Traceback (most recent call last):
+  File "D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py", line 3898, in <module>
+    main()
+    ~~~~^^
+  File "D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py", line 3852, in main
+    run_step(step, state)
+    ~~~~~~~~^^^^^^^^^^^^^
+  File "D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py", line 3670, in run_step
+    result = call_image_generation(prompt, generation_context=generation_context)
+  File "D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py", line 3489, in call_image_generation
+    return get_image_execution_adapter().execute_image(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        prompt,
+        ^^^^^^^
+        size=size,
+        ^^^^^^^^^^
+        generation_context=generation_context,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py", line 2179, in execute_image
+    self._submit_flow_prompt(page, prompt)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py", line 1904, in _submit_flow_prompt
+    prompt_box.click(timeout=self.action_timeout_ms)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\TOOLS\Python314\Lib\site-packages\playwright\sync_api\_generated.py", line 16196, in click
+    self._sync(
+    ~~~~~~~~~~^
+        self._impl_obj.click(
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+        )
+        ^
+    )
+    ^
+  File "D:\TOOLS\Python314\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ~~~~~~~~~~~^^
+  File "D:\TOOLS\Python314\Lib\site-packages\playwright\_impl\_locator.py", line 162, in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\TOOLS\Python314\Lib\site-packages\playwright\_impl\_frame.py", line 566, in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+  File "D:\TOOLS\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "D:\TOOLS\Python314\Lib\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.click: Timeout 120000ms exceeded.
+Call log:
+```
