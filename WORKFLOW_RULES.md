@@ -2,7 +2,7 @@
 
 ## PART 1 - Mandatory Messenger Workflow Rules
 
-1. These rules apply to any task assigned to Codex that involves interacting with a messenger, including Codex_Tech, PROMPTS_GEN, or any future ChatGPT messenger used as a workflow partner. They do not automatically apply to ordinary repo work that does not involve messenger interaction. Always read this file before starting or resuming messenger workflow work. Treat this file as the live operating rule source.
+1. These rules apply to any task assigned to Codex that involves interacting with a messenger, including Codex_Tech, PROMPTS_GEN, or any future ChatGPT messenger used as a workflow partner. They do not automatically apply to ordinary repo work that does not involve messenger interaction, and they do not override higher-priority platform, system, safety, or developer instructions. Always read this file before starting or resuming messenger workflow work. Treat this file as the live operating rule source.
 
 2. Do not create automation-based waits for messenger workflow pauses. Waits are tracked by local time.
 
@@ -28,18 +28,19 @@ In `Codex_Tech_response.md`, place it in the checkpoint title and repeat it in t
     - Detect any new assistant response after the submitted prompt.
     - Do not wait only for a predicted PASS or FAIL phrase.
     - Extract the full new assistant response into the active messenger response file first, such as `Codex_Tech_response.md`.
-    - Immediately title, commit, and push the response file to `origin codex_branch`.
+    - For future messengers, use `<MessengerName>_response.md` unless the user specifies a different active response file.
+    - Immediately commit the response file with a task-specific commit title/message, then push it to `origin codex_branch`.
     - Only after that push, process the response into the active instruction or progress file.
 
-Each reasonable update to each messenger workflow file must be committed and pushed separately for tracking. For now, `codex_branch` is the only available branch for this workflow. Use task-specific commit messages that clearly identify the file role and step, such as `Extract Codex_Tech STEP B response`, `Translate Codex_Tech STEP B instructions`, or `Record Codex_Tech STEP B progress`.
+Each reasonable update to each messenger workflow file must be committed and pushed separately for tracking. For now, `codex_branch` is the only available branch for this workflow. A commit title/message is the Git commit message, not a required markdown heading inside the file. Use task-specific commit messages that clearly identify the file role and step, such as `Extract Codex_Tech STEP B response`, `Translate Codex_Tech STEP B instructions`, or `Record Codex_Tech STEP B progress`.
 
 5. Do not analyze, summarize, classify, recommend fixes, choose cleanup, or decide the next action before the messenger response has been extracted into the response file and pushed. All analysis must come after extraction.
 
-6. Translate the extracted messenger response into the active instruction file only when it creates real executable next steps. For this messenger, use `Codex_Tech_INSTRUCTIONS.md`. Immediately title, commit, and push the instruction file after editing it.
+6. Translate the extracted messenger response into the active instruction file only when it creates real executable next steps. For this messenger, use `Codex_Tech_INSTRUCTIONS.md`. For future messengers, use `<MessengerName>_INSTRUCTIONS.md` unless the user specifies a different active instruction file. Immediately commit the instruction file with a task-specific commit title/message, then push it after editing it.
 
 7. Write executable steps clearly and separately. Each patch, validation, cleanup, diagnostic, and follow-up must be its own STEP. Use this label style: `STEP 1 - PATCH_12J1 - Allow Flow adapter to receive a shared browser adapter`.
 
-8. Update the active progress file after each STEP or diagnostic. For this messenger, use `Codex_Tech_Progress.md`. The progress file must contain only what the messenger explicitly requested, in the same format the messenger requested. Do not add unrelated local browser notes, helper-command notes, speculation, or extra local activity that may confuse the messenger. Immediately title, commit, and push the progress file after editing it.
+8. Update the active progress file after each STEP or diagnostic. For this messenger, use `Codex_Tech_Progress.md`. For future messengers, use `<MessengerName>_Progress.md` unless the user specifies a different active progress file. The progress file must contain only what the messenger explicitly requested, in the same format the messenger requested. Do not add unrelated local browser notes, helper-command notes, speculation, or extra local activity that may confuse the messenger. Immediately commit the progress file with a task-specific commit title/message, then push it after editing it.
 
 9. Composer prompts to the messenger must be short, normally 1 or 2 lines. Put requested diagnostic details in the progress file, attach the progress file, allow upload to complete, then ask the messenger to review the attached progress file and confirm the next action.
 
