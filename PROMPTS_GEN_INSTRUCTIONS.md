@@ -5,7 +5,7 @@ Source response: `PROMPTS_GEN_response.md`
 Current messenger decision:
 
 ```text
-No additional files/logs are needed. Re-run STEP 6 - J-Validation 3 - Routing/session dry-run with IMAGE_EXECUTION_BACKEND set to flow_browser before the Python dry-run.
+STEP 6 - J-Validation 3 - Routing/session dry-run is confirmed proceed with STEP 7 - Resume Validation 5 - Step 12 Flow actual generation smoke test.
 ```
 
 Previous cleanup decision:
