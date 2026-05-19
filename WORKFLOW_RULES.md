@@ -128,6 +128,12 @@ Invoke-RestMethod -Uri 'http://127.0.0.1:9222/json/version' -TimeoutSec 5 | Conv
 Invoke-RestMethod -Uri 'http://127.0.0.1:9222/json/list' -TimeoutSec 5 | ConvertTo-Json -Depth 4
 ```
 
+Use this placeholder dry-run check before replacing an initialized response file. Replace the messenger name and placeholder text as needed. If the count is not exactly `1`, do not use that replacement path; re-read the current file and choose a new exact target or rewrite the active response file with a confirmed full-file patch.
+
+```powershell
+(Select-String -LiteralPath 'D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\PROMPTS_GEN_response.md' -Pattern 'NOT EXTRACTED YET - active PROMPTS_GEN response file initialized.' -SimpleMatch).Count
+```
+
 Use this command to open a new temporary ChatGPT tab in the same remote-debugging browser session:
 
 ```powershell
@@ -337,4 +343,93 @@ Use this page expression after submitting a messenger prompt. Treat `Thinking` a
     thinking,
   };
 })()
+```
+
+Use this full read-only PowerShell command when a messenger response is visible in ChatGPT and Codex needs to extract the active tab transcript through Chrome remote debugging. First get the correct `TARGET_ID` from `/json/list`, then replace `TARGET_ID` below with the page id for the intended messenger tab.
+
+```powershell
+@'
+import urllib.request, json, socket, base64, os, struct, time
+TARGET_ID='REPLACE_WITH_PAGE_TARGET_ID'
+
+def get_ws(target_id):
+    tabs=json.load(urllib.request.urlopen('http://127.0.0.1:9222/json/list', timeout=5))
+    for t in tabs:
+        if t.get('id')==target_id:
+            return t['webSocketDebuggerUrl']
+    raise SystemExit('target not found')
+
+class CDP:
+    def __init__(self, wsurl):
+        rest=wsurl[5:]; hostport,path=rest.split('/',1); host,port=hostport.split(':')
+        self.s=socket.create_connection((host,int(port)), timeout=10)
+        key=base64.b64encode(os.urandom(16)).decode()
+        self.s.sendall((f"GET /{path} HTTP/1.1\r\nHost: {hostport}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n").encode())
+        resp=b''
+        while b'\r\n\r\n' not in resp: resp+=self.s.recv(4096)
+        if b' 101 ' not in resp.split(b'\r\n',1)[0]: raise RuntimeError(resp[:500])
+        self.next_id=1
+
+    def sf(self,t):
+        p=t.encode('utf-8'); h=bytearray([0x81]); n=len(p)
+        if n<126: h.append(0x80|n)
+        elif n<65536: h.append(0x80|126); h.extend(struct.pack('!H',n))
+        else: h.append(0x80|127); h.extend(struct.pack('!Q',n))
+        m=os.urandom(4); h.extend(m); self.s.sendall(bytes(h)+bytes(b^m[i%4] for i,b in enumerate(p)))
+
+    def rf(self):
+        h=self.s.recv(2); b1,b2=h; n=b2&0x7f
+        if n==126: n=struct.unpack('!H', self.s.recv(2))[0]
+        elif n==127: n=struct.unpack('!Q', self.s.recv(8))[0]
+        data=b''
+        if b2&0x80:
+            m=self.s.recv(4)
+            while len(data)<n: data+=self.s.recv(n-len(data))
+            data=bytes(x^m[i%4] for i,x in enumerate(data))
+        else:
+            while len(data)<n: data+=self.s.recv(n-len(data))
+        if (b1&0xf)==8: raise RuntimeError('websocket closed')
+        if (b1&0xf)==9: return self.rf()
+        return data.decode('utf-8','replace')
+
+    def call(self, method, params=None, timeout=20):
+        cid=self.next_id; self.next_id+=1
+        self.sf(json.dumps({'id':cid,'method':method,'params':params or {}}))
+        end=time.time()+timeout
+        while time.time()<end:
+            self.s.settimeout(max(.1,end-time.time()))
+            msg=json.loads(self.rf())
+            if msg.get('id')==cid: return msg
+        raise TimeoutError(method)
+
+def ev(cdp, expr, timeout=20):
+    return cdp.call('Runtime.evaluate', {'expression':expr,'awaitPromise':True,'returnByValue':True}, timeout=timeout).get('result',{}).get('result',{}).get('value')
+
+cdp=CDP(get_ws(TARGET_ID))
+for m in ['Runtime.enable','DOM.enable','Page.enable']: cdp.call(m, timeout=5)
+cdp.call('Page.bringToFront', timeout=5)
+expr=r'''(() => {
+  const articles = [...document.querySelectorAll('article,[data-message-author-role]')]
+    .map((element, index) => ({
+      index,
+      role: element.getAttribute('data-message-author-role') || '',
+      text: (element.innerText || '').trim(),
+    }));
+  const users = articles.filter((message) => message.role === 'user');
+  const assistants = articles.filter((message) => message.role === 'assistant' && message.text && message.text !== 'Thinking');
+  const thinking = (document.body.innerText || '').includes('Thinking') || !!document.querySelector('[aria-label*="Stop"], button[aria-label*="Stop"]');
+  return {
+    url: location.href,
+    title: document.title,
+    user_count: users.length,
+    assistant_count: assistants.length,
+    latest_user: users.at(-1) || null,
+    latest_assistant: assistants.at(-1) || null,
+    thinking,
+    articles: articles.slice(-8),
+  };
+})()'''
+state=ev(cdp,expr,timeout=20)
+print(json.dumps(state, indent=2))
+'@ | python -
 ```
