@@ -127,27 +127,26 @@ Failure:
 Messenger request:
 - Do you need any additional files/logs for troubleshooting?
 
-
 ## Expected checks
 
 ```json
 {
   "expected": [
-    "resume starts at step 12",
-    "Image generation adapter handoff started",
-    "Flow adapter reused shared browser session",
-    "Flow page ready",
-    "Flow reference images uploaded",
-    "Flow reference images attached to composer",
-    "Flow model selected",
-    "Flow prompt box filled",
-    "Flow image prompt submitted",
-    "Flow generated image captured",
-    "output/generated_images/image_12.png exists",
-    "generated_image_1.generation_backend=flow_browser",
-    "generated_image_1.generation_model=Nano Banana 2",
-    "last_completed_step=12",
-    "OUTPUT/SUCCESS"
+    "resume starts at step 12",✅
+    "Image generation adapter handoff started",✅
+    "Flow adapter reused shared browser session",✅ opened in new Tab
+    "Flow page ready",✅
+    "Flow reference images uploaded",✅uploaded to image gallery
+    "Flow reference images attached to composer",❌attached button clicked, image gallery opened but image not selected or attached to composer.
+    "Flow model selected",✅
+    "Flow prompt box filled",✅prompt available in composer
+    "Flow image prompt submitted",❌
+    "Flow generated image captured",❌
+    "output/generated_images/image_12.png exists",❌
+    "generated_image_1.generation_backend=flow_browser",❌
+    "generated_image_1.generation_model=Nano Banana 2",❌
+    "last_completed_step=12",❌
+    "OUTPUT/SUCCESS"FAILED
   ],
   "forbidden": [
     "Playwright Sync API inside the asyncio loop",
