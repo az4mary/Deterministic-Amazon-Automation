@@ -1959,21 +1959,20 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             "button:has-text('Ingredient')",
             "button:has-text('Reference')",
             "button:has-text('Add media')",
+            "[role='button']:has-text('Upload')",
+            "[role='button']:has-text('Ingredient')",
+            "[role='button']:has-text('Reference')",
+            "[role='button']:has-text('Add media')",
         ]
 
         try:
             if page.locator("input[type=file]").count() == 0:
-                for selector in attach_selectors:
-                    button = page.locator(selector).first
-                    if button.count() and button.is_visible():
-                        button.click(timeout=self.action_timeout_ms)
-                        page.wait_for_timeout(500)
-                        break
+                self._flow_click_first(page, attach_selectors, label="open_reference_upload", force=True)
         except Exception:
             pass
 
         try:
-            file_input = page.locator("input[type=file]").first
+            file_input = page.locator("input[type=file]").last
             if not file_input.count():
                 fail(
                     "FLOW_REFERENCE_ATTACH_INPUT_MISSING",
@@ -1985,18 +1984,21 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 )
 
             file_input.set_input_files(source_images, timeout=self.action_timeout_ms)
-            page.wait_for_timeout(1500)
+            page.wait_for_timeout(3000)
 
             json_log(
                 level="INFO",
-                message="Flow reference images attached",
+                message="Flow reference images uploaded",
                 stage="PROCESSING",
                 status="COMPLETED",
                 context={
-                    "operation": "flow_reference_image_attach_success",
+                    "operation": "flow_reference_image_upload_success",
                     "source_image_count": len(source_images),
                 },
             )
+
+            self._finalize_flow_reference_attachment_to_composer(page, source_images)
+
         except SystemExit:
             raise
         except Exception as exc:
@@ -2004,7 +2006,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 "FLOW_REFERENCE_IMAGE_ATTACH_FAILED",
                 "Failed to attach reference images to Flow.",
                 field="generation_context.source_images",
-                expected="reference images uploaded through Flow file input",
+                expected="reference images uploaded and attached to Flow composer",
                 actual=str(exc)[:1000],
                 stage="PROCESSING",
             )
