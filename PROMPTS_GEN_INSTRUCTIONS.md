@@ -5,7 +5,7 @@ Source response: `PROMPTS_GEN_response.md`
 Current messenger decision:
 
 ```text
-Proceed with PATCH_12L.
+STEP 1 - PATCH_12L1 is confirmed proceed with STEP 2 - PATCH_12L2.
 ```
 
 Scope:
