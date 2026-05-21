@@ -194,3 +194,15 @@ Messenger request:
   "actual_replacement_count": 1
 }
 ```
+
+## STEP 4 - PATCH_12M4
+
+```json
+{
+  "patch_id": "PATCH_12M4",
+  "expected_match_count": 1,
+  "actual_match_count": 1,
+  "expected_replacement_count": 1,
+  "actual_replacement_count": 1
+}
+```
