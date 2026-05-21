@@ -94,3 +94,10 @@ Status: PASS
 
 Local checkpoint time:
 - `2026-05-21T04:51:17.8117892-05:00`
+
+## STEP 5 - L-Validation 2
+
+Status: PASS
+
+Local checkpoint time:
+- `2026-05-21T04:57:49.5076432-05:00`
