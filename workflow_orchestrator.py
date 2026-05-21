@@ -2040,7 +2040,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 candidate = page.locator(selector).first
                 if not candidate.count() or not candidate.is_visible():
                     continue
-                candidate.click(timeout=self.action_timeout_ms)
+                candidate.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
                 page.wait_for_timeout(500)
                 model_visible = True
                 break
@@ -2051,7 +2051,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             try:
                 model_option = page.get_by_text(FLOW_IMAGE_MODEL, exact=False).first
                 if model_option.count() and model_option.is_visible():
-                    model_option.click(timeout=self.action_timeout_ms)
+                    model_option.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
                     page.wait_for_timeout(500)
                     model_visible = True
             except Exception:
@@ -2100,47 +2100,9 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 },
             )
 
-        prompt_selectors = [
-            "textarea",
-            "[contenteditable='true']",
-            "div[role='textbox']",
-            "input[type='text']",
-            "input:not([type])",
-        ]
-        prompt_box = None
-        for selector in prompt_selectors:
-            try:
-                candidate = page.locator(selector).first
-                if candidate.count() and candidate.is_visible():
-                    prompt_box = candidate
-                    break
-            except Exception:
-                continue
-
-        if prompt_box is None:
-            fail(
-                "FLOW_PROMPT_INPUT_MISSING",
-                "Could not find Flow prompt input for image generation.",
-                field="flow_prompt_input",
-                expected="visible textarea, textbox, contenteditable, or text input",
-                actual=f"url={getattr(page, 'url', '')}",
-                stage="PROCESSING",
-            )
-
-        prompt_box.click(timeout=self.action_timeout_ms)
-        try:
-            page.keyboard.press("Control+A")
-            page.keyboard.press("Backspace")
-        except Exception:
-            pass
-
-        try:
-            prompt_box.fill(prompt, timeout=self.action_timeout_ms)
-        except Exception:
-            try:
-                page.keyboard.insert_text(prompt)
-            except Exception:
-                prompt_box.type(prompt, delay=0, timeout=self.action_timeout_ms)
+        self._dismiss_flow_transient_overlays(page)
+        prompt_box = self._find_flow_prompt_box(page)
+        self._fill_flow_prompt_box(page, prompt_box, prompt)
 
         generate_selectors = [
             "button:has-text('Generate')",
@@ -2150,26 +2112,22 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             "button:has-text('Create')",
             "button[aria-label*='Create']",
             "button[aria-label*='create']",
+            "[role='button']:has-text('Create')",
         ]
-        for selector in generate_selectors:
-            try:
-                button = page.locator(selector).first
-                if button.count() and button.is_visible() and button.is_enabled():
-                    button.click(timeout=self.action_timeout_ms)
-                    json_log(
-                        level="INFO",
-                        message="Flow image prompt submitted",
-                        stage="PROCESSING",
-                        status="IN_PROGRESS",
-                        context={
-                            "operation": "flow_prompt_submitted",
-                            "prompt_chars": len(prompt or ""),
-                            "target_model": FLOW_IMAGE_MODEL,
-                        },
-                    )
-                    return
-            except Exception:
-                continue
+
+        if self._flow_click_first(page, generate_selectors, label="flow_generate_button", force=True):
+            json_log(
+                level="INFO",
+                message="Flow image prompt submitted",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_submitted",
+                    "prompt_chars": len(prompt or ""),
+                    "target_model": FLOW_IMAGE_MODEL,
+                },
+            )
+            return
 
         try:
             page.keyboard.press("Control+Enter")
