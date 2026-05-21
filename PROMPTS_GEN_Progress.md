@@ -813,3 +813,29 @@ Next STEP:
 ```text
 STEP 2 - PATCH_12K2: add Flow composer helper methods
 ```
+
+## STEP 2 - PATCH_12K2 - Add Flow composer helper methods
+
+Status: APPLIED_COMMITTED_PUSHED
+
+Local checkpoint time:
+- `2026-05-21T03:27:55.8640677-05:00`
+
+Dry-run:
+- `insert_anchor_count expected=1 actual=1`
+- `existing_helper_count expected=0 actual=0`
+
+Files changed:
+- `workflow_orchestrator.py`
+
+Validation:
+- `py_compile`: PASS / no output
+
+Commit:
+- `975f2c0 PATCH_12K2 add flow composer helpers`
+
+Push:
+- `origin/codex_branch updated 8bd1812..975f2c0`
+
+Next STEP:
+- `STEP 3 - PATCH_12K3: replace Flow reference attachment method`
