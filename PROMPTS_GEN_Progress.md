@@ -158,5 +158,3 @@ Messenger request:
   ]
 }
 ```
-
-## Decision rule1
