@@ -108,3 +108,21 @@ Status: PASS
 
 Local checkpoint time:
 - `2026-05-21T05:04:27.9937983-05:00`
+
+## Resume STEP 7 after PATCH_12L
+
+Status: FAILED_BLOCKED
+
+Local checkpoint time:
+- `2026-05-21T05:31:24.9453471-05:00`
+
+Blocking rule:
+- NEXT STEP BLOCKED
+- No future-step edits/proceeding
+
+Failure:
+- `FLOW_IMAGE_GENERATION_TIMEOUT`
+- `{"error_code": "FLOW_IMAGE_GENERATION_TIMEOUT", "field": "flow_generated_image", "expected": "generated Flow output captured as base64 image", "actual": "", "file": "D:\\PROJECTS\\GITHUB\\az4mary\\Deterministic-Amazon-Automation-codex_branch\\workflow_orchestrator.py", "line": 2582, "snippet": "fail(", "trace_id": "fe78c8d6703134fe6184bd624f9936e8"}`
+
+Messenger request:
+- Do you need any additional files/logs for troubleshooting?
