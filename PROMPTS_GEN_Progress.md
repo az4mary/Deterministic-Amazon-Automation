@@ -27,3 +27,10 @@ Status: APPLIED
 
 Local checkpoint time:
 - `2026-05-21T03:51:27.4680398-05:00`
+
+## STEP 5 - K-Validation 1
+
+Status: PASS
+
+Local checkpoint time:
+- `2026-05-21T03:57:36.2630068-05:00`
