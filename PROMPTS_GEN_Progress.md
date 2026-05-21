@@ -212,3 +212,9 @@ Messenger request:
 ```text
 PASS / no output
 ```
+
+## STEP 6 - M-Validation 2
+
+```text
+PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_STATIC_OK
+```
