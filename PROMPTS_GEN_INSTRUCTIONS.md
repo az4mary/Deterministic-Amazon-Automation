@@ -5,7 +5,7 @@ Source response: `PROMPTS_GEN_response.md`
 Current messenger decision:
 
 ```text
-STEP 5 - K-Validation 1 is confirmed proceed with STEP 6 - K-Validation 2.
+STEP 6 - K-Validation 2 is confirmed proceed with STEP 7 - K-Validation 3.
 ```
 
 Previous cleanup decision:
