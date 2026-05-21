@@ -2589,43 +2589,57 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             "[role='button']:has-text('Create')",
         ]
 
-        if self._flow_click_first(page, generate_selectors, label="flow_generate_button", force=True):
+        clicked_generate = self._flow_click_first(page, generate_selectors, label="flow_generate_button", force=True)
+
+        if clicked_generate and self._wait_for_flow_submit_confirmation(page):
             json_log(
                 level="INFO",
                 message="Flow image prompt submitted",
                 stage="PROCESSING",
-                status="IN_PROGRESS",
+                status="COMPLETED",
                 context={
                     "operation": "flow_prompt_submitted",
                     "prompt_chars": len(prompt or ""),
                     "target_model": FLOW_IMAGE_MODEL,
+                    "submit_method": "button",
                 },
             )
             return
 
         try:
             page.keyboard.press("Control+Enter")
-            json_log(
-                level="INFO",
-                message="Flow image prompt submitted",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "operation": "flow_prompt_submitted_keyboard",
-                    "prompt_chars": len(prompt or ""),
-                    "target_model": FLOW_IMAGE_MODEL,
+            if self._wait_for_flow_submit_confirmation(page):
+                json_log(
+                    level="INFO",
+                    message="Flow image prompt submitted",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_prompt_submitted_keyboard",
+                        "prompt_chars": len(prompt or ""),
+                        "target_model": FLOW_IMAGE_MODEL,
+                        "submit_method": "keyboard",
+                    },
+                )
+                return
+        except Exception:
+            pass
+
+        fail(
+            "FLOW_PROMPT_SUBMIT_NOT_CONFIRMED",
+            "Flow prompt text was filled but generation start was not confirmed.",
+            field="flow_generate_button",
+            expected="Flow generation indicator after button click or Control+Enter",
+            actual=json.dumps(
+                {
+                    "clicked_generate": clicked_generate,
+                    "summary": self._flow_prompt_surface_summary(page),
+                    "reference_attach_summary": self._flow_reference_attach_summary(page),
                 },
-            )
-            return
-        except Exception as exc:
-            fail(
-                "FLOW_PROMPT_SUBMIT_FAILED",
-                "Could not submit Flow prompt with visible generate/create button or keyboard shortcut.",
-                field="flow_generate_button",
-                expected="enabled Flow generate/create control",
-                actual=str(exc)[:1000],
-                stage="PROCESSING",
-            )
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
 
     def _capture_flow_generated_image_base64(self, page) -> str:
         json_log(
