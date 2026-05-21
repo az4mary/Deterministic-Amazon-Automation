@@ -224,3 +224,47 @@ PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_STATIC_OK
 ```text
 PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK
 ```
+
+## Resume STEP 7 after PATCH_12M
+
+Status: FAILED_BLOCKED
+
+Blocking rule:
+- NEXT STEP BLOCKED
+- No future-step edits/proceeding
+
+Failure:
+- `FLOW_IMAGE_GENERATION_TIMEOUT`
+- {"error_code": "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER", "field": "flow_reference_composer", "expected": "uploaded gallery image selected and attached into prompt composer", "actual": "{\"operation\": \"flow_reference_gallery_attach_failed\", \"source_image_count\": 2, \"selected_gallery_asset_count\": 0, \"clicked_attach_control\": true, \"before_composer_reference_count\": 0, \"after_composer_reference_count\": 0, \"summary\": {\"url\": \"https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28\", \"visible_media_count\": 57, \"composer_reference_count\": 0, \"surface_summary\": {\"url\": \"https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28\", \"textarea_count\": 1, \"textbox_count\": 1, \"contenteditable_count\": 1, \"input_text_count\": 2, \"visible_button_texts\": [\"arrow_back\\nGo Back\", \"more_vert\\nMore options\", \"search\\nSearch\", \"filter_list\\nSort & Filter\", \"add\\nAdd Media\", \"help\\nProduct Help\", \"settings_2\\nView Settings\", \"more_vert\\nMore\", \"PRO\", \"dashboard\\nAll Media\", \"image\\nView images\", \"videocam\\nView videos\", \"accessibility_new\\nCharacters\", \"movie\\nView scenes\", \"drive_folder_upload\\nView uploaded media\", \"apps_spark_2\\nTools\", \"delete\\nView Trash\", \"left_panel_close\\nCollapse\"]}}}", "file": "D:\\PROJECTS\\GITHUB\\az4mary\\Deterministic-Amazon-Automation-codex_branch\\workflow_orchestrator.py", "line": 2065, "snippet": "fail(", "trace_id": "fe78c8d6703134fe6184bd624f9936e8"}
+
+## Expected checks
+
+```json
+{
+  "expected": [
+    "resume starts at step 12",✅
+    "Image generation adapter handoff started",✅
+    "Flow adapter reused shared browser session",✅ opened in new Tab
+    "Flow page ready",✅
+    "Flow reference images uploaded",✅uploaded to image gallery
+    "Flow reference images attached to composer",❌attached button clicked, image gallery opened but image not selected or attached to composer.
+    "Flow model selected",❌
+    "Flow prompt box filled",❌prompt available in composer
+    "Flow image prompt submitted",❌
+    "Flow generated image captured",❌
+    "output/generated_images/image_12.png exists",❌
+    "generated_image_1.generation_backend=flow_browser",❌
+    "generated_image_1.generation_model=Nano Banana 2",❌
+    "last_completed_step=12",❌
+    "OUTPUT/SUCCESS"FAILED
+  ],
+  "forbidden": [
+    "Playwright Sync API inside the asyncio loop",
+    "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
+    "OpenAI image generation",
+    "ChatGPT browser image generation",
+    "Locator.click: Timeout 120000ms exceeded",
+    "prompt_box.click(timeout=self.action_timeout_ms)"
+  ]
+}
+```
