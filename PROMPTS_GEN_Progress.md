@@ -80,3 +80,10 @@ Status: APPLIED
 
 Local checkpoint time:
 - `2026-05-21T04:38:48.5988969-05:00`
+
+## STEP 3 - PATCH_12L3
+
+Status: APPLIED
+
+Local checkpoint time:
+- `2026-05-21T04:45:02.9316067-05:00`
