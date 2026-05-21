@@ -1851,6 +1851,112 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 },
             )
 
+    def _flow_prompt_surface_summary(self, page) -> Dict[str, Any]:
+        summary: Dict[str, Any] = {
+            "url": getattr(page, "url", ""),
+            "textarea_count": 0,
+            "textbox_count": 0,
+            "contenteditable_count": 0,
+            "input_text_count": 0,
+            "visible_button_texts": [],
+        }
+
+        try:
+            summary["textarea_count"] = page.locator("textarea").count()
+        except Exception:
+            pass
+
+        try:
+            summary["textbox_count"] = page.locator("[role='textbox']").count()
+        except Exception:
+            pass
+
+        try:
+            summary["contenteditable_count"] = page.locator("[contenteditable='true']").count()
+        except Exception:
+            pass
+
+        try:
+            summary["input_text_count"] = page.locator("input[type='text'], input:not([type])").count()
+        except Exception:
+            pass
+
+        try:
+            buttons = page.locator("button, [role='button']")
+            count = min(buttons.count(), 30)
+            texts: List[str] = []
+            for idx in range(count):
+                try:
+                    button = buttons.nth(idx)
+                    if button.is_visible():
+                        text = (button.inner_text(timeout=500) or "").strip()
+                        aria = button.get_attribute("aria-label") or ""
+                        label = text or aria
+                        if label:
+                            texts.append(label[:80])
+                except Exception:
+                    continue
+            summary["visible_button_texts"] = texts[:20]
+        except Exception:
+            pass
+
+        return summary
+
+    def _activate_flow_prompt_surface(self, page) -> None:
+        self._dismiss_flow_transient_overlays(page)
+
+        activation_selectors = [
+            "button:has-text('Text to image')",
+            "[role='button']:has-text('Text to image')",
+            "button:has-text('Create image')",
+            "[role='button']:has-text('Create image')",
+            "button:has-text('New image')",
+            "[role='button']:has-text('New image')",
+            "button:has-text('Start creating')",
+            "[role='button']:has-text('Start creating')",
+            "button:has-text('Image')",
+            "[role='button']:has-text('Image')",
+            "button:has-text('Prompt')",
+            "[role='button']:has-text('Prompt')",
+            "button[aria-label*='Prompt']",
+            "[role='button'][aria-label*='Prompt']",
+            "button[aria-label*='Create']",
+            "[role='button'][aria-label*='Create']",
+            "button[aria-label*='New']",
+            "[role='button'][aria-label*='New']",
+        ]
+
+        clicked = self._flow_click_first(
+            page,
+            activation_selectors,
+            label="flow_prompt_surface_activation",
+            force=True,
+        )
+
+        if clicked:
+            page.wait_for_timeout(1500)
+            json_log(
+                level="INFO",
+                message="Flow prompt surface activation attempted",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_surface_activation_attempted",
+                    "summary": self._flow_prompt_surface_summary(page),
+                },
+            )
+        else:
+            json_log(
+                level="DEBUG",
+                message="Flow prompt surface activation controls not found",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_surface_activation_not_found",
+                    "summary": self._flow_prompt_surface_summary(page),
+                },
+            )
+
     def _find_flow_prompt_box(self, page):
         prompt_selectors = [
             "textarea[placeholder*='prompt' i]",
