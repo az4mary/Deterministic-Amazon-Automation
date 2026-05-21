@@ -1958,36 +1958,114 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             )
 
     def _find_flow_prompt_box(self, page):
+        self._activate_flow_prompt_surface(page)
+
         prompt_selectors = [
             "textarea[placeholder*='prompt' i]",
             "textarea[aria-label*='prompt' i]",
+            "textarea[placeholder*='describe' i]",
+            "textarea[aria-label*='describe' i]",
             "[contenteditable='true'][aria-label*='prompt' i]",
+            "[contenteditable='true'][aria-label*='describe' i]",
             "div[role='textbox'][aria-label*='prompt' i]",
+            "div[role='textbox'][aria-label*='describe' i]",
+            "[data-lexical-editor='true']",
+            ".ProseMirror",
             "[contenteditable='true']",
             "div[role='textbox']",
             "textarea",
+            "input[type='text']",
+            "input:not([type])",
         ]
 
-        deadline = time.time() + FLOW_PROMPT_READY_TIMEOUT_SECONDS
-        last_error = ""
+        def candidate_is_usable(candidate) -> bool:
+            try:
+                if not candidate.is_visible():
+                    return False
+            except Exception:
+                return False
 
-        while time.time() < deadline:
+            try:
+                box = candidate.bounding_box() or {}
+                width = float(box.get("width", 0) or 0)
+                height = float(box.get("height", 0) or 0)
+                if width < 120 or height < 20:
+                    return False
+            except Exception:
+                return False
+
+            try:
+                disabled = candidate.get_attribute("disabled")
+                readonly = candidate.get_attribute("readonly")
+                aria_disabled = candidate.get_attribute("aria-disabled")
+                input_type = (candidate.get_attribute("type") or "").lower()
+                if disabled is not None or readonly is not None or aria_disabled == "true" or input_type == "file":
+                    return False
+            except Exception:
+                pass
+
+            return True
+
+        def scan_scope(scope, scope_label: str):
             for selector in prompt_selectors:
                 try:
-                    collection = page.locator(selector)
-                    count = min(collection.count(), 10)
+                    collection = scope.locator(selector)
+                    count = min(collection.count(), 15)
                     for idx in range(count):
                         candidate = collection.nth(idx)
-                        if not candidate.is_visible():
-                            continue
-                        box = candidate.bounding_box() or {}
-                        width = float(box.get("width", 0) or 0)
-                        height = float(box.get("height", 0) or 0)
-                        if width < 120 or height < 24:
-                            continue
-                        return candidate
-                except Exception as exc:
-                    last_error = str(exc)[:300]
+                        if candidate_is_usable(candidate):
+                            json_log(
+                                level="INFO",
+                                message="Flow prompt box discovered",
+                                stage="PROCESSING",
+                                status="COMPLETED",
+                                context={
+                                    "operation": "flow_prompt_box_discovered",
+                                    "selector": selector,
+                                    "scope": scope_label,
+                                    "index": idx,
+                                },
+                            )
+                            return candidate
+                except Exception:
+                    continue
+            return None
+
+        deadline = time.time() + FLOW_PROMPT_READY_TIMEOUT_SECONDS
+        last_summary: Dict[str, Any] = {}
+        last_activation = 0.0
+
+        while time.time() < deadline:
+            found = scan_scope(page, "page")
+            if found is not None:
+                return found
+
+            try:
+                for frame in page.frames:
+                    if frame == page.main_frame:
+                        continue
+                    found = scan_scope(frame, f"frame:{getattr(frame, 'url', '')[:120]}")
+                    if found is not None:
+                        return found
+            except Exception:
+                pass
+
+            now = time.time()
+            if now - last_activation >= 5.0:
+                last_activation = now
+                self._activate_flow_prompt_surface(page)
+                last_summary = self._flow_prompt_surface_summary(page)
+                json_log(
+                    level="DEBUG",
+                    message="Flow prompt composer discovery continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_prompt_box_discovery_continue",
+                        "summary": last_summary,
+                    },
+                )
+
             page.wait_for_timeout(500)
 
         fail(
@@ -1995,7 +2073,13 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             "Could not find Flow prompt input for image generation.",
             field="flow_prompt_input",
             expected="visible Flow prompt textarea/textbox/contenteditable composer",
-            actual=f"url={getattr(page, 'url', '')}; last_error={last_error}",
+            actual=json.dumps(
+                {
+                    "url": getattr(page, "url", ""),
+                    "summary": last_summary or self._flow_prompt_surface_summary(page),
+                },
+                ensure_ascii=False,
+            ),
             stage="PROCESSING",
         )
 
