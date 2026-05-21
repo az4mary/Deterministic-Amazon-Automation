@@ -5,7 +5,7 @@ Source response: `PROMPTS_GEN_response.md`
 Current messenger decision:
 
 ```text
-STEP 4 - L-Validation 1 is confirmed proceed with STEP 5 - L-Validation 2.
+STEP 5 - L-Validation 2 is confirmed proceed with STEP 6 - L-Validation 3.
 ```
 
 Scope:
