@@ -1746,6 +1746,265 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             except Exception:
                 pass
 
+    def _flow_visible_media_count(self, page, *, scope_label: str = "page") -> int:
+        selectors = [
+            "img",
+            "canvas",
+            "[role='img']",
+            "[data-testid*='image']",
+            "[data-testid*='asset']",
+            "[data-testid*='media']",
+            "[data-testid*='thumbnail']",
+        ]
+        seen = 0
+        for selector in selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), 80)
+                for idx in range(count):
+                    item = collection.nth(idx)
+                    if not item.is_visible():
+                        continue
+                    box = item.bounding_box() or {}
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    if width >= 40 and height >= 40:
+                        seen += 1
+            except Exception:
+                continue
+        return seen
+
+    def _flow_composer_reference_count(self, page) -> int:
+        composer_scopes = [
+            "form",
+            "[role='form']",
+            "[data-testid*='composer']",
+            "[data-testid*='prompt']",
+            "[class*='composer']",
+            "[class*='prompt']",
+            "main",
+        ]
+
+        media_selectors = [
+            "img",
+            "canvas",
+            "[role='img']",
+            "[data-testid*='attachment']",
+            "[data-testid*='chip']",
+            "[data-testid*='asset']",
+            "[data-testid*='media']",
+            "[aria-label*='Remove']",
+        ]
+
+        max_seen = 0
+        for scope_selector in composer_scopes:
+            try:
+                scopes = page.locator(scope_selector)
+                scope_count = min(scopes.count(), 10)
+                for sidx in range(scope_count):
+                    scope = scopes.nth(sidx)
+                    if not scope.is_visible():
+                        continue
+                    seen = 0
+                    for media_selector in media_selectors:
+                        try:
+                            media = scope.locator(media_selector)
+                            count = min(media.count(), 30)
+                            for midx in range(count):
+                                item = media.nth(midx)
+                                if item.is_visible():
+                                    box = item.bounding_box() or {}
+                                    width = float(box.get("width", 0) or 0)
+                                    height = float(box.get("height", 0) or 0)
+                                    if width >= 16 and height >= 16:
+                                        seen += 1
+                        except Exception:
+                            continue
+                    max_seen = max(max_seen, seen)
+            except Exception:
+                continue
+
+        return max_seen
+
+    def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
+        return {
+            "url": getattr(page, "url", ""),
+            "visible_media_count": self._flow_visible_media_count(page),
+            "composer_reference_count": self._flow_composer_reference_count(page),
+            "surface_summary": self._flow_prompt_surface_summary(page),
+        }
+
+    def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
+        gallery_selectors = [
+            "[role='dialog'] img",
+            "[role='dialog'] canvas",
+            "[role='dialog'] [role='img']",
+            "[data-testid*='gallery'] img",
+            "[data-testid*='gallery'] canvas",
+            "[data-testid*='asset'] img",
+            "[data-testid*='media'] img",
+            "[data-testid*='thumbnail'] img",
+            "main img",
+            "main canvas",
+        ]
+
+        selected = 0
+        for selector in gallery_selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), max(expected_count + 5, 8))
+                for idx in range(count):
+                    if selected >= expected_count:
+                        return selected
+                    item = collection.nth(idx)
+                    if not item.is_visible():
+                        continue
+                    box = item.bounding_box() or {}
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    if width < 48 or height < 48:
+                        continue
+                    item.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    selected += 1
+                    page.wait_for_timeout(500)
+            except Exception:
+                continue
+        return selected
+
+    def _flow_click_attach_selected_to_composer(self, page) -> bool:
+        attach_selectors = [
+            "button:has-text('Add to prompt')",
+            "[role='button']:has-text('Add to prompt')",
+            "button:has-text('Add selected')",
+            "[role='button']:has-text('Add selected')",
+            "button:has-text('Use selected')",
+            "[role='button']:has-text('Use selected')",
+            "button:has-text('Insert selected')",
+            "[role='button']:has-text('Insert selected')",
+            "button:has-text('Attach selected')",
+            "[role='button']:has-text('Attach selected')",
+            "button:has-text('Add image')",
+            "[role='button']:has-text('Add image')",
+            "button:has-text('Use image')",
+            "[role='button']:has-text('Use image')",
+            "button:has-text('Insert')",
+            "[role='button']:has-text('Insert')",
+            "button:has-text('Attach')",
+            "[role='button']:has-text('Attach')",
+            "button:has-text('Done')",
+            "[role='button']:has-text('Done')",
+            "button:has-text('Add')",
+            "[role='button']:has-text('Add')",
+            "button[aria-label*='Add']",
+            "button[aria-label*='Use']",
+            "button[aria-label*='Insert']",
+            "button[aria-label*='Attach']",
+            "button[aria-label*='Done']",
+        ]
+        return self._flow_click_first(page, attach_selectors, label="gallery_attach_selected_to_composer", force=True)
+
+    def _wait_for_flow_references_in_composer(self, page, expected_count: int) -> bool:
+        deadline = time.time() + FLOW_GALLERY_ATTACH_TIMEOUT_SECONDS
+        last_log = 0.0
+
+        while time.time() < deadline:
+            count = self._flow_composer_reference_count(page)
+            if count >= max(1, min(expected_count, 2)):
+                json_log(
+                    level="INFO",
+                    message="Flow reference composer attachment confirmed",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_reference_composer_attach_confirmed",
+                        "composer_reference_count": count,
+                        "expected_source_image_count": expected_count,
+                    },
+                )
+                return True
+
+            now = time.time()
+            if now - last_log >= 5.0:
+                last_log = now
+                json_log(
+                    level="DEBUG",
+                    message="Flow reference composer attachment wait continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_reference_composer_attach_wait_continue",
+                        "summary": self._flow_reference_attach_summary(page),
+                    },
+                )
+
+            page.wait_for_timeout(1000)
+
+        return False
+
+    def _flow_submit_started(self, page) -> bool:
+        indicators = [
+            "text=/generating/i",
+            "text=/creating/i",
+            "text=/queued/i",
+            "text=/rendering/i",
+            "text=/processing/i",
+            "[aria-label*='Cancel']",
+            "[aria-label*='Stop']",
+            "button:has-text('Cancel')",
+            "button:has-text('Stop')",
+            "[role='progressbar']",
+            "[data-testid*='progress']",
+            "[data-testid*='generating']",
+            "[class*='spinner']",
+            "[class*='loading']",
+        ]
+
+        for selector in indicators:
+            try:
+                loc = page.locator(selector).first
+                if loc.count() and loc.is_visible():
+                    return True
+            except Exception:
+                continue
+
+        return False
+
+    def _wait_for_flow_submit_confirmation(self, page) -> bool:
+        deadline = time.time() + FLOW_SUBMIT_CONFIRM_TIMEOUT_SECONDS
+        last_log = 0.0
+
+        while time.time() < deadline:
+            if self._flow_submit_started(page):
+                json_log(
+                    level="INFO",
+                    message="Flow prompt submission confirmed",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_prompt_submission_confirmed",
+                        "summary": self._flow_prompt_surface_summary(page),
+                    },
+                )
+                return True
+
+            now = time.time()
+            if now - last_log >= 5.0:
+                last_log = now
+                json_log(
+                    level="DEBUG",
+                    message="Flow prompt submission confirmation wait continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_prompt_submit_confirm_wait_continue",
+                        "summary": self._flow_prompt_surface_summary(page),
+                    },
+                )
+
+            page.wait_for_timeout(1000)
+
+        return False
+
     def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
         if not source_images:
             return
