@@ -5,7 +5,7 @@ Source response: `PROMPTS_GEN_response.md`
 Current messenger decision:
 
 ```text
-STEP 1 - PATCH_12K1 is confirmed proceed with STEP 2 - PATCH_12K2.
+STEP 2 - PATCH_12K2 is confirmed proceed with STEP 3 - PATCH_12K3.
 ```
 
 Previous cleanup decision:
