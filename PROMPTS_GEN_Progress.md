@@ -161,7 +161,24 @@ Messenger request:
 
 ## STEP 1 - PATCH_12M1
 
-Status: CONFIRMED
+```json
+{
+  "patch_id": "PATCH_12M1",
+  "expected_match_count": 1,
+  "actual_match_count": 1,
+  "expected_replacement_count": 1,
+  "actual_replacement_count": 1
+}
+```
 
-Local checkpoint time:
-- `2026-05-21T15:05:17.9955951-05:00`
+## STEP 2 - PATCH_12M2
+
+```json
+{
+  "patch_id": "PATCH_12M2",
+  "expected_insert_anchor_count": 1,
+  "actual_insert_anchor_count": 1,
+  "expected_existing_helper_count": 0,
+  "actual_existing_helper_count": 0
+}
+```
