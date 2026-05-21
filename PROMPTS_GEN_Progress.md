@@ -769,3 +769,47 @@ Expected:
   ]
 }
 ```
+
+## STEP 1 - PATCH_12K1 - Add Flow composer controls
+
+Status: APPLIED_COMMITTED_PUSHED
+
+Local checkpoint time:
+- `2026-05-21T03:17:48.5276637-05:00`
+
+Dry-run:
+
+```text
+PATCH_12K1 dry-run expected=1 actual=1
+```
+
+Files changed:
+
+```text
+workflow_orchestrator.py
+```
+
+Validation:
+
+```text
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+PASS / no output
+```
+
+Commit:
+
+```text
+1a1a249 PATCH_12K1 add flow composer controls
+```
+
+Push:
+
+```text
+origin/codex_branch updated e89f921..1a1a249
+```
+
+Next STEP:
+
+```text
+STEP 2 - PATCH_12K2: add Flow composer helper methods
+```
