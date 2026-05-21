@@ -182,3 +182,15 @@ Messenger request:
   "actual_existing_helper_count": 0
 }
 ```
+
+## STEP 3 - PATCH_12M3
+
+```json
+{
+  "patch_id": "PATCH_12M3",
+  "expected_method_count": 1,
+  "actual_method_count": 1,
+  "expected_replacement_count": 1,
+  "actual_replacement_count": 1
+}
+```
