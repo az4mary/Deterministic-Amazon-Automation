@@ -727,3 +727,1162 @@ D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-g
   "if_STEP_7_fails_after_prompt_submission": "patch only Flow generated-image capture logic"
 }
 ```
+
+# PATCH_12L — Flow prompt composer discovery/activation
+
+* Proceed with **PATCH_12L**.
+* Scope: **Flow prompt-composer discovery/activation only**.
+* Do **not** change reference upload, image capture, metadata persistence, prompt docs, cooldowns, or step numbering.
+
+Current blocker: `FLOW_PROMPT_INPUT_MISSING`; Flow project URL is reachable, but `_find_flow_prompt_box(...)` cannot discover a visible Flow prompt composer. 
+
+---
+
+## STEP 1 — PATCH_12L1: add Flow prompt surface activation helper
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12L1",
+  "expected_insert_anchor_count": 1,
+  "expected_existing_helper_count": 0,
+  "halt_if_insert_anchor_count_is_not": 1
+}
+```
+
+### Insert immediately before
+
+```python
+    def _find_flow_prompt_box(self, page):
+```
+
+### Add
+
+```python
+    def _flow_prompt_surface_summary(self, page) -> Dict[str, Any]:
+        summary: Dict[str, Any] = {
+            "url": getattr(page, "url", ""),
+            "textarea_count": 0,
+            "textbox_count": 0,
+            "contenteditable_count": 0,
+            "input_text_count": 0,
+            "visible_button_texts": [],
+        }
+
+        try:
+            summary["textarea_count"] = page.locator("textarea").count()
+        except Exception:
+            pass
+
+        try:
+            summary["textbox_count"] = page.locator("[role='textbox']").count()
+        except Exception:
+            pass
+
+        try:
+            summary["contenteditable_count"] = page.locator("[contenteditable='true']").count()
+        except Exception:
+            pass
+
+        try:
+            summary["input_text_count"] = page.locator("input[type='text'], input:not([type])").count()
+        except Exception:
+            pass
+
+        try:
+            buttons = page.locator("button, [role='button']")
+            count = min(buttons.count(), 30)
+            texts: List[str] = []
+            for idx in range(count):
+                try:
+                    button = buttons.nth(idx)
+                    if button.is_visible():
+                        text = (button.inner_text(timeout=500) or "").strip()
+                        aria = button.get_attribute("aria-label") or ""
+                        label = text or aria
+                        if label:
+                            texts.append(label[:80])
+                except Exception:
+                    continue
+            summary["visible_button_texts"] = texts[:20]
+        except Exception:
+            pass
+
+        return summary
+
+    def _activate_flow_prompt_surface(self, page) -> None:
+        self._dismiss_flow_transient_overlays(page)
+
+        activation_selectors = [
+            "button:has-text('Text to image')",
+            "[role='button']:has-text('Text to image')",
+            "button:has-text('Create image')",
+            "[role='button']:has-text('Create image')",
+            "button:has-text('New image')",
+            "[role='button']:has-text('New image')",
+            "button:has-text('Start creating')",
+            "[role='button']:has-text('Start creating')",
+            "button:has-text('Image')",
+            "[role='button']:has-text('Image')",
+            "button:has-text('Prompt')",
+            "[role='button']:has-text('Prompt')",
+            "button[aria-label*='Prompt']",
+            "[role='button'][aria-label*='Prompt']",
+            "button[aria-label*='Create']",
+            "[role='button'][aria-label*='Create']",
+            "button[aria-label*='New']",
+            "[role='button'][aria-label*='New']",
+        ]
+
+        clicked = self._flow_click_first(
+            page,
+            activation_selectors,
+            label="flow_prompt_surface_activation",
+            force=True,
+        )
+
+        if clicked:
+            page.wait_for_timeout(1500)
+            json_log(
+                level="INFO",
+                message="Flow prompt surface activation attempted",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_surface_activation_attempted",
+                    "summary": self._flow_prompt_surface_summary(page),
+                },
+            )
+        else:
+            json_log(
+                level="DEBUG",
+                message="Flow prompt surface activation controls not found",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_surface_activation_not_found",
+                    "summary": self._flow_prompt_surface_summary(page),
+                },
+            )
+```
+
+---
+
+## STEP 2 — PATCH_12L2: replace `_find_flow_prompt_box(...)`
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12L2",
+  "expected_method_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_method_count_is_not": 1
+}
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _find_flow_prompt_box(self, page):
+```
+
+Through the line immediately before:
+
+```python
+    def _fill_flow_prompt_box(self, page, prompt_box, prompt: str) -> None:
+```
+
+### Replacement
+
+```python
+    def _find_flow_prompt_box(self, page):
+        self._activate_flow_prompt_surface(page)
+
+        prompt_selectors = [
+            "textarea[placeholder*='prompt' i]",
+            "textarea[aria-label*='prompt' i]",
+            "textarea[placeholder*='describe' i]",
+            "textarea[aria-label*='describe' i]",
+            "[contenteditable='true'][aria-label*='prompt' i]",
+            "[contenteditable='true'][aria-label*='describe' i]",
+            "div[role='textbox'][aria-label*='prompt' i]",
+            "div[role='textbox'][aria-label*='describe' i]",
+            "[data-lexical-editor='true']",
+            ".ProseMirror",
+            "[contenteditable='true']",
+            "div[role='textbox']",
+            "textarea",
+            "input[type='text']",
+            "input:not([type])",
+        ]
+
+        def candidate_is_usable(candidate) -> bool:
+            try:
+                if not candidate.is_visible():
+                    return False
+            except Exception:
+                return False
+
+            try:
+                box = candidate.bounding_box() or {}
+                width = float(box.get("width", 0) or 0)
+                height = float(box.get("height", 0) or 0)
+                if width < 120 or height < 20:
+                    return False
+            except Exception:
+                return False
+
+            try:
+                disabled = candidate.get_attribute("disabled")
+                readonly = candidate.get_attribute("readonly")
+                aria_disabled = candidate.get_attribute("aria-disabled")
+                input_type = (candidate.get_attribute("type") or "").lower()
+                if disabled is not None or readonly is not None or aria_disabled == "true" or input_type == "file":
+                    return False
+            except Exception:
+                pass
+
+            return True
+
+        def scan_scope(scope, scope_label: str):
+            for selector in prompt_selectors:
+                try:
+                    collection = scope.locator(selector)
+                    count = min(collection.count(), 15)
+                    for idx in range(count):
+                        candidate = collection.nth(idx)
+                        if candidate_is_usable(candidate):
+                            json_log(
+                                level="INFO",
+                                message="Flow prompt box discovered",
+                                stage="PROCESSING",
+                                status="COMPLETED",
+                                context={
+                                    "operation": "flow_prompt_box_discovered",
+                                    "selector": selector,
+                                    "scope": scope_label,
+                                    "index": idx,
+                                },
+                            )
+                            return candidate
+                except Exception:
+                    continue
+            return None
+
+        deadline = time.time() + FLOW_PROMPT_READY_TIMEOUT_SECONDS
+        last_summary: Dict[str, Any] = {}
+        last_activation = 0.0
+
+        while time.time() < deadline:
+            found = scan_scope(page, "page")
+            if found is not None:
+                return found
+
+            try:
+                for frame in page.frames:
+                    if frame == page.main_frame:
+                        continue
+                    found = scan_scope(frame, f"frame:{getattr(frame, 'url', '')[:120]}")
+                    if found is not None:
+                        return found
+            except Exception:
+                pass
+
+            now = time.time()
+            if now - last_activation >= 5.0:
+                last_activation = now
+                self._activate_flow_prompt_surface(page)
+                last_summary = self._flow_prompt_surface_summary(page)
+                json_log(
+                    level="DEBUG",
+                    message="Flow prompt composer discovery continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_prompt_box_discovery_continue",
+                        "summary": last_summary,
+                    },
+                )
+
+            page.wait_for_timeout(500)
+
+        fail(
+            "FLOW_PROMPT_INPUT_MISSING",
+            "Could not find Flow prompt input for image generation.",
+            field="flow_prompt_input",
+            expected="visible Flow prompt textarea/textbox/contenteditable composer",
+            actual=json.dumps(
+                {
+                    "url": getattr(page, "url", ""),
+                    "summary": last_summary or self._flow_prompt_surface_summary(page),
+                },
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
+```
+
+---
+
+## STEP 3 — PATCH_12L3: replace `_fill_flow_prompt_box(...)`
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12L3",
+  "expected_method_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_method_count_is_not": 1
+}
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _fill_flow_prompt_box(self, page, prompt_box, prompt: str) -> None:
+```
+
+Through the line immediately before:
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+```
+
+### Replacement
+
+```python
+    def _fill_flow_prompt_box(self, page, prompt_box, prompt: str) -> None:
+        try:
+            prompt_box.scroll_into_view_if_needed(timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+        except Exception:
+            pass
+
+        try:
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+        except Exception:
+            try:
+                prompt_box.evaluate("(el) => el.focus()")
+            except Exception:
+                pass
+
+        try:
+            page.keyboard.press("Control+A")
+            page.keyboard.press("Backspace")
+        except Exception:
+            pass
+
+        filled = False
+
+        try:
+            prompt_box.fill(prompt, timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+            filled = True
+        except Exception:
+            pass
+
+        if not filled:
+            try:
+                prompt_box.evaluate(
+                    """
+                    (el, value) => {
+                      el.focus();
+                      if ("value" in el) {
+                        el.value = value;
+                      } else {
+                        el.textContent = value;
+                      }
+                      el.dispatchEvent(new InputEvent("input", {
+                        bubbles: true,
+                        cancelable: true,
+                        inputType: "insertText",
+                        data: value
+                      }));
+                      el.dispatchEvent(new Event("change", { bubbles: true }));
+                    }
+                    """,
+                    prompt,
+                )
+                filled = True
+            except Exception:
+                pass
+
+        if not filled:
+            try:
+                page.keyboard.insert_text(prompt)
+                filled = True
+            except Exception:
+                prompt_box.type(prompt, delay=0, timeout=self.action_timeout_ms)
+                filled = True
+
+        try:
+            value_len = prompt_box.evaluate(
+                """
+                (el) => {
+                  if ("value" in el) return String(el.value || "").length;
+                  return String(el.innerText || el.textContent || "").length;
+                }
+                """
+            )
+        except Exception:
+            value_len = -1
+
+        if value_len == 0:
+            fail(
+                "FLOW_PROMPT_INPUT_NOT_FILLED",
+                "Flow prompt input was discovered but did not retain prompt text.",
+                field="flow_prompt_input",
+                expected="prompt text inserted into Flow composer",
+                actual=f"value_len={value_len}; prompt_chars={len(prompt or '')}",
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="INFO",
+            message="Flow prompt box filled",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_prompt_box_filled",
+                "prompt_chars": len(prompt or ""),
+                "detected_value_chars": value_len,
+            },
+        )
+```
+
+---
+
+# PATCH_12L validation
+
+## STEP 4 — L-Validation 1: compile
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+## STEP 5 — L-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "def _flow_prompt_surface_summary",
+    "def _activate_flow_prompt_surface",
+    "Flow prompt surface activation attempted",
+    "Flow prompt box discovered",
+    "flow_prompt_box_discovery_continue",
+    "FLOW_PROMPT_INPUT_NOT_FILLED",
+    "Flow prompt box filled",
+    "detected_value_chars",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+for forbidden in [
+    "prompt_box.click(timeout=self.action_timeout_ms)",
+]:
+    assert forbidden not in text, forbidden
+
+print("PATCH_12L_FLOW_PROMPT_DISCOVERY_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12L_FLOW_PROMPT_DISCOVERY_STATIC_OK
+```
+
+---
+
+## STEP 6 — L-Validation 3: no-browser method sanity
+
+```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
+@'
+import workflow_orchestrator as w
+
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+assert hasattr(adapter, "_flow_prompt_surface_summary")
+assert hasattr(adapter, "_activate_flow_prompt_surface")
+assert hasattr(adapter, "_find_flow_prompt_box")
+assert hasattr(adapter, "_fill_flow_prompt_box")
+
+print("PATCH_12L_FLOW_PROMPT_DISCOVERY_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12L_FLOW_PROMPT_DISCOVERY_METHODS_OK
+```
+
+---
+
+# PATCH_12M — Flow gallery attach + submit confirmation
+
+* Proceed with **PATCH_12M**.
+* Scope: **Flow gallery reference selection + attach-to-composer + submit confirmation only**.
+* Do **not** patch image capture yet.
+
+Reason: the Expected checklist says the run reached Flow, uploaded references to the gallery, selected Nano Banana 2, and filled the prompt box, but **did not attach the gallery image into the composer** and **did not actually submit the prompt**. The terminal timeout is downstream noise, not the first blocker. 
+
+---
+
+## STEP 1 — PATCH_12M1: add Flow submit/attach verification controls
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12M1",
+  "expected_match_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_match_count_is_not": 1
+}
+```
+
+### FIND
+
+```python
+FLOW_PROMPT_READY_TIMEOUT_SECONDS = float(os.getenv("FLOW_PROMPT_READY_TIMEOUT_SECONDS", "90"))
+```
+
+### REPLACE WITH
+
+```python
+FLOW_PROMPT_READY_TIMEOUT_SECONDS = float(os.getenv("FLOW_PROMPT_READY_TIMEOUT_SECONDS", "90"))
+FLOW_GALLERY_ATTACH_TIMEOUT_SECONDS = float(os.getenv("FLOW_GALLERY_ATTACH_TIMEOUT_SECONDS", "120"))
+FLOW_SUBMIT_CONFIRM_TIMEOUT_SECONDS = float(os.getenv("FLOW_SUBMIT_CONFIRM_TIMEOUT_SECONDS", "45"))
+FLOW_REFERENCE_ATTACH_STRICT = os.getenv("FLOW_REFERENCE_ATTACH_STRICT", "1") == "1"
+```
+
+---
+
+## STEP 2 — PATCH_12M2: add gallery/composer verification helpers
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12M2",
+  "expected_insert_anchor_count": 1,
+  "expected_existing_helper_count": 0,
+  "halt_if_insert_anchor_count_is_not": 1
+}
+```
+
+### Insert immediately before
+
+```python
+    def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
+```
+
+### ADD
+
+```python
+    def _flow_visible_media_count(self, page, *, scope_label: str = "page") -> int:
+        selectors = [
+            "img",
+            "canvas",
+            "[role='img']",
+            "[data-testid*='image']",
+            "[data-testid*='asset']",
+            "[data-testid*='media']",
+            "[data-testid*='thumbnail']",
+        ]
+        seen = 0
+        for selector in selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), 80)
+                for idx in range(count):
+                    item = collection.nth(idx)
+                    if not item.is_visible():
+                        continue
+                    box = item.bounding_box() or {}
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    if width >= 40 and height >= 40:
+                        seen += 1
+            except Exception:
+                continue
+        return seen
+
+    def _flow_composer_reference_count(self, page) -> int:
+        composer_scopes = [
+            "form",
+            "[role='form']",
+            "[data-testid*='composer']",
+            "[data-testid*='prompt']",
+            "[class*='composer']",
+            "[class*='prompt']",
+            "main",
+        ]
+
+        media_selectors = [
+            "img",
+            "canvas",
+            "[role='img']",
+            "[data-testid*='attachment']",
+            "[data-testid*='chip']",
+            "[data-testid*='asset']",
+            "[data-testid*='media']",
+            "[aria-label*='Remove']",
+        ]
+
+        max_seen = 0
+        for scope_selector in composer_scopes:
+            try:
+                scopes = page.locator(scope_selector)
+                scope_count = min(scopes.count(), 10)
+                for sidx in range(scope_count):
+                    scope = scopes.nth(sidx)
+                    if not scope.is_visible():
+                        continue
+                    seen = 0
+                    for media_selector in media_selectors:
+                        try:
+                            media = scope.locator(media_selector)
+                            count = min(media.count(), 30)
+                            for midx in range(count):
+                                item = media.nth(midx)
+                                if item.is_visible():
+                                    box = item.bounding_box() or {}
+                                    width = float(box.get("width", 0) or 0)
+                                    height = float(box.get("height", 0) or 0)
+                                    if width >= 16 and height >= 16:
+                                        seen += 1
+                        except Exception:
+                            continue
+                    max_seen = max(max_seen, seen)
+            except Exception:
+                continue
+
+        return max_seen
+
+    def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
+        return {
+            "url": getattr(page, "url", ""),
+            "visible_media_count": self._flow_visible_media_count(page),
+            "composer_reference_count": self._flow_composer_reference_count(page),
+            "surface_summary": self._flow_prompt_surface_summary(page),
+        }
+
+    def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
+        gallery_selectors = [
+            "[role='dialog'] img",
+            "[role='dialog'] canvas",
+            "[role='dialog'] [role='img']",
+            "[data-testid*='gallery'] img",
+            "[data-testid*='gallery'] canvas",
+            "[data-testid*='asset'] img",
+            "[data-testid*='media'] img",
+            "[data-testid*='thumbnail'] img",
+            "main img",
+            "main canvas",
+        ]
+
+        selected = 0
+        for selector in gallery_selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), max(expected_count + 5, 8))
+                for idx in range(count):
+                    if selected >= expected_count:
+                        return selected
+                    item = collection.nth(idx)
+                    if not item.is_visible():
+                        continue
+                    box = item.bounding_box() or {}
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    if width < 48 or height < 48:
+                        continue
+                    item.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    selected += 1
+                    page.wait_for_timeout(500)
+            except Exception:
+                continue
+        return selected
+
+    def _flow_click_attach_selected_to_composer(self, page) -> bool:
+        attach_selectors = [
+            "button:has-text('Add to prompt')",
+            "[role='button']:has-text('Add to prompt')",
+            "button:has-text('Add selected')",
+            "[role='button']:has-text('Add selected')",
+            "button:has-text('Use selected')",
+            "[role='button']:has-text('Use selected')",
+            "button:has-text('Insert selected')",
+            "[role='button']:has-text('Insert selected')",
+            "button:has-text('Attach selected')",
+            "[role='button']:has-text('Attach selected')",
+            "button:has-text('Add image')",
+            "[role='button']:has-text('Add image')",
+            "button:has-text('Use image')",
+            "[role='button']:has-text('Use image')",
+            "button:has-text('Insert')",
+            "[role='button']:has-text('Insert')",
+            "button:has-text('Attach')",
+            "[role='button']:has-text('Attach')",
+            "button:has-text('Done')",
+            "[role='button']:has-text('Done')",
+            "button:has-text('Add')",
+            "[role='button']:has-text('Add')",
+            "button[aria-label*='Add']",
+            "button[aria-label*='Use']",
+            "button[aria-label*='Insert']",
+            "button[aria-label*='Attach']",
+            "button[aria-label*='Done']",
+        ]
+        return self._flow_click_first(page, attach_selectors, label="gallery_attach_selected_to_composer", force=True)
+
+    def _wait_for_flow_references_in_composer(self, page, expected_count: int) -> bool:
+        deadline = time.time() + FLOW_GALLERY_ATTACH_TIMEOUT_SECONDS
+        last_log = 0.0
+
+        while time.time() < deadline:
+            count = self._flow_composer_reference_count(page)
+            if count >= max(1, min(expected_count, 2)):
+                json_log(
+                    level="INFO",
+                    message="Flow reference composer attachment confirmed",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_reference_composer_attach_confirmed",
+                        "composer_reference_count": count,
+                        "expected_source_image_count": expected_count,
+                    },
+                )
+                return True
+
+            now = time.time()
+            if now - last_log >= 5.0:
+                last_log = now
+                json_log(
+                    level="DEBUG",
+                    message="Flow reference composer attachment wait continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_reference_composer_attach_wait_continue",
+                        "summary": self._flow_reference_attach_summary(page),
+                    },
+                )
+
+            page.wait_for_timeout(1000)
+
+        return False
+
+    def _flow_submit_started(self, page) -> bool:
+        indicators = [
+            "text=/generating/i",
+            "text=/creating/i",
+            "text=/queued/i",
+            "text=/rendering/i",
+            "text=/processing/i",
+            "[aria-label*='Cancel']",
+            "[aria-label*='Stop']",
+            "button:has-text('Cancel')",
+            "button:has-text('Stop')",
+            "[role='progressbar']",
+            "[data-testid*='progress']",
+            "[data-testid*='generating']",
+            "[class*='spinner']",
+            "[class*='loading']",
+        ]
+
+        for selector in indicators:
+            try:
+                loc = page.locator(selector).first
+                if loc.count() and loc.is_visible():
+                    return True
+            except Exception:
+                continue
+
+        return False
+
+    def _wait_for_flow_submit_confirmation(self, page) -> bool:
+        deadline = time.time() + FLOW_SUBMIT_CONFIRM_TIMEOUT_SECONDS
+        last_log = 0.0
+
+        while time.time() < deadline:
+            if self._flow_submit_started(page):
+                json_log(
+                    level="INFO",
+                    message="Flow prompt submission confirmed",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_prompt_submission_confirmed",
+                        "summary": self._flow_prompt_surface_summary(page),
+                    },
+                )
+                return True
+
+            now = time.time()
+            if now - last_log >= 5.0:
+                last_log = now
+                json_log(
+                    level="DEBUG",
+                    message="Flow prompt submission confirmation wait continuing",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_prompt_submit_confirm_wait_continue",
+                        "summary": self._flow_prompt_surface_summary(page),
+                    },
+                )
+
+            page.wait_for_timeout(1000)
+
+        return False
+```
+
+---
+
+## STEP 3 — PATCH_12M3: replace reference finalization method
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12M3",
+  "expected_method_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_method_count_is_not": 1
+}
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
+```
+
+Through the line immediately before:
+
+```python
+    def _flow_prompt_surface_summary(self, page) -> Dict[str, Any]:
+```
+
+### Replacement
+
+```python
+    def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        expected_count = len(source_images)
+
+        json_log(
+            level="INFO",
+            message="Flow reference composer attachment verification started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_composer_attach_verify_start",
+                "source_image_count": expected_count,
+                "strict": FLOW_REFERENCE_ATTACH_STRICT,
+            },
+        )
+
+        before_count = self._flow_composer_reference_count(page)
+
+        selected_count = self._flow_select_gallery_assets(page, expected_count)
+        clicked_attach = self._flow_click_attach_selected_to_composer(page)
+
+        page.wait_for_timeout(1500)
+        self._dismiss_flow_transient_overlays(page)
+
+        attached = self._wait_for_flow_references_in_composer(page, expected_count)
+        after_count = self._flow_composer_reference_count(page)
+
+        if attached:
+            json_log(
+                level="INFO",
+                message="Flow reference images attached to composer",
+                stage="PROCESSING",
+                status="COMPLETED",
+                context={
+                    "operation": "flow_reference_images_attached_to_composer",
+                    "source_image_count": expected_count,
+                    "selected_gallery_asset_count": selected_count,
+                    "clicked_attach_control": clicked_attach,
+                    "before_composer_reference_count": before_count,
+                    "after_composer_reference_count": after_count,
+                },
+            )
+            return
+
+        context = {
+            "operation": "flow_reference_gallery_attach_failed",
+            "source_image_count": expected_count,
+            "selected_gallery_asset_count": selected_count,
+            "clicked_attach_control": clicked_attach,
+            "before_composer_reference_count": before_count,
+            "after_composer_reference_count": after_count,
+            "summary": self._flow_reference_attach_summary(page),
+        }
+
+        if FLOW_REFERENCE_ATTACH_STRICT:
+            fail(
+                "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER",
+                "Flow reference images were uploaded to the gallery but were not confirmed attached to the active composer.",
+                field="flow_reference_composer",
+                expected="uploaded gallery image selected and attached into prompt composer",
+                actual=json.dumps(context, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="WARNING",
+            message="Flow reference images uploaded but composer attachment was not confirmed",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context=context,
+        )
+```
+
+---
+
+## STEP 4 — PATCH_12M4: strengthen prompt submission confirmation
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12M4",
+  "expected_match_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_match_count_is_not": 1
+}
+```
+
+### FIND inside `_submit_flow_prompt(...)`
+
+```python
+        if self._flow_click_first(page, generate_selectors, label="flow_generate_button", force=True):
+            json_log(
+                level="INFO",
+                message="Flow image prompt submitted",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_submitted",
+                    "prompt_chars": len(prompt or ""),
+                    "target_model": FLOW_IMAGE_MODEL,
+                },
+            )
+            return
+
+        try:
+            page.keyboard.press("Control+Enter")
+            json_log(
+                level="INFO",
+                message="Flow image prompt submitted",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_prompt_submitted_keyboard",
+                    "prompt_chars": len(prompt or ""),
+                    "target_model": FLOW_IMAGE_MODEL,
+                },
+            )
+            return
+        except Exception as exc:
+            fail(
+                "FLOW_PROMPT_SUBMIT_FAILED",
+                "Could not submit Flow prompt with visible generate/create button or keyboard shortcut.",
+                field="flow_generate_button",
+                expected="enabled Flow generate/create control",
+                actual=str(exc)[:1000],
+                stage="PROCESSING",
+            )
+```
+
+### REPLACE WITH
+
+```python
+        clicked_generate = self._flow_click_first(page, generate_selectors, label="flow_generate_button", force=True)
+
+        if clicked_generate and self._wait_for_flow_submit_confirmation(page):
+            json_log(
+                level="INFO",
+                message="Flow image prompt submitted",
+                stage="PROCESSING",
+                status="COMPLETED",
+                context={
+                    "operation": "flow_prompt_submitted",
+                    "prompt_chars": len(prompt or ""),
+                    "target_model": FLOW_IMAGE_MODEL,
+                    "submit_method": "button",
+                },
+            )
+            return
+
+        try:
+            page.keyboard.press("Control+Enter")
+            if self._wait_for_flow_submit_confirmation(page):
+                json_log(
+                    level="INFO",
+                    message="Flow image prompt submitted",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_prompt_submitted_keyboard",
+                        "prompt_chars": len(prompt or ""),
+                        "target_model": FLOW_IMAGE_MODEL,
+                        "submit_method": "keyboard",
+                    },
+                )
+                return
+        except Exception:
+            pass
+
+        fail(
+            "FLOW_PROMPT_SUBMIT_NOT_CONFIRMED",
+            "Flow prompt text was filled but generation start was not confirmed.",
+            field="flow_generate_button",
+            expected="Flow generation indicator after button click or Control+Enter",
+            actual=json.dumps(
+                {
+                    "clicked_generate": clicked_generate,
+                    "summary": self._flow_prompt_surface_summary(page),
+                    "reference_attach_summary": self._flow_reference_attach_summary(page),
+                },
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
+```
+
+---
+
+# PATCH_12M validation
+
+## STEP 5 — M-Validation 1: compile
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+## STEP 6 — M-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "FLOW_GALLERY_ATTACH_TIMEOUT_SECONDS",
+    "FLOW_SUBMIT_CONFIRM_TIMEOUT_SECONDS",
+    "FLOW_REFERENCE_ATTACH_STRICT",
+    "def _flow_composer_reference_count",
+    "def _flow_select_gallery_assets",
+    "def _flow_click_attach_selected_to_composer",
+    "def _wait_for_flow_references_in_composer",
+    "def _flow_submit_started",
+    "def _wait_for_flow_submit_confirmation",
+    "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER",
+    "FLOW_PROMPT_SUBMIT_NOT_CONFIRMED",
+    "Flow prompt submission confirmed",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+for forbidden in [
+    "Flow reference images attached to composer\",\n                stage=\"PROCESSING\",\n                status=\"COMPLETED\",\n                context={\n                    \"operation\": \"flow_reference_images_attached_to_composer\",\n                    \"source_image_count\": len(source_images)",
+]:
+    assert forbidden not in text, forbidden
+
+print("PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_STATIC_OK
+```
+
+---
+
+## STEP 7 — M-Validation 3: no-browser method sanity
+
+```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
+@'
+import workflow_orchestrator as w
+
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+required = [
+    "_flow_composer_reference_count",
+    "_flow_reference_attach_summary",
+    "_flow_select_gallery_assets",
+    "_flow_click_attach_selected_to_composer",
+    "_wait_for_flow_references_in_composer",
+    "_flow_submit_started",
+    "_wait_for_flow_submit_confirmation",
+]
+
+for name in required:
+    assert hasattr(adapter, name), name
+
+print("PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK
+```
+
+---
+
+# Resume STEP 7 after PATCH_12M
