@@ -2093,8 +2093,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
         except Exception:
             try:
-                handle = prompt_box.element_handle(timeout=FLOW_UI_CLICK_TIMEOUT_MS)
-                page.evaluate("(el) => el.focus()", handle)
+                prompt_box.evaluate("(el) => el.focus()")
             except Exception:
                 pass
 
@@ -2104,13 +2103,69 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
         except Exception:
             pass
 
+        filled = False
+
         try:
             prompt_box.fill(prompt, timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+            filled = True
         except Exception:
+            pass
+
+        if not filled:
+            try:
+                prompt_box.evaluate(
+                    """
+                    (el, value) => {
+                      el.focus();
+                      if ("value" in el) {
+                        el.value = value;
+                      } else {
+                        el.textContent = value;
+                      }
+                      el.dispatchEvent(new InputEvent("input", {
+                        bubbles: true,
+                        cancelable: true,
+                        inputType: "insertText",
+                        data: value
+                      }));
+                      el.dispatchEvent(new Event("change", { bubbles: true }));
+                    }
+                    """,
+                    prompt,
+                )
+                filled = True
+            except Exception:
+                pass
+
+        if not filled:
             try:
                 page.keyboard.insert_text(prompt)
+                filled = True
             except Exception:
                 prompt_box.type(prompt, delay=0, timeout=self.action_timeout_ms)
+                filled = True
+
+        try:
+            value_len = prompt_box.evaluate(
+                """
+                (el) => {
+                  if ("value" in el) return String(el.value || "").length;
+                  return String(el.innerText || el.textContent || "").length;
+                }
+                """
+            )
+        except Exception:
+            value_len = -1
+
+        if value_len == 0:
+            fail(
+                "FLOW_PROMPT_INPUT_NOT_FILLED",
+                "Flow prompt input was discovered but did not retain prompt text.",
+                field="flow_prompt_input",
+                expected="prompt text inserted into Flow composer",
+                actual=f"value_len={value_len}; prompt_chars={len(prompt or '')}",
+                stage="PROCESSING",
+            )
 
         json_log(
             level="INFO",
@@ -2120,6 +2175,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             context={
                 "operation": "flow_prompt_box_filled",
                 "prompt_chars": len(prompt or ""),
+                "detected_value_chars": value_len,
             },
         )
 
