@@ -1712,6 +1712,227 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
 
         return source_images, missing_images
 
+    def _flow_click_first(self, page, selectors: List[str], *, label: str, force: bool = False) -> bool:
+        for selector in selectors:
+            try:
+                locator = page.locator(selector).first
+                if locator.count() and locator.is_visible() and locator.is_enabled():
+                    locator.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=force)
+                    json_log(
+                        level="DEBUG",
+                        message=f"Flow UI clicked {label}",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "flow_ui_click_first",
+                            "label": label,
+                            "selector": selector,
+                            "force": force,
+                        },
+                    )
+                    return True
+            except Exception:
+                continue
+        return False
+
+    def _dismiss_flow_transient_overlays(self, page) -> None:
+        for key in ["Escape", "Escape"]:
+            try:
+                page.keyboard.press(key)
+                page.wait_for_timeout(250)
+            except Exception:
+                pass
+
+    def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        json_log(
+            level="INFO",
+            message="Flow reference composer attachment verification started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_composer_attach_verify_start",
+                "source_image_count": len(source_images),
+            },
+        )
+
+        # Flow may upload files into the project/gallery first. These controls attempt
+        # to attach or insert the uploaded/selected assets into the active composer.
+        action_selectors = [
+            "button:has-text('Add to prompt')",
+            "button:has-text('Add selected')",
+            "button:has-text('Add selection')",
+            "button:has-text('Use selected')",
+            "button:has-text('Use selection')",
+            "button:has-text('Insert')",
+            "button:has-text('Attach')",
+            "button:has-text('Done')",
+            "button:has-text('Add')",
+            "[role='button']:has-text('Add to prompt')",
+            "[role='button']:has-text('Add selected')",
+            "[role='button']:has-text('Use selected')",
+            "[role='button']:has-text('Insert')",
+            "[role='button']:has-text('Attach')",
+            "[role='button']:has-text('Done')",
+            "[role='button']:has-text('Add')",
+            "button[aria-label*='Add']",
+            "button[aria-label*='Use']",
+            "button[aria-label*='Insert']",
+            "button[aria-label*='Attach']",
+            "button[aria-label*='Done']",
+        ]
+
+        deadline = time.time() + FLOW_REFERENCE_COMPOSER_TIMEOUT_SECONDS
+        clicked_any = False
+        while time.time() < deadline:
+            if self._flow_click_first(page, action_selectors, label="reference_attach_to_composer"):
+                clicked_any = True
+                page.wait_for_timeout(1500)
+                break
+
+            # If the gallery requires explicit selection, click the largest visible
+            # thumbnails/cards, then try action controls again.
+            media_selectors = [
+                "[role='dialog'] img",
+                "[role='dialog'] canvas",
+                "[data-testid*='asset'] img",
+                "[data-testid*='media'] img",
+                "[data-testid*='gallery'] img",
+                "main img",
+            ]
+            for selector in media_selectors:
+                try:
+                    collection = page.locator(selector)
+                    count = min(collection.count(), len(source_images) + 3)
+                    for idx in range(count):
+                        item = collection.nth(idx)
+                        if not item.is_visible():
+                            continue
+                        box = item.bounding_box() or {}
+                        if float(box.get("width", 0) or 0) < 40 or float(box.get("height", 0) or 0) < 40:
+                            continue
+                        item.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                        clicked_any = True
+                        page.wait_for_timeout(300)
+                except Exception:
+                    continue
+
+            if self._flow_click_first(page, action_selectors, label="reference_attach_to_composer_after_select"):
+                clicked_any = True
+                page.wait_for_timeout(1500)
+                break
+
+            page.wait_for_timeout(1000)
+
+        self._dismiss_flow_transient_overlays(page)
+
+        if not clicked_any:
+            json_log(
+                level="WARNING",
+                message="Flow reference images uploaded but composer attach control was not confirmed",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_reference_gallery_only_warning",
+                    "source_image_count": len(source_images),
+                },
+            )
+        else:
+            json_log(
+                level="INFO",
+                message="Flow reference images attached to composer",
+                stage="PROCESSING",
+                status="COMPLETED",
+                context={
+                    "operation": "flow_reference_images_attached_to_composer",
+                    "source_image_count": len(source_images),
+                },
+            )
+
+    def _find_flow_prompt_box(self, page):
+        prompt_selectors = [
+            "textarea[placeholder*='prompt' i]",
+            "textarea[aria-label*='prompt' i]",
+            "[contenteditable='true'][aria-label*='prompt' i]",
+            "div[role='textbox'][aria-label*='prompt' i]",
+            "[contenteditable='true']",
+            "div[role='textbox']",
+            "textarea",
+        ]
+
+        deadline = time.time() + FLOW_PROMPT_READY_TIMEOUT_SECONDS
+        last_error = ""
+
+        while time.time() < deadline:
+            for selector in prompt_selectors:
+                try:
+                    collection = page.locator(selector)
+                    count = min(collection.count(), 10)
+                    for idx in range(count):
+                        candidate = collection.nth(idx)
+                        if not candidate.is_visible():
+                            continue
+                        box = candidate.bounding_box() or {}
+                        width = float(box.get("width", 0) or 0)
+                        height = float(box.get("height", 0) or 0)
+                        if width < 120 or height < 24:
+                            continue
+                        return candidate
+                except Exception as exc:
+                    last_error = str(exc)[:300]
+            page.wait_for_timeout(500)
+
+        fail(
+            "FLOW_PROMPT_INPUT_MISSING",
+            "Could not find Flow prompt input for image generation.",
+            field="flow_prompt_input",
+            expected="visible Flow prompt textarea/textbox/contenteditable composer",
+            actual=f"url={getattr(page, 'url', '')}; last_error={last_error}",
+            stage="PROCESSING",
+        )
+
+    def _fill_flow_prompt_box(self, page, prompt_box, prompt: str) -> None:
+        try:
+            prompt_box.scroll_into_view_if_needed(timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+        except Exception:
+            pass
+
+        try:
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+        except Exception:
+            try:
+                handle = prompt_box.element_handle(timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+                page.evaluate("(el) => el.focus()", handle)
+            except Exception:
+                pass
+
+        try:
+            page.keyboard.press("Control+A")
+            page.keyboard.press("Backspace")
+        except Exception:
+            pass
+
+        try:
+            prompt_box.fill(prompt, timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+        except Exception:
+            try:
+                page.keyboard.insert_text(prompt)
+            except Exception:
+                prompt_box.type(prompt, delay=0, timeout=self.action_timeout_ms)
+
+        json_log(
+            level="INFO",
+            message="Flow prompt box filled",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_prompt_box_filled",
+                "prompt_chars": len(prompt or ""),
+            },
+        )
+
     def _attach_reference_images(self, page, source_images: List[str]) -> None:
         if not source_images:
             return
