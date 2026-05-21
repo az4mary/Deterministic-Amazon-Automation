@@ -161,7 +161,7 @@ Messenger request:
 
 ## STEP 1 - PATCH_12M1
 
-Status: APPLIED
+Status: CONFIRMED
 
 Local checkpoint time:
 - `2026-05-21T15:05:17.9955951-05:00`
