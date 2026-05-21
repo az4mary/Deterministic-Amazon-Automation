@@ -2009,6 +2009,8 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
         if not source_images:
             return
 
+        expected_count = len(source_images)
+
         json_log(
             level="INFO",
             message="Flow reference composer attachment verification started",
@@ -2016,92 +2018,23 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             status="IN_PROGRESS",
             context={
                 "operation": "flow_reference_composer_attach_verify_start",
-                "source_image_count": len(source_images),
+                "source_image_count": expected_count,
+                "strict": FLOW_REFERENCE_ATTACH_STRICT,
             },
         )
 
-        # Flow may upload files into the project/gallery first. These controls attempt
-        # to attach or insert the uploaded/selected assets into the active composer.
-        action_selectors = [
-            "button:has-text('Add to prompt')",
-            "button:has-text('Add selected')",
-            "button:has-text('Add selection')",
-            "button:has-text('Use selected')",
-            "button:has-text('Use selection')",
-            "button:has-text('Insert')",
-            "button:has-text('Attach')",
-            "button:has-text('Done')",
-            "button:has-text('Add')",
-            "[role='button']:has-text('Add to prompt')",
-            "[role='button']:has-text('Add selected')",
-            "[role='button']:has-text('Use selected')",
-            "[role='button']:has-text('Insert')",
-            "[role='button']:has-text('Attach')",
-            "[role='button']:has-text('Done')",
-            "[role='button']:has-text('Add')",
-            "button[aria-label*='Add']",
-            "button[aria-label*='Use']",
-            "button[aria-label*='Insert']",
-            "button[aria-label*='Attach']",
-            "button[aria-label*='Done']",
-        ]
+        before_count = self._flow_composer_reference_count(page)
 
-        deadline = time.time() + FLOW_REFERENCE_COMPOSER_TIMEOUT_SECONDS
-        clicked_any = False
-        while time.time() < deadline:
-            if self._flow_click_first(page, action_selectors, label="reference_attach_to_composer"):
-                clicked_any = True
-                page.wait_for_timeout(1500)
-                break
+        selected_count = self._flow_select_gallery_assets(page, expected_count)
+        clicked_attach = self._flow_click_attach_selected_to_composer(page)
 
-            # If the gallery requires explicit selection, click the largest visible
-            # thumbnails/cards, then try action controls again.
-            media_selectors = [
-                "[role='dialog'] img",
-                "[role='dialog'] canvas",
-                "[data-testid*='asset'] img",
-                "[data-testid*='media'] img",
-                "[data-testid*='gallery'] img",
-                "main img",
-            ]
-            for selector in media_selectors:
-                try:
-                    collection = page.locator(selector)
-                    count = min(collection.count(), len(source_images) + 3)
-                    for idx in range(count):
-                        item = collection.nth(idx)
-                        if not item.is_visible():
-                            continue
-                        box = item.bounding_box() or {}
-                        if float(box.get("width", 0) or 0) < 40 or float(box.get("height", 0) or 0) < 40:
-                            continue
-                        item.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
-                        clicked_any = True
-                        page.wait_for_timeout(300)
-                except Exception:
-                    continue
-
-            if self._flow_click_first(page, action_selectors, label="reference_attach_to_composer_after_select"):
-                clicked_any = True
-                page.wait_for_timeout(1500)
-                break
-
-            page.wait_for_timeout(1000)
-
+        page.wait_for_timeout(1500)
         self._dismiss_flow_transient_overlays(page)
 
-        if not clicked_any:
-            json_log(
-                level="WARNING",
-                message="Flow reference images uploaded but composer attach control was not confirmed",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "operation": "flow_reference_gallery_only_warning",
-                    "source_image_count": len(source_images),
-                },
-            )
-        else:
+        attached = self._wait_for_flow_references_in_composer(page, expected_count)
+        after_count = self._flow_composer_reference_count(page)
+
+        if attached:
             json_log(
                 level="INFO",
                 message="Flow reference images attached to composer",
@@ -2109,9 +2042,42 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 status="COMPLETED",
                 context={
                     "operation": "flow_reference_images_attached_to_composer",
-                    "source_image_count": len(source_images),
+                    "source_image_count": expected_count,
+                    "selected_gallery_asset_count": selected_count,
+                    "clicked_attach_control": clicked_attach,
+                    "before_composer_reference_count": before_count,
+                    "after_composer_reference_count": after_count,
                 },
             )
+            return
+
+        context = {
+            "operation": "flow_reference_gallery_attach_failed",
+            "source_image_count": expected_count,
+            "selected_gallery_asset_count": selected_count,
+            "clicked_attach_control": clicked_attach,
+            "before_composer_reference_count": before_count,
+            "after_composer_reference_count": after_count,
+            "summary": self._flow_reference_attach_summary(page),
+        }
+
+        if FLOW_REFERENCE_ATTACH_STRICT:
+            fail(
+                "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER",
+                "Flow reference images were uploaded to the gallery but were not confirmed attached to the active composer.",
+                field="flow_reference_composer",
+                expected="uploaded gallery image selected and attached into prompt composer",
+                actual=json.dumps(context, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="WARNING",
+            message="Flow reference images uploaded but composer attachment was not confirmed",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context=context,
+        )
 
     def _flow_prompt_surface_summary(self, page) -> Dict[str, Any]:
         summary: Dict[str, Any] = {
