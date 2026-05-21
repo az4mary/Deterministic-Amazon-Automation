@@ -1886,3 +1886,71 @@ PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK
 ---
 
 # Resume STEP 7 after PATCH_12M
+
+```powershell
+$env:EXECUTION_BACKEND="browser"
+$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
+$env:FLOW_IMAGE_MODEL="Nano Banana 2"
+$env:FLOW_MODEL_STRICT="1"
+$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
+$env:FLOW_REFERENCE_STRICT="1"
+$env:FLOW_REFERENCE_ATTACH_STRICT="1"
+$env:FLOW_ASPECT_RATIO="9:16"
+$env:FLOW_OUTPUT_COUNT="1"
+
+$env:TEXT_STEP_WAIT_SECONDS="300"
+$env:IMAGE_STEP_WAIT_SECONDS="600"
+
+D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
+```
+
+## Expected checks
+
+```json
+{
+  "expected": [
+    "resume starts at step 12",
+    "Image generation adapter handoff started",
+    "Flow adapter reused shared browser session",
+    "Flow page ready",
+    "Flow reference images uploaded",
+    "Flow reference images attached to composer",
+    "Flow model selected",
+    "Flow prompt box filled",
+    "Flow prompt submission confirmed",
+    "Flow image prompt submitted",
+    "Flow generated image captured",
+    "output/generated_images/image_12.png exists",
+    "generated_image_1.generation_backend=flow_browser",
+    "generated_image_1.generation_model=Nano Banana 2",
+    "last_completed_step=12",
+    "OUTPUT/SUCCESS"
+  ],
+  "forbidden": [
+    "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER",
+    "FLOW_PROMPT_SUBMIT_NOT_CONFIRMED",
+    "FLOW_PROMPT_INPUT_MISSING",
+    "FLOW_PROMPT_INPUT_NOT_FILLED",
+    "Locator.click: Timeout 120000ms exceeded",
+    "Playwright Sync API inside the asyncio loop",
+    "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
+    "OpenAI image generation",
+    "ChatGPT browser image generation"
+  ]
+}
+```
+
+## Decision rule
+
+```json
+{
+  "if_STEP_7_fails_with_FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER": "attach execution log; next patch only gallery selection/attach selector refinement",
+  "if_STEP_7_fails_with_FLOW_PROMPT_SUBMIT_NOT_CONFIRMED": "attach execution log; next patch only generate/submit selector refinement",
+  "if_STEP_7_fails_after_Flow_image_prompt_submitted": "next patch only generated-image capture",
+  "if_STEP_7_passes": "PATCH_12M_CONFIRMED; proceed to Validation 6 full Flow run"
+}
+```
+
