@@ -468,10 +468,8 @@ Expected:
 }
 ```
 
-STATE 16:
-ACTION:
+# PATCH_12K — Flow composer attachment + prompt submission hardening
 
-* Proceed with **PATCH_12K**.
 * Scope: **Flow reference attachment-to-composer + Flow prompt-box submission only**.
 * Do **not** touch image capture, metadata persistence, prompt docs, cooldowns, or step numbering.
 
@@ -479,7 +477,6 @@ Evidence: STEP 7 passed Flow session reuse, Flow readiness, model selection, and
 
 ---
 
-# PATCH_12K — Flow composer attachment + prompt submission hardening
 
 ## STEP 1 — PATCH_12K1: add Flow composer controls
 
