@@ -126,3 +126,30 @@ Failure:
 
 Messenger request:
 - Do you need any additional files/logs for troubleshooting?
+
+
+Expected:
+
+{
+  "expected": [
+    "resume starts at step 12",✅
+    "Image generation adapter handoff started",✅
+    "Flow adapter reused shared browser session",✅
+    "Flow page ready",✅
+    "Flow reference images attached",❌reference images added to gallery but not attached to composer
+    "Flow model selected",✅
+    "Flow image prompt submitted",❌
+    "Flow generated image captured",❌
+    "output/generated_images/image_12.png exists",❌
+    "generated_image_1.generation_backend=flow_browser",❌
+    "generated_image_1.generation_model=Nano Banana 2",❌
+    "last_completed_step=12",
+    "OUTPUT/SUCCESS"FAILED
+  ],
+  "forbidden": [
+    "Playwright Sync API inside the asyncio loop",
+    "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
+    "OpenAI image generation",
+    "ChatGPT browser image generation"
+  ]
+}
