@@ -417,4 +417,32 @@ def submit_prompt(page):
 
 
 
+with sync_playwright() as p:
+    browser = p.chromium.connect_over_cdp(CDP_URL)
 
+    page = None
+    for ctx in browser.contexts:
+        for candidate in ctx.pages:
+            if "labs.google/fx/tools/flow" in (candidate.url or ""):
+                page = candidate
+                break
+        if page:
+            break
+
+    if page is None:
+        ctx = browser.contexts[0] if browser.contexts else browser.new_context()
+        page = ctx.new_page()
+        page.goto(FLOW_URL, wait_until="domcontentloaded")
+
+    page.bring_to_front()
+    page.wait_for_timeout(2000)
+
+    print("Flow page:", page.url)
+
+    upload_images(page)
+    open_uploaded_media(page)
+    add_target_image_to_prompt(page)
+    fill_prompt(page)
+    submit_prompt(page)
+
+    time.sleep(3)
