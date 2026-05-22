@@ -14,7 +14,16 @@ DASHCAM_IMAGES = [
     r"D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\data\images\Dashcam_road_facing_view.png",
 ]
 
-TEST_PROMPT = "Test prompt: create a simple dashcam product image using the attached reference images."
+TARGET_IMAGE_NAME_HINTS = [
+    "Dashcam_road_facing_view",
+    "Dashcam_road_facing",
+    "road_facing",
+]
+
+TEST_PROMPT = (
+    "Test prompt: create a simple commercial product image of the dashcam "
+    "using the attached reference image."
+)
 
 for image in DASHCAM_IMAGES:
     if not Path(image).exists():
@@ -45,16 +54,19 @@ def click_first(page, selectors, label, wait_ms=1000):
 
 
 def upload_images(page):
-    # Step A: open Add Media menu.
-    click_first(page, [
-        "text=Add Media",
-        "button:has-text('Add Media')",
-        "[role='button']:has-text('Add Media')",
-        "[aria-label*='Add Media']",
-        "button[aria-label*='Add']",
-    ], "Add Media", wait_ms=1500)
+    click_first(
+        page,
+        [
+            "text=Add Media",
+            "button:has-text('Add Media')",
+            "[role='button']:has-text('Add Media')",
+            "[aria-label*='Add Media']",
+            "button[aria-label*='Add']",
+        ],
+        "Add Media",
+        wait_ms=1500,
+    )
 
-    # Step B: click the actual upload action and catch the file chooser.
     upload_selectors = [
         "text=Upload",
         "text=Upload files",
@@ -79,8 +91,7 @@ def upload_images(page):
             with page.expect_file_chooser(timeout=5000) as fc:
                 loc.click(force=True, timeout=10000)
 
-            chooser = fc.value
-            chooser.set_files(DASHCAM_IMAGES)
+            fc.value.set_files(DASHCAM_IMAGES)
             print("Uploaded via file chooser.")
             page.wait_for_timeout(7000)
             return
@@ -90,7 +101,6 @@ def upload_images(page):
         except Exception as exc:
             print(f"Upload selector skipped: {sel} | {str(exc)[:200]}")
 
-    # Step C: fallback to hidden/created file input.
     try:
         inputs = page.locator("input[type=file]")
         count = inputs.count()
@@ -104,22 +114,229 @@ def upload_images(page):
     except Exception as exc:
         print(f"file input fallback failed: {exc}")
 
-    # Debug print visible controls.
-    print("\nVisible buttons/controls:")
-    controls = page.locator("button, [role='button']")
-    for i in range(min(controls.count(), 40)):
+    raise SystemExit("Upload failed: no file chooser or input[type=file] found.")
+
+
+def open_uploaded_media(page):
+    click_first(
+        page,
+        [
+            "text=View uploaded media",
+            "[aria-label*='View uploaded media']",
+            "button:has-text('View uploaded media')",
+            "[role='button']:has-text('View uploaded media')",
+            "text=All Media",
+            "button:has-text('All Media')",
+            "[role='button']:has-text('All Media')",
+        ],
+        "Uploaded Media",
+        wait_ms=2500,
+    )
+
+
+def get_card_text(card):
+    try:
+        return (card.inner_text(timeout=700) or "").strip()
+    except Exception:
+        return ""
+
+
+def get_card_box(card):
+    try:
+        return card.bounding_box() or {}
+    except Exception:
+        return {}
+
+
+def card_is_usable(card):
+    try:
+        if not card.is_visible():
+            return False
+        box = get_card_box(card)
+        return box.get("width", 0) >= 100 and box.get("height", 0) >= 100
+    except Exception:
+        return False
+
+
+def find_target_gallery_cards(page):
+    cards = []
+
+    target_selectors = []
+    for hint in TARGET_IMAGE_NAME_HINTS:
+        target_selectors.extend(
+            [
+                f"[role='button']:has-text('{hint}')",
+                f"button:has-text('{hint}')",
+                f"[data-testid*='asset']:has-text('{hint}')",
+                f"[data-testid*='media']:has-text('{hint}')",
+                f"main [role='button']:has-text('{hint}')",
+                f"main div:has-text('{hint}')",
+            ]
+        )
+
+    fallback_selectors = [
+        "[role='button']:has(img)",
+        "button:has(img)",
+        "[data-testid*='asset']:has(img)",
+        "[data-testid*='media']:has(img)",
+        "main [role='button']:has(img)",
+    ]
+
+    for sel in target_selectors + fallback_selectors:
         try:
-            c = controls.nth(i)
-            if c.is_visible():
-                txt = (c.inner_text(timeout=500) or "").strip()
-                aria = c.get_attribute("aria-label") or ""
-                label = txt or aria
-                if label:
-                    print("-", label[:120])
+            locs = page.locator(sel)
+            for i in range(min(locs.count(), 50)):
+                card = locs.nth(i)
+                if not card_is_usable(card):
+                    continue
+
+                text = get_card_text(card)
+                box = get_card_box(card)
+                cards.append((card, sel, i, text, box))
         except Exception:
             pass
 
-    raise SystemExit("Upload failed: no file chooser or input[type=file] found.")
+    # Prefer road-facing filename/card; otherwise first usable large card.
+    preferred = []
+    fallback = []
+
+    for item in cards:
+        _card, _sel, _i, text, _box = item
+        normalized = text.lower()
+        if any(h.lower() in normalized for h in TARGET_IMAGE_NAME_HINTS):
+            preferred.append(item)
+        else:
+            fallback.append(item)
+
+    return preferred + fallback
+
+
+def add_target_image_to_prompt(page):
+    cards = find_target_gallery_cards(page)
+
+    if not cards:
+        raise SystemExit("No usable gallery cards found.")
+
+    for card, sel, idx, text, box in cards:
+        try:
+            print(f"Hover gallery card only: {sel} [{idx}] | text={text[:80]!r}")
+
+            # IMPORTANT: hover only. Do not click the image/card.
+            card.hover(timeout=10000)
+            page.wait_for_timeout(1200)
+
+            menu_clicked = False
+
+            # Prefer menu inside hovered card.
+            for menu_sel in [
+                "button[aria-label*='More']",
+                "[role='button'][aria-label*='More']",
+                "button[aria-label*='more']",
+                "[role='button'][aria-label*='more']",
+                "button:has-text('more_vert')",
+                "[role='button']:has-text('more_vert')",
+            ]:
+                try:
+                    menu = card.locator(menu_sel).last
+                    if menu.count() and menu.is_visible():
+                        print(f"Click hovered-card menu: {menu_sel}")
+                        menu.click(force=True, timeout=10000)
+                        menu_clicked = True
+                        page.wait_for_timeout(1000)
+                        break
+                except Exception:
+                    pass
+
+            # Coordinate fallback: click the top-right 3-dot area only.
+            if not menu_clicked:
+                x = box["x"] + box["width"] - 28
+                y = box["y"] + 28
+                print("Click hovered-card top-right menu fallback")
+                page.mouse.click(x, y)
+                page.wait_for_timeout(1000)
+
+            add_to_prompt, add_sel = first_visible(
+                page,
+                [
+                    "text=Add to prompt",
+                    "text=Add to Prompt",
+                    "[role='menuitem']:has-text('Add to prompt')",
+                    "[role='menuitem']:has-text('Add to Prompt')",
+                    "button:has-text('Add to prompt')",
+                    "button:has-text('Add to Prompt')",
+                    "[role='button']:has-text('Add to prompt')",
+                    "[role='button']:has-text('Add to Prompt')",
+                ],
+            )
+
+            if add_to_prompt:
+                print(f"Click Add to prompt: {add_sel}")
+                add_to_prompt.click(force=True, timeout=10000)
+                page.wait_for_timeout(3000)
+                return True
+
+            print("Add to prompt not visible after menu; trying next card.")
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(700)
+
+        except Exception as exc:
+            print(f"Card skipped: {str(exc)[:250]}")
+            try:
+                page.keyboard.press("Escape")
+                page.wait_for_timeout(500)
+            except Exception:
+                pass
+
+    raise SystemExit("No Add to prompt action found from hovered gallery card.")
+
+
+def fill_prompt(page):
+    prompt_box, sel = first_visible(
+        page,
+        [
+            "textarea",
+            "[contenteditable='true']",
+            "div[role='textbox']",
+            "[role='textbox']",
+        ],
+    )
+
+    if not prompt_box:
+        raise SystemExit("No prompt composer found.")
+
+    print(f"Fill prompt: {sel}")
+    prompt_box.click(force=True)
+    page.keyboard.press("Control+A")
+    page.keyboard.press("Backspace")
+
+    try:
+        prompt_box.fill(TEST_PROMPT)
+    except Exception:
+        page.keyboard.insert_text(TEST_PROMPT)
+
+    page.wait_for_timeout(1000)
+
+
+def submit_prompt(page):
+    if not click_first(
+        page,
+        [
+            "text=Generate",
+            "button:has-text('Generate')",
+            "[role='button']:has-text('Generate')",
+            "[aria-label*='Generate']",
+            "text=Create",
+            "button:has-text('Create')",
+            "[role='button']:has-text('Create')",
+            "[aria-label*='Create']",
+        ],
+        "Generate",
+        wait_ms=1000,
+    ):
+        print("No Generate button found; pressing Control+Enter")
+        page.keyboard.press("Control+Enter")
+
+    print("Submitted.")
 
 
 with sync_playwright() as p:
@@ -145,174 +362,9 @@ with sync_playwright() as p:
     print("Flow page:", page.url)
 
     upload_images(page)
+    open_uploaded_media(page)
+    add_target_image_to_prompt(page)
+    fill_prompt(page)
+    submit_prompt(page)
 
-    # Open uploaded media / gallery.
-    click_first(page, [
-        "text=View uploaded media",
-        "[aria-label*='View uploaded media']",
-        "button:has-text('View uploaded media')",
-        "[role='button']:has-text('View uploaded media')",
-        "text=All Media",
-        "button:has-text('All Media')",
-        "[role='button']:has-text('All Media')",
-    ], "Uploaded Media", wait_ms=2000)
-
-    # Hover target uploaded media card while all gallery images remain visible.
-    # Do NOT click the image/card. Only hover, open its 3-dot menu, then Add to prompt.
-
-    TARGET_IMAGE_NAME = "Dashcam_road_facing_view"
-
-    added_to_prompt = False
-
-    target_card_selectors = [
-        f"[role='button']:has-text('{TARGET_IMAGE_NAME}')",
-        f"button:has-text('{TARGET_IMAGE_NAME}')",
-        f"[data-testid*='asset']:has-text('{TARGET_IMAGE_NAME}')",
-        f"[data-testid*='media']:has-text('{TARGET_IMAGE_NAME}')",
-        f"main [role='button']:has-text('{TARGET_IMAGE_NAME}')",
-        f"main div:has-text('{TARGET_IMAGE_NAME}')",
-    ]
-
-    fallback_card_selectors = [
-        "[role='button']:has(img)",
-        "button:has(img)",
-        "[data-testid*='asset']:has(img)",
-        "[data-testid*='media']:has(img)",
-        "main [role='button']:has(img)",
-    ]
-
-    def try_hover_card_and_add(card, card_label):
-        try:
-            if not card.is_visible():
-                return False
-
-            box = card.bounding_box() or {}
-            if box.get("width", 0) < 100 or box.get("height", 0) < 100:
-                return False
-
-            print(f"Hover gallery card only: {card_label}")
-            card.hover(timeout=10000)
-            page.wait_for_timeout(1000)
-
-            # Click ONLY the 3-dot menu / More options on the hovered card.
-            menu_candidates = [
-                "button[aria-label*='More']",
-                "[role='button'][aria-label*='More']",
-                "button[aria-label*='more']",
-                "[role='button'][aria-label*='more']",
-                "button:has-text('more_vert')",
-                "[role='button']:has-text('more_vert')",
-            ]
-
-            menu_clicked = False
-            for menu_sel in menu_candidates:
-                try:
-                    menu = card.locator(menu_sel).last
-                    if menu.count() and menu.is_visible():
-                        print(f"Click hovered-card menu: {menu_sel}")
-                        menu.click(force=True, timeout=10000)
-                        menu_clicked = True
-                        page.wait_for_timeout(1000)
-                        break
-                except Exception:
-                    pass
-
-            if not menu_clicked:
-                # Coordinate fallback: top-right corner of the hovered card.
-                # This clicks the overflow menu area, not the image body.
-                x = box["x"] + box["width"] - 28
-                y = box["y"] + 28
-                print("Click hovered-card top-right menu fallback")
-                page.mouse.click(x, y)
-                page.wait_for_timeout(1000)
-
-            add_to_prompt, sel = first_visible(page, [
-                "text=Add to prompt",
-                "text=Add to Prompt",
-                "[role='menuitem']:has-text('Add to prompt')",
-                "[role='menuitem']:has-text('Add to Prompt')",
-                "button:has-text('Add to prompt')",
-                "button:has-text('Add to Prompt')",
-                "[role='button']:has-text('Add to prompt')",
-                "[role='button']:has-text('Add to Prompt')",
-            ])
-
-            if add_to_prompt:
-                print(f"Click Add to prompt: {sel}")
-                add_to_prompt.click(force=True, timeout=10000)
-                page.wait_for_timeout(2500)
-                return True
-
-            print("Add to prompt not visible after hovered-card menu.")
-            page.keyboard.press("Escape")
-            page.wait_for_timeout(500)
-            return False
-
-        except Exception as exc:
-            print(f"Hover card skipped: {str(exc)[:200]}")
-            return False
-
-    # First: target the actual Dashcam road-facing card by visible filename.
-    for sel in target_card_selectors:
-        cards = page.locator(sel)
-        for i in range(min(cards.count(), 10)):
-            if try_hover_card_and_add(cards.nth(i), f"{sel} [{i}]"):
-                added_to_prompt = True
-                break
-        if added_to_prompt:
-            break
-
-    # Fallback only if filename selector fails.
-    # Still hover-only; never click the image/card.
-    if not added_to_prompt:
-        for sel in fallback_card_selectors:
-            cards = page.locator(sel)
-            for i in range(min(cards.count(), 40)):
-                if try_hover_card_and_add(cards.nth(i), f"{sel} [{i}]"):
-                    added_to_prompt = True
-                    break
-            if added_to_prompt:
-                break
-
-    if not added_to_prompt:
-        raise SystemExit("No Add to prompt action found from hovered gallery card.")
-
-    # Fill prompt.
-    prompt_box, sel = first_visible(page, [
-        "textarea",
-        "[contenteditable='true']",
-        "div[role='textbox']",
-        "[role='textbox']",
-    ])
-
-    if not prompt_box:
-        raise SystemExit("No prompt composer found.")
-
-    print(f"Fill prompt: {sel}")
-    prompt_box.click(force=True)
-    page.keyboard.press("Control+A")
-    page.keyboard.press("Backspace")
-
-    try:
-        prompt_box.fill(TEST_PROMPT)
-    except Exception:
-        page.keyboard.insert_text(TEST_PROMPT)
-
-    page.wait_for_timeout(1000)
-
-    # Submit.
-    if not click_first(page, [
-        "text=Generate",
-        "button:has-text('Generate')",
-        "[role='button']:has-text('Generate')",
-        "[aria-label*='Generate']",
-        "text=Create",
-        "button:has-text('Create')",
-        "[role='button']:has-text('Create')",
-        "[aria-label*='Create']",
-    ], "Generate", wait_ms=1000):
-        print("No Generate button found; pressing Control+Enter")
-        page.keyboard.press("Control+Enter")
-
-    print("Submitted.")
     time.sleep(3)
