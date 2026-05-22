@@ -190,18 +190,89 @@ with sync_playwright() as p:
     if not clicked_asset:
         raise SystemExit("No uploaded media asset clicked.")
 
-    # Click Add to Prompt.
-    if not click_first(page, [
-        "text=Add to Prompt",
-        "text=Add to prompt",
-        "button:has-text('Add to Prompt')",
-        "[role='button']:has-text('Add to Prompt')",
-        "button:has-text('Add to prompt')",
-        "[role='button']:has-text('Add to prompt')",
-        "[aria-label*='Add to Prompt']",
-    ], "Add to Prompt", wait_ms=2500):
-        raise SystemExit("No Add to Prompt button found.")
+    # Hover uploaded media card, open 3-dot menu, click .
+    added_to_prompt = False
 
+    card_selectors = [
+        "[role='button']:has(img)",
+        "button:has(img)",
+        "[data-testid*='asset']:has(img)",
+        "[data-testid*='media']:has(img)",
+        "main [role='button']:has(img)",
+    ]
+
+    for card_sel in card_selectors:
+        cards = page.locator(card_sel)
+
+        for i in range(min(cards.count(), 40)):
+            card = cards.nth(i)
+
+            try:
+                if not card.is_visible():
+                    continue
+
+                box = card.bounding_box() or {}
+                if box.get("width", 0) < 80 or box.get("height", 0) < 80:
+                    continue
+
+                print(f"Hover card: {card_sel} [{i}]")
+                card.hover(timeout=10000)
+                page.wait_for_timeout(800)
+
+                menu_clicked = False
+                for menu_sel in [
+                    "button[aria-label*='More']",
+                    "[role='button'][aria-label*='More']",
+                    "button:has-text('more_vert')",
+                    "[role='button']:has-text('more_vert')",
+                    "button:has(svg)",
+                ]:
+                    try:
+                        menu = card.locator(menu_sel).last
+                        if menu.count() and menu.is_visible():
+                            print(f"Click card menu: {menu_sel}")
+                            menu.click(force=True, timeout=10000)
+                            menu_clicked = True
+                            page.wait_for_timeout(800)
+                            break
+                    except Exception:
+                        pass
+
+                if not menu_clicked:
+                    # Fallback: click near top-right of the hovered card.
+                    x = box["x"] + box["width"] - 24
+                    y = box["y"] + 24
+                    print("Click card top-right menu fallback")
+                    page.mouse.click(x, y)
+                    page.wait_for_timeout(800)
+
+                add_to_prompt, sel = first_visible(page, [
+                    "text=",
+                    "text=",
+                    "[role='menuitem']:has-text('')",
+                    "[role='menuitem']:has-text('')",
+                    "button:has-text('')",
+                    "[role='button']:has-text('')",
+                    "button:has-text('')",
+                    "[role='button']:has-text('')",
+                ])
+
+                if add_to_prompt:
+                    print(f"Click : {sel}")
+                    add_to_prompt.click(force=True, timeout=10000)
+                    page.wait_for_timeout(2500)
+                    added_to_prompt = True
+                    break
+
+            except Exception as exc:
+                print(f"Card skipped: {str(exc)[:200]}")
+
+        if added_to_prompt:
+            break
+
+    if not added_to_prompt:
+        raise SystemExit("No  action found from hovered gallery card.")
+    
     # Fill prompt.
     prompt_box, sel = first_visible(page, [
         "textarea",
