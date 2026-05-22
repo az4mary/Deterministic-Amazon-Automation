@@ -9,7 +9,7 @@ FLOW_URL = os.getenv(
 
 FLOW_IMAGE_MODEL = os.getenv("FLOW_IMAGE_MODEL", "Nano Banana 2")
 FLOW_ASPECT_RATIO = os.getenv("FLOW_ASPECT_RATIO", "9:16")
-FLOW_OUTPUT_COUNT = os.getenv("FLOW_OUTPUT_COUNT", "1")  # 1, 2, 3, or 4
+FLOW_OUTPUT_COUNT = os.getenv("FLOW_OUTPUT_COUNT", "1")
 
 
 def first_visible(page, selectors):
@@ -28,25 +28,26 @@ def click_first(page, selectors, label, wait_ms=800):
     if not loc:
         print(f"Not found: {label}")
         return False
-
     print(f"Click {label}: {sel}")
     loc.click(force=True, timeout=10000)
     page.wait_for_timeout(wait_ms)
     return True
 
 
-def open_composer_settings(page):
-    return click_first(
-        page,
-        [
-            "button:has-text('Agent')",
-            "[role='button']:has-text('Agent')",
-            "button[aria-label*='Agent']",
-            "[role='button'][aria-label*='Agent']",
-        ],
-        "Composer Agent/settings",
-        wait_ms=1200,
-    )
+def open_composer_model_settings(page):
+    print("Opening composer model/settings pill")
+
+    # Correct control from screenshot: bottom composer pill near submit arrow.
+    selectors = [
+        "button:has-text('Nano Banana')",
+        "[role='button']:has-text('Nano Banana')",
+        "button:has-text('Imagen')",
+        "[role='button']:has-text('Imagen')",
+        "button:has-text('1x')",
+        "[role='button']:has-text('1x')",
+    ]
+
+    return click_first(page, selectors, "Composer model/settings pill", wait_ms=1200)
 
 
 def select_image_mode(page):
@@ -90,21 +91,9 @@ def select_quantity(page):
 
 
 def select_model(page):
-    # Open model dropdown if current model/pro model row is visible.
-    click_first(
-        page,
-        [
-            "button:has-text('Nano Banana')",
-            "[role='button']:has-text('Nano Banana')",
-            "button:has-text('Imagen')",
-            "[role='button']:has-text('Imagen')",
-            "button[aria-haspopup='listbox']",
-            "[role='button'][aria-haspopup='listbox']",
-        ],
-        "Model dropdown",
-        wait_ms=1000,
-    )
+    print(f"Selecting model: {FLOW_IMAGE_MODEL}")
 
+    # If dropdown already open, target option directly.
     return click_first(
         page,
         [
@@ -114,7 +103,7 @@ def select_model(page):
             f"text={FLOW_IMAGE_MODEL}",
         ],
         f"Model {FLOW_IMAGE_MODEL}",
-        wait_ms=1200,
+        wait_ms=1000,
     )
 
 
@@ -140,9 +129,9 @@ with sync_playwright() as p:
 
     print("Flow page:", page.url)
 
-    opened = open_composer_settings(page)
+    opened = open_composer_model_settings(page)
     if not opened:
-        raise SystemExit("Composer Agent/settings button not found.")
+        raise SystemExit("Composer model/settings pill not found.")
 
     image_ok = select_image_mode(page)
     aspect_ok = select_aspect_ratio(page)
