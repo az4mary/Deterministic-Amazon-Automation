@@ -157,11 +157,6 @@ with sync_playwright() as p:
         "[role='button']:has-text('All Media')",
     ], "Uploaded Media", wait_ms=2000)
 
-
-
-
-
-
     # Hover target uploaded media card while all gallery images remain visible.
     # Do NOT click the image/card. Only hover, open its 3-dot menu, then Add to prompt.
 
@@ -281,9 +276,6 @@ with sync_playwright() as p:
 
     if not added_to_prompt:
         raise SystemExit("No Add to prompt action found from hovered gallery card.")
-    
-
-    
 
     # Fill prompt.
     prompt_box, sel = first_visible(page, [
