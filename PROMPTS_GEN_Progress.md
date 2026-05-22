@@ -225,6 +225,18 @@ PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_STATIC_OK
 PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK
 ```
 
+## STEP 1 - PATCH_12N1
+
+```json
+{
+  "patch_id": "PATCH_12N1",
+  "expected_insert_anchor_count": 1,
+  "actual_insert_anchor_count": 1,
+  "expected_existing_helper_count": 0,
+  "actual_existing_helper_count": 0
+}
+```
+
 ## Resume STEP 7 after PATCH_12M
 
 Status: FAILED_BLOCKED
