@@ -190,17 +190,131 @@ with sync_playwright() as p:
     if not clicked_asset:
         raise SystemExit("No uploaded media asset clicked.")
 
-    # Click Add to Prompt.
-    if not click_first(page, [
-        "text=Add to Prompt",
-        "text=Add to prompt",
-        "button:has-text('Add to Prompt')",
-        "[role='button']:has-text('Add to Prompt')",
-        "button:has-text('Add to prompt')",
-        "[role='button']:has-text('Add to prompt')",
-        "[aria-label*='Add to Prompt']",
-    ], "Add to Prompt", wait_ms=2500):
-        raise SystemExit("No Add to Prompt button found.")
+
+
+
+    # Hover target uploaded media card while all gallery images remain visible.
+    # Do NOT click the image/card. Only hover, open its 3-dot menu, then Add to prompt.
+
+    TARGET_IMAGE_NAME = "Dashcam_road_facing_view"
+
+    added_to_prompt = False
+
+    target_card_selectors = [
+        f"[role='button']:has-text('{TARGET_IMAGE_NAME}')",
+        f"button:has-text('{TARGET_IMAGE_NAME}')",
+        f"[data-testid*='asset']:has-text('{TARGET_IMAGE_NAME}')",
+        f"[data-testid*='media']:has-text('{TARGET_IMAGE_NAME}')",
+        f"main [role='button']:has-text('{TARGET_IMAGE_NAME}')",
+        f"main div:has-text('{TARGET_IMAGE_NAME}')",
+    ]
+
+    fallback_card_selectors = [
+        "[role='button']:has(img)",
+        "button:has(img)",
+        "[data-testid*='asset']:has(img)",
+        "[data-testid*='media']:has(img)",
+        "main [role='button']:has(img)",
+    ]
+
+    def try_hover_card_and_add(card, card_label):
+        try:
+            if not card.is_visible():
+                return False
+
+            box = card.bounding_box() or {}
+            if box.get("width", 0) < 100 or box.get("height", 0) < 100:
+                return False
+
+            print(f"Hover gallery card only: {card_label}")
+            card.hover(timeout=10000)
+            page.wait_for_timeout(1000)
+
+            # Click ONLY the 3-dot menu / More options on the hovered card.
+            menu_candidates = [
+                "button[aria-label*='More']",
+                "[role='button'][aria-label*='More']",
+                "button[aria-label*='more']",
+                "[role='button'][aria-label*='more']",
+                "button:has-text('more_vert')",
+                "[role='button']:has-text('more_vert')",
+            ]
+
+            menu_clicked = False
+            for menu_sel in menu_candidates:
+                try:
+                    menu = card.locator(menu_sel).last
+                    if menu.count() and menu.is_visible():
+                        print(f"Click hovered-card menu: {menu_sel}")
+                        menu.click(force=True, timeout=10000)
+                        menu_clicked = True
+                        page.wait_for_timeout(1000)
+                        break
+                except Exception:
+                    pass
+
+            if not menu_clicked:
+                # Coordinate fallback: top-right corner of the hovered card.
+                # This clicks the overflow menu area, not the image body.
+                x = box["x"] + box["width"] - 28
+                y = box["y"] + 28
+                print("Click hovered-card top-right menu fallback")
+                page.mouse.click(x, y)
+                page.wait_for_timeout(1000)
+
+            add_to_prompt, sel = first_visible(page, [
+                "text=Add to prompt",
+                "text=Add to Prompt",
+                "[role='menuitem']:has-text('Add to prompt')",
+                "[role='menuitem']:has-text('Add to Prompt')",
+                "button:has-text('Add to prompt')",
+                "button:has-text('Add to Prompt')",
+                "[role='button']:has-text('Add to prompt')",
+                "[role='button']:has-text('Add to Prompt')",
+            ])
+
+            if add_to_prompt:
+                print(f"Click Add to prompt: {sel}")
+                add_to_prompt.click(force=True, timeout=10000)
+                page.wait_for_timeout(2500)
+                return True
+
+            print("Add to prompt not visible after hovered-card menu.")
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(500)
+            return False
+
+        except Exception as exc:
+            print(f"Hover card skipped: {str(exc)[:200]}")
+            return False
+
+    # First: target the actual Dashcam road-facing card by visible filename.
+    for sel in target_card_selectors:
+        cards = page.locator(sel)
+        for i in range(min(cards.count(), 10)):
+            if try_hover_card_and_add(cards.nth(i), f"{sel} [{i}]"):
+                added_to_prompt = True
+                break
+        if added_to_prompt:
+            break
+
+    # Fallback only if filename selector fails.
+    # Still hover-only; never click the image/card.
+    if not added_to_prompt:
+        for sel in fallback_card_selectors:
+            cards = page.locator(sel)
+            for i in range(min(cards.count(), 40)):
+                if try_hover_card_and_add(cards.nth(i), f"{sel} [{i}]"):
+                    added_to_prompt = True
+                    break
+            if added_to_prompt:
+                break
+
+    if not added_to_prompt:
+        raise SystemExit("No Add to prompt action found from hovered gallery card.")
+    
+
+    
 
     # Fill prompt.
     prompt_box, sel = first_visible(page, [
