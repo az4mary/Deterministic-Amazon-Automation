@@ -310,3 +310,9 @@ Failure:
 ```text
 PASS / no output
 ```
+
+## STEP 5 - N-Validation 2
+
+```text
+PATCH_12N_FLOW_GALLERY_SELECTION_STATIC_OK
+```
