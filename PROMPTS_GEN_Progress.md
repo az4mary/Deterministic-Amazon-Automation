@@ -316,3 +316,9 @@ PASS / no output
 ```text
 PATCH_12N_FLOW_GALLERY_SELECTION_STATIC_OK
 ```
+
+## STEP 6 - N-Validation 3
+
+```text
+PATCH_12N_FLOW_GALLERY_SELECTION_METHODS_OK
+```
