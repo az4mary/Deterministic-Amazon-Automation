@@ -1834,6 +1834,123 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             "surface_summary": self._flow_prompt_surface_summary(page),
         }
 
+    def _flow_open_uploaded_media_gallery(self, page) -> bool:
+        open_selectors = [
+            "button:has-text('View uploaded media')",
+            "[role='button']:has-text('View uploaded media')",
+            "button:has-text('Uploaded media')",
+            "[role='button']:has-text('Uploaded media')",
+            "button:has-text('All Media')",
+            "[role='button']:has-text('All Media')",
+            "button:has-text('Add Media')",
+            "[role='button']:has-text('Add Media')",
+            "button[aria-label*='uploaded media']",
+            "button[aria-label*='Uploaded media']",
+            "button[aria-label*='All Media']",
+            "button[aria-label*='Add Media']",
+            "[aria-label*='View uploaded media']",
+            "[aria-label*='View images']",
+            "[aria-label*='All Media']",
+            "[aria-label*='Add Media']",
+        ]
+
+        clicked = self._flow_click_first(
+            page,
+            open_selectors,
+            label="open_uploaded_media_gallery",
+            force=True,
+        )
+
+        if clicked:
+            page.wait_for_timeout(2000)
+
+        json_log(
+            level="INFO" if clicked else "DEBUG",
+            message="Flow uploaded media gallery open attempted",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_open_uploaded_media_gallery",
+                "clicked": clicked,
+                "summary": self._flow_reference_attach_summary(page),
+            },
+        )
+
+        return clicked
+
+    def _flow_media_candidate_summary(self, page) -> Dict[str, Any]:
+        selectors = [
+            "[role='dialog'] img",
+            "[role='dialog'] canvas",
+            "[role='dialog'] [role='img']",
+            "[data-testid*='gallery'] img",
+            "[data-testid*='asset'] img",
+            "[data-testid*='media'] img",
+            "[data-testid*='thumbnail'] img",
+            "main img",
+            "main canvas",
+            "[role='button'] img",
+            "button img",
+        ]
+
+        details: List[Dict[str, Any]] = []
+        for selector in selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), 20)
+                visible_count = 0
+                large_count = 0
+                for idx in range(count):
+                    try:
+                        item = collection.nth(idx)
+                        if not item.is_visible():
+                            continue
+                        visible_count += 1
+                        box = item.bounding_box() or {}
+                        width = float(box.get("width", 0) or 0)
+                        height = float(box.get("height", 0) or 0)
+                        if width >= 48 and height >= 48:
+                            large_count += 1
+                    except Exception:
+                        continue
+                if count or visible_count or large_count:
+                    details.append(
+                        {
+                            "selector": selector,
+                            "count": count,
+                            "visible_count": visible_count,
+                            "large_count": large_count,
+                        }
+                    )
+            except Exception:
+                continue
+
+        return {
+            "url": getattr(page, "url", ""),
+            "selectors": details[:20],
+        }
+
+    def _flow_click_media_candidate(self, candidate) -> bool:
+        try:
+            candidate.scroll_into_view_if_needed(timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+        except Exception:
+            pass
+
+        try:
+            candidate.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+            return True
+        except Exception:
+            pass
+
+        try:
+            box = candidate.bounding_box() or {}
+            x = float(box.get("x", 0) or 0) + (float(box.get("width", 0) or 0) / 2)
+            y = float(box.get("y", 0) or 0) + (float(box.get("height", 0) or 0) / 2)
+            candidate.page.mouse.click(x, y)
+            return True
+        except Exception:
+            return False
+
     def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
         gallery_selectors = [
             "[role='dialog'] img",
