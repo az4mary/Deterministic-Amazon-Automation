@@ -1,10 +1,9 @@
 from pathlib import Path
 import os
-import re
-import sys
 import time
 from playwright.sync_api import sync_playwright
 
+ROOT = Path(__file__).resolve().parent
 CDP_URL = os.getenv("BROWSER_CDP_URL", "http://127.0.0.1:9222")
 FLOW_URL = os.getenv(
     "FLOW_URL",
@@ -13,12 +12,17 @@ FLOW_URL = os.getenv(
 
 TEST_PROMPT = "Test prompt: generate a simple product image using the attached reference image."
 
-if len(sys.argv) < 2:
-    raise SystemExit("Usage: python flow_attach_smoke.py <image_path>")
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
+image_candidates = [
+    p for p in (ROOT / "data" / "images").glob("*")
+    if p.is_file() and p.suffix.lower() in IMAGE_EXTS
+]
 
-image_path = Path(sys.argv[1]).resolve()
-if not image_path.exists():
-    raise SystemExit(f"Image not found: {image_path}")
+if not image_candidates:
+    raise SystemExit("No image found in data/images/")
+
+image_path = image_candidates[0].resolve()
+print(f"Using image: {image_path}")
 
 def first_visible(page, selectors):
     for sel in selectors:
@@ -49,34 +53,28 @@ with sync_playwright() as p:
 
     page.bring_to_front()
     page.wait_for_timeout(2000)
-
     print("Flow page:", page.url)
 
-    # 1. Open Add Media / uploaded media surface.
     add_media, sel = first_visible(page, [
         "button:has-text('Add Media')",
         "[role='button']:has-text('Add Media')",
         "button[aria-label*='Add Media']",
         "[aria-label*='Add Media']",
-        "button:has-text('View uploaded media')",
-        "[role='button']:has-text('View uploaded media')",
-        "[aria-label*='View uploaded media']",
     ])
+
     if add_media:
         print("Click:", sel)
         add_media.click(force=True)
         page.wait_for_timeout(1500)
 
-    # 2. Upload image using visible/hidden file input.
     file_input = page.locator("input[type=file]").last
     if not file_input.count():
-        raise SystemExit("No input[type=file] found after Add Media.")
+        raise SystemExit("No input[type=file] found.")
 
-    print("Uploading:", image_path)
+    print("Uploading image...")
     file_input.set_input_files(str(image_path))
     page.wait_for_timeout(5000)
 
-    # 3. Open uploaded media/gallery if needed.
     uploaded_media, sel = first_visible(page, [
         "button:has-text('View uploaded media')",
         "[role='button']:has-text('View uploaded media')",
@@ -86,25 +84,23 @@ with sync_playwright() as p:
         "button:has-text('Uploaded media')",
         "[role='button']:has-text('Uploaded media')",
     ])
+
     if uploaded_media:
         print("Click:", sel)
         uploaded_media.click(force=True)
         page.wait_for_timeout(2000)
 
-    # 4. Click an uploaded image/card to open its preview/details.
-    candidates = [
+    clicked_asset = False
+    for sel in [
         "[role='button'] img",
         "button img",
         "[data-testid*='asset'] img",
         "[data-testid*='media'] img",
         "[data-testid*='thumbnail'] img",
         "main img",
-    ]
-
-    clicked_asset = False
-    for sel in candidates:
+    ]:
         locs = page.locator(sel)
-        for i in range(min(locs.count(), 30)):
+        for i in range(min(locs.count(), 40)):
             img = locs.nth(i)
             try:
                 if not img.is_visible():
@@ -125,7 +121,6 @@ with sync_playwright() as p:
     if not clicked_asset:
         raise SystemExit("No clickable uploaded media asset found.")
 
-    # 5. Click exact preview action: Add to Prompt.
     add_to_prompt, sel = first_visible(page, [
         "button:has-text('Add to Prompt')",
         "[role='button']:has-text('Add to Prompt')",
@@ -134,14 +129,14 @@ with sync_playwright() as p:
         "button[aria-label*='Add to Prompt']",
         "[aria-label*='Add to Prompt']",
     ])
+
     if not add_to_prompt:
-        raise SystemExit("No Add to Prompt button found after clicking asset.")
+        raise SystemExit("No Add to Prompt button found.")
 
     print("Click:", sel)
     add_to_prompt.click(force=True)
     page.wait_for_timeout(2500)
 
-    # 6. Fill prompt.
     prompt_box, sel = first_visible(page, [
         "textarea",
         "[contenteditable='true']",
@@ -149,11 +144,13 @@ with sync_playwright() as p:
         "[role='textbox']",
         "input[type='text']",
     ])
+
     if not prompt_box:
         raise SystemExit("No prompt composer found.")
 
     print("Fill prompt:", sel)
     prompt_box.click(force=True)
+
     try:
         page.keyboard.press("Control+A")
         page.keyboard.press("Backspace")
@@ -163,7 +160,6 @@ with sync_playwright() as p:
 
     page.wait_for_timeout(1000)
 
-    # 7. Submit.
     generate, sel = first_visible(page, [
         "button:has-text('Generate')",
         "[role='button']:has-text('Generate')",
@@ -172,6 +168,7 @@ with sync_playwright() as p:
         "[role='button']:has-text('Create')",
         "button[aria-label*='Create']",
     ])
+
     if generate:
         print("Click submit:", sel)
         generate.click(force=True)
