@@ -1885,72 +1885,499 @@ PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK
 
 ---
 
-# Resume STEP 7 after PATCH_12M
+# PATCH_12N — Flow uploaded-gallery asset selection refinement
+
+* Proceed with **PATCH_12N**.
+* Scope: **Flow uploaded-gallery asset selection refinement only**.
+* Do **not** touch model selection, prompt fill, prompt submit, image capture, metadata, docs, or step numbering.
+
+Current code selects gallery assets **before** opening the attach/gallery control, so `selected_gallery_asset_count=0` while the page still reports many visible media items. The next patch should open the relevant media/gallery surface first, then select uploaded media, then attach it. 
+
+---
+
+## STEP 1 — PATCH_12N1: add uploaded-media gallery helpers
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12N1",
+  "expected_insert_anchor_count": 1,
+  "expected_existing_helper_count": 0,
+  "halt_if_insert_anchor_count_is_not": 1
+}
+```
+
+### Insert immediately before
+
+```python
+    def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
+```
+
+### Add
+
+```python
+    def _flow_open_uploaded_media_gallery(self, page) -> bool:
+        open_selectors = [
+            "button:has-text('View uploaded media')",
+            "[role='button']:has-text('View uploaded media')",
+            "button:has-text('Uploaded media')",
+            "[role='button']:has-text('Uploaded media')",
+            "button:has-text('All Media')",
+            "[role='button']:has-text('All Media')",
+            "button:has-text('Add Media')",
+            "[role='button']:has-text('Add Media')",
+            "button[aria-label*='uploaded media']",
+            "button[aria-label*='Uploaded media']",
+            "button[aria-label*='All Media']",
+            "button[aria-label*='Add Media']",
+            "[aria-label*='View uploaded media']",
+            "[aria-label*='View images']",
+            "[aria-label*='All Media']",
+            "[aria-label*='Add Media']",
+        ]
+
+        clicked = self._flow_click_first(
+            page,
+            open_selectors,
+            label="open_uploaded_media_gallery",
+            force=True,
+        )
+
+        if clicked:
+            page.wait_for_timeout(2000)
+
+        json_log(
+            level="INFO" if clicked else "DEBUG",
+            message="Flow uploaded media gallery open attempted",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_open_uploaded_media_gallery",
+                "clicked": clicked,
+                "summary": self._flow_reference_attach_summary(page),
+            },
+        )
+
+        return clicked
+
+    def _flow_media_candidate_summary(self, page) -> Dict[str, Any]:
+        selectors = [
+            "[role='dialog'] img",
+            "[role='dialog'] canvas",
+            "[role='dialog'] [role='img']",
+            "[data-testid*='gallery'] img",
+            "[data-testid*='asset'] img",
+            "[data-testid*='media'] img",
+            "[data-testid*='thumbnail'] img",
+            "main img",
+            "main canvas",
+            "[role='button'] img",
+            "button img",
+        ]
+
+        details: List[Dict[str, Any]] = []
+        for selector in selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), 20)
+                visible_count = 0
+                large_count = 0
+                for idx in range(count):
+                    try:
+                        item = collection.nth(idx)
+                        if not item.is_visible():
+                            continue
+                        visible_count += 1
+                        box = item.bounding_box() or {}
+                        width = float(box.get("width", 0) or 0)
+                        height = float(box.get("height", 0) or 0)
+                        if width >= 48 and height >= 48:
+                            large_count += 1
+                    except Exception:
+                        continue
+                if count or visible_count or large_count:
+                    details.append(
+                        {
+                            "selector": selector,
+                            "count": count,
+                            "visible_count": visible_count,
+                            "large_count": large_count,
+                        }
+                    )
+            except Exception:
+                continue
+
+        return {
+            "url": getattr(page, "url", ""),
+            "selectors": details[:20],
+        }
+
+    def _flow_click_media_candidate(self, candidate) -> bool:
+        try:
+            candidate.scroll_into_view_if_needed(timeout=FLOW_UI_CLICK_TIMEOUT_MS)
+        except Exception:
+            pass
+
+        try:
+            candidate.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+            return True
+        except Exception:
+            pass
+
+        try:
+            box = candidate.bounding_box() or {}
+            x = float(box.get("x", 0) or 0) + (float(box.get("width", 0) or 0) / 2)
+            y = float(box.get("y", 0) or 0) + (float(box.get("height", 0) or 0) / 2)
+            candidate.page.mouse.click(x, y)
+            return True
+        except Exception:
+            return False
+```
+
+---
+
+## STEP 2 — PATCH_12N2: replace `_flow_select_gallery_assets(...)`
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12N2",
+  "expected_method_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_method_count_is_not": 1
+}
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
+```
+
+Through the line immediately before:
+
+```python
+    def _flow_click_attach_selected_to_composer(self, page) -> bool:
+```
+
+### Replacement
+
+```python
+    def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
+        self._flow_open_uploaded_media_gallery(page)
+
+        gallery_selectors = [
+            "[role='dialog'] [aria-selected='false']",
+            "[role='dialog'] [aria-checked='false']",
+            "[role='dialog'] [role='checkbox']",
+            "[role='dialog'] [role='option']",
+            "[role='dialog'] [role='gridcell']",
+            "[role='dialog'] [role='button'] img",
+            "[role='dialog'] button img",
+            "[role='dialog'] img",
+            "[role='dialog'] canvas",
+            "[data-testid*='uploaded'] img",
+            "[data-testid*='gallery'] img",
+            "[data-testid*='asset'] img",
+            "[data-testid*='media'] img",
+            "[data-testid*='thumbnail'] img",
+            "[aria-label*='uploaded'] img",
+            "[aria-label*='Uploaded'] img",
+            "main [data-testid*='asset'] img",
+            "main [data-testid*='media'] img",
+            "main [data-testid*='thumbnail'] img",
+            "main [role='button'] img",
+            "main button img",
+        ]
+
+        selected = 0
+        attempted = 0
+        seen_keys = set()
+
+        for selector in gallery_selectors:
+            try:
+                collection = page.locator(selector)
+                count = min(collection.count(), 40)
+
+                for idx in range(count):
+                    if selected >= expected_count:
+                        break
+
+                    item = collection.nth(idx)
+
+                    try:
+                        if not item.is_visible():
+                            continue
+                    except Exception:
+                        continue
+
+                    try:
+                        box = item.bounding_box() or {}
+                    except Exception:
+                        continue
+
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    x = float(box.get("x", 0) or 0)
+                    y = float(box.get("y", 0) or 0)
+
+                    if width < 48 or height < 48:
+                        continue
+
+                    key = f"{int(x)}:{int(y)}:{int(width)}:{int(height)}"
+                    if key in seen_keys:
+                        continue
+                    seen_keys.add(key)
+
+                    attempted += 1
+
+                    target = item
+                    try:
+                        # Prefer clicking a containing card/button when the image itself
+                        # is not the selectable element.
+                        container = item.locator(
+                            "xpath=ancestor-or-self::*[@role='button' or @role='option' or @role='gridcell' or self::button][1]"
+                        ).first
+                        if container.count() and container.is_visible():
+                            target = container
+                    except Exception:
+                        pass
+
+                    if self._flow_click_media_candidate(target):
+                        selected += 1
+                        page.wait_for_timeout(700)
+
+                if selected >= expected_count:
+                    break
+
+            except Exception:
+                continue
+
+        json_log(
+            level="INFO" if selected else "WARNING",
+            message="Flow gallery asset selection attempted",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_gallery_asset_selection_attempted",
+                "expected_count": expected_count,
+                "selected_count": selected,
+                "attempted_click_count": attempted,
+                "candidate_summary": self._flow_media_candidate_summary(page),
+            },
+        )
+
+        return selected
+```
+
+---
+
+## STEP 3 — PATCH_12N3: replace reference finalization order
+
+### Dry-run expectation
+
+```json
+{
+  "patch_id": "PATCH_12N3",
+  "expected_method_count": 1,
+  "expected_replacement_count": 1,
+  "halt_if_method_count_is_not": 1
+}
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
+```
+
+Through the line immediately before:
+
+```python
+    def _flow_prompt_surface_summary(self, page) -> Dict[str, Any]:
+```
+
+### Replacement
+
+```python
+    def _finalize_flow_reference_attachment_to_composer(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        expected_count = len(source_images)
+
+        json_log(
+            level="INFO",
+            message="Flow reference composer attachment verification started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_composer_attach_verify_start",
+                "source_image_count": expected_count,
+                "strict": FLOW_REFERENCE_ATTACH_STRICT,
+            },
+        )
+
+        before_count = self._flow_composer_reference_count(page)
+
+        # Correct Flow order:
+        # 1. Open the uploaded-media/gallery surface.
+        # 2. Select uploaded image assets.
+        # 3. Click the attach/add/use control.
+        # 4. Confirm visible composer reference chips/assets.
+        opened_gallery = self._flow_open_uploaded_media_gallery(page)
+        selected_count = self._flow_select_gallery_assets(page, expected_count)
+        clicked_attach = self._flow_click_attach_selected_to_composer(page)
+
+        page.wait_for_timeout(2000)
+        self._dismiss_flow_transient_overlays(page)
+
+        attached = self._wait_for_flow_references_in_composer(page, expected_count)
+        after_count = self._flow_composer_reference_count(page)
+
+        if attached:
+            json_log(
+                level="INFO",
+                message="Flow reference images attached to composer",
+                stage="PROCESSING",
+                status="COMPLETED",
+                context={
+                    "operation": "flow_reference_images_attached_to_composer",
+                    "source_image_count": expected_count,
+                    "opened_gallery": opened_gallery,
+                    "selected_gallery_asset_count": selected_count,
+                    "clicked_attach_control": clicked_attach,
+                    "before_composer_reference_count": before_count,
+                    "after_composer_reference_count": after_count,
+                },
+            )
+            return
+
+        context = {
+            "operation": "flow_reference_gallery_attach_failed",
+            "source_image_count": expected_count,
+            "opened_gallery": opened_gallery,
+            "selected_gallery_asset_count": selected_count,
+            "clicked_attach_control": clicked_attach,
+            "before_composer_reference_count": before_count,
+            "after_composer_reference_count": after_count,
+            "summary": self._flow_reference_attach_summary(page),
+            "media_candidate_summary": self._flow_media_candidate_summary(page),
+        }
+
+        if FLOW_REFERENCE_ATTACH_STRICT:
+            fail(
+                "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER",
+                "Flow reference images were uploaded to the gallery but were not confirmed attached to the active composer.",
+                field="flow_reference_composer",
+                expected="uploaded gallery image selected and attached into prompt composer",
+                actual=json.dumps(context, ensure_ascii=False),
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="WARNING",
+            message="Flow reference images uploaded but composer attachment was not confirmed",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context=context,
+        )
+```
+
+---
+
+# PATCH_12N validation
+
+## STEP 4 — N-Validation 1: compile
 
 ```powershell
-$env:EXECUTION_BACKEND="browser"
-$env:BROWSER_CDP_URL="http://127.0.0.1:9222"
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
 
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+## STEP 5 — N-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "def _flow_open_uploaded_media_gallery",
+    "def _flow_media_candidate_summary",
+    "def _flow_click_media_candidate",
+    "Flow uploaded media gallery open attempted",
+    "Flow gallery asset selection attempted",
+    "candidate_summary",
+    "media_candidate_summary",
+    "opened_gallery",
+    "Correct Flow order:",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+print("PATCH_12N_FLOW_GALLERY_SELECTION_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12N_FLOW_GALLERY_SELECTION_STATIC_OK
+```
+
+---
+
+## STEP 6 — N-Validation 3: no-browser method sanity
+
+```powershell
 $env:IMAGE_EXECUTION_BACKEND="flow_browser"
-$env:FLOW_URL="https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28"
-$env:FLOW_IMAGE_MODEL="Nano Banana 2"
-$env:FLOW_MODEL_STRICT="1"
-$env:FLOW_IMAGE_TIMEOUT_SECONDS="1200"
-$env:FLOW_REFERENCE_STRICT="1"
-$env:FLOW_REFERENCE_ATTACH_STRICT="1"
-$env:FLOW_ASPECT_RATIO="9:16"
-$env:FLOW_OUTPUT_COUNT="1"
 
-$env:TEXT_STEP_WAIT_SECONDS="300"
-$env:IMAGE_STEP_WAIT_SECONDS="600"
+@'
+import workflow_orchestrator as w
 
-D:\TOOLS\Python314\python.exe workflow_orchestrator.py --resume --enable-image-generation --stop-after 12
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+required = [
+    "_flow_open_uploaded_media_gallery",
+    "_flow_media_candidate_summary",
+    "_flow_click_media_candidate",
+    "_flow_select_gallery_assets",
+    "_finalize_flow_reference_attachment_to_composer",
+]
+
+for name in required:
+    assert hasattr(adapter, name), name
+
+print("PATCH_12N_FLOW_GALLERY_SELECTION_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
 ```
 
-## Expected checks
+Expected:
 
-```json
-{
-  "expected": [
-    "resume starts at step 12",
-    "Image generation adapter handoff started",
-    "Flow adapter reused shared browser session",
-    "Flow page ready",
-    "Flow reference images uploaded",
-    "Flow reference images attached to composer",
-    "Flow model selected",
-    "Flow prompt box filled",
-    "Flow prompt submission confirmed",
-    "Flow image prompt submitted",
-    "Flow generated image captured",
-    "output/generated_images/image_12.png exists",
-    "generated_image_1.generation_backend=flow_browser",
-    "generated_image_1.generation_model=Nano Banana 2",
-    "last_completed_step=12",
-    "OUTPUT/SUCCESS"
-  ],
-  "forbidden": [
-    "FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER",
-    "FLOW_PROMPT_SUBMIT_NOT_CONFIRMED",
-    "FLOW_PROMPT_INPUT_MISSING",
-    "FLOW_PROMPT_INPUT_NOT_FILLED",
-    "Locator.click: Timeout 120000ms exceeded",
-    "Playwright Sync API inside the asyncio loop",
-    "FLOW_IMAGE_BACKEND_NOT_IMPLEMENTED",
-    "OpenAI image generation",
-    "ChatGPT browser image generation"
-  ]
-}
+```text
+PATCH_12N_FLOW_GALLERY_SELECTION_METHODS_OK
 ```
 
-## Decision rule
+---
 
-```json
-{
-  "if_STEP_7_fails_with_FLOW_REFERENCE_NOT_ATTACHED_TO_COMPOSER": "attach execution log; next patch only gallery selection/attach selector refinement",
-  "if_STEP_7_fails_with_FLOW_PROMPT_SUBMIT_NOT_CONFIRMED": "attach execution log; next patch only generate/submit selector refinement",
-  "if_STEP_7_fails_after_Flow_image_prompt_submitted": "next patch only generated-image capture",
-  "if_STEP_7_passes": "PATCH_12M_CONFIRMED; proceed to Validation 6 full Flow run"
-}
-```
-
+# Resume STEP 7 after PATCH_12N
