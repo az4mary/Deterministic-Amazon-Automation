@@ -319,18 +319,9 @@ def fill_prompt(page):
 
 
 
-
 def submit_prompt(page):
-    print("Submit: locating composer-scoped generate/create control")
+    print("Submit: pressing Control+Enter only")
 
-    # Prefer keyboard submit first because it targets the focused composer.
-    try:
-        page.keyboard.press("Control+Enter")
-        page.wait_for_timeout(2500)
-    except Exception:
-        pass
-
-    # If keyboard did not start generation, click only a button near the composer area.
     prompt_box, _ = first_visible(
         page,
         [
@@ -341,77 +332,15 @@ def submit_prompt(page):
         ],
     )
 
-    prompt_box_rect = None
     if prompt_box:
-        try:
-            prompt_box_rect = prompt_box.bounding_box()
-        except Exception:
-            prompt_box_rect = None
+        prompt_box.click(force=True)
+        page.wait_for_timeout(300)
 
-    candidates = page.locator("button, [role='button']")
-    best = None
-    best_label = ""
+    page.keyboard.press("Control+Enter")
+    page.wait_for_timeout(3000)
 
-    for i in range(min(candidates.count(), 80)):
-        try:
-            btn = candidates.nth(i)
-            if not btn.is_visible() or not btn.is_enabled():
-                continue
-
-            text = (btn.inner_text(timeout=500) or "").strip()
-            aria = btn.get_attribute("aria-label") or ""
-            label = f"{text} {aria}".strip()
-
-            # Avoid broad/global Create controls unless they are near the prompt box.
-            if not any(word in label.lower() for word in ["generate", "create", "submit", "send"]):
-                continue
-
-            box = btn.bounding_box() or {}
-            if not box:
-                continue
-
-            if prompt_box_rect:
-                btn_cx = box["x"] + box["width"] / 2
-                btn_cy = box["y"] + box["height"] / 2
-
-                prompt_x1 = prompt_box_rect["x"] - 80
-                prompt_x2 = prompt_box_rect["x"] + prompt_box_rect["width"] + 160
-                prompt_y1 = prompt_box_rect["y"] - 120
-                prompt_y2 = prompt_box_rect["y"] + prompt_box_rect["height"] + 160
-
-                near_prompt = (
-                    prompt_x1 <= btn_cx <= prompt_x2
-                    and prompt_y1 <= btn_cy <= prompt_y2
-                )
-
-                if not near_prompt:
-                    continue
-
-            best = btn
-            best_label = label
-            break
-
-        except Exception:
-            pass
-
-    if best:
-        print(f"Click composer-scoped submit: {best_label!r}")
-        best.click(force=True, timeout=10000)
-        page.wait_for_timeout(3000)
-        print("Submitted.")
-        return
-
-    # Final fallback: focused composer + Enter.
-    print("No composer-scoped submit button found; pressing Enter")
-    try:
-        if prompt_box:
-            prompt_box.click(force=True)
-        page.keyboard.press("Enter")
-        page.wait_for_timeout(3000)
-        print("Submitted via Enter fallback.")
-        return
-    except Exception as exc:
-        raise SystemExit(f"Submit failed: {exc}")
+    print("Submitted via Control+Enter. No further clicks.")
+    return
 
 
 
