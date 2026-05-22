@@ -2211,10 +2211,16 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
 
         before_count = self._flow_composer_reference_count(page)
 
+        # Correct Flow order:
+        # 1. Open the uploaded-media/gallery surface.
+        # 2. Select uploaded image assets.
+        # 3. Click the attach/add/use control.
+        # 4. Confirm visible composer reference chips/assets.
+        opened_gallery = self._flow_open_uploaded_media_gallery(page)
         selected_count = self._flow_select_gallery_assets(page, expected_count)
         clicked_attach = self._flow_click_attach_selected_to_composer(page)
 
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(2000)
         self._dismiss_flow_transient_overlays(page)
 
         attached = self._wait_for_flow_references_in_composer(page, expected_count)
@@ -2229,6 +2235,7 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
                 context={
                     "operation": "flow_reference_images_attached_to_composer",
                     "source_image_count": expected_count,
+                    "opened_gallery": opened_gallery,
                     "selected_gallery_asset_count": selected_count,
                     "clicked_attach_control": clicked_attach,
                     "before_composer_reference_count": before_count,
@@ -2240,11 +2247,13 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
         context = {
             "operation": "flow_reference_gallery_attach_failed",
             "source_image_count": expected_count,
+            "opened_gallery": opened_gallery,
             "selected_gallery_asset_count": selected_count,
             "clicked_attach_control": clicked_attach,
             "before_composer_reference_count": before_count,
             "after_composer_reference_count": after_count,
             "summary": self._flow_reference_attach_summary(page),
+            "media_candidate_summary": self._flow_media_candidate_summary(page),
         }
 
         if FLOW_REFERENCE_ATTACH_STRICT:
