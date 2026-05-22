@@ -1952,40 +1952,109 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             return False
 
     def _flow_select_gallery_assets(self, page, expected_count: int) -> int:
+        self._flow_open_uploaded_media_gallery(page)
+
         gallery_selectors = [
+            "[role='dialog'] [aria-selected='false']",
+            "[role='dialog'] [aria-checked='false']",
+            "[role='dialog'] [role='checkbox']",
+            "[role='dialog'] [role='option']",
+            "[role='dialog'] [role='gridcell']",
+            "[role='dialog'] [role='button'] img",
+            "[role='dialog'] button img",
             "[role='dialog'] img",
             "[role='dialog'] canvas",
-            "[role='dialog'] [role='img']",
+            "[data-testid*='uploaded'] img",
             "[data-testid*='gallery'] img",
-            "[data-testid*='gallery'] canvas",
             "[data-testid*='asset'] img",
             "[data-testid*='media'] img",
             "[data-testid*='thumbnail'] img",
-            "main img",
-            "main canvas",
+            "[aria-label*='uploaded'] img",
+            "[aria-label*='Uploaded'] img",
+            "main [data-testid*='asset'] img",
+            "main [data-testid*='media'] img",
+            "main [data-testid*='thumbnail'] img",
+            "main [role='button'] img",
+            "main button img",
         ]
 
         selected = 0
+        attempted = 0
+        seen_keys = set()
+
         for selector in gallery_selectors:
             try:
                 collection = page.locator(selector)
-                count = min(collection.count(), max(expected_count + 5, 8))
+                count = min(collection.count(), 40)
+
                 for idx in range(count):
                     if selected >= expected_count:
-                        return selected
+                        break
+
                     item = collection.nth(idx)
-                    if not item.is_visible():
+
+                    try:
+                        if not item.is_visible():
+                            continue
+                    except Exception:
                         continue
-                    box = item.bounding_box() or {}
+
+                    try:
+                        box = item.bounding_box() or {}
+                    except Exception:
+                        continue
+
                     width = float(box.get("width", 0) or 0)
                     height = float(box.get("height", 0) or 0)
+                    x = float(box.get("x", 0) or 0)
+                    y = float(box.get("y", 0) or 0)
+
                     if width < 48 or height < 48:
                         continue
-                    item.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
-                    selected += 1
-                    page.wait_for_timeout(500)
+
+                    key = f"{int(x)}:{int(y)}:{int(width)}:{int(height)}"
+                    if key in seen_keys:
+                        continue
+                    seen_keys.add(key)
+
+                    attempted += 1
+
+                    target = item
+                    try:
+                        # Prefer clicking a containing card/button when the image itself
+                        # is not the selectable element.
+                        container = item.locator(
+                            "xpath=ancestor-or-self::*[@role='button' or @role='option' or @role='gridcell' or self::button][1]"
+                        ).first
+                        if container.count() and container.is_visible():
+                            target = container
+                    except Exception:
+                        pass
+
+                    if self._flow_click_media_candidate(target):
+                        selected += 1
+                        page.wait_for_timeout(700)
+
+                if selected >= expected_count:
+                    break
+
             except Exception:
                 continue
+
+        json_log(
+            level="INFO" if selected else "WARNING",
+            message="Flow gallery asset selection attempted",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_gallery_asset_selection_attempted",
+                "expected_count": expected_count,
+                "selected_count": selected,
+                "attempted_click_count": attempted,
+                "candidate_summary": self._flow_media_candidate_summary(page),
+            },
+        )
+
         return selected
 
     def _flow_click_attach_selected_to_composer(self, page) -> bool:
