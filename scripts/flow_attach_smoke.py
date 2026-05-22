@@ -157,38 +157,7 @@ with sync_playwright() as p:
         "[role='button']:has-text('All Media')",
     ], "Uploaded Media", wait_ms=2000)
 
-    # Click first large media asset.
-    clicked_asset = False
-    for sel in [
-        "[role='button'] img",
-        "button img",
-        "[data-testid*='asset'] img",
-        "[data-testid*='media'] img",
-        "[data-testid*='thumbnail'] img",
-        "main img",
-    ]:
-        locs = page.locator(sel)
-        for i in range(min(locs.count(), 50)):
-            try:
-                img = locs.nth(i)
-                if not img.is_visible():
-                    continue
-                box = img.bounding_box() or {}
-                if box.get("width", 0) < 48 or box.get("height", 0) < 48:
-                    continue
 
-                print(f"Click asset: {sel} [{i}]")
-                img.click(force=True, timeout=10000)
-                page.wait_for_timeout(2500)
-                clicked_asset = True
-                break
-            except Exception:
-                pass
-        if clicked_asset:
-            break
-
-    if not clicked_asset:
-        raise SystemExit("No uploaded media asset clicked.")
 
 
 
