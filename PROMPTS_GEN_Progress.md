@@ -225,42 +225,6 @@ PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_STATIC_OK
 PATCH_12M_FLOW_GALLERY_ATTACH_SUBMIT_METHODS_OK
 ```
 
-## STEP 1 - PATCH_12N1
-
-```json
-{
-  "patch_id": "PATCH_12N1",
-  "expected_insert_anchor_count": 1,
-  "actual_insert_anchor_count": 1,
-  "expected_existing_helper_count": 0,
-  "actual_existing_helper_count": 0
-}
-```
-
-## STEP 2 - PATCH_12N2
-
-```json
-{
-  "patch_id": "PATCH_12N2",
-  "expected_method_count": 1,
-  "actual_method_count": 1,
-  "expected_replacement_count": 1,
-  "actual_replacement_count": 1
-}
-```
-
-## STEP 3 - PATCH_12N3
-
-```json
-{
-  "patch_id": "PATCH_12N3",
-  "expected_method_count": 1,
-  "actual_method_count": 1,
-  "expected_replacement_count": 1,
-  "actual_replacement_count": 1
-}
-```
-
 ## Resume STEP 7 after PATCH_12M
 
 Status: FAILED_BLOCKED
@@ -302,5 +266,41 @@ Failure:
     "Locator.click: Timeout 120000ms exceeded",
     "prompt_box.click(timeout=self.action_timeout_ms)"
   ]
+}
+```
+
+## STEP 1 - PATCH_12N1
+
+```json
+{
+  "patch_id": "PATCH_12N1",
+  "expected_insert_anchor_count": 1,
+  "actual_insert_anchor_count": 1,
+  "expected_existing_helper_count": 0,
+  "actual_existing_helper_count": 0
+}
+```
+
+## STEP 2 - PATCH_12N2
+
+```json
+{
+  "patch_id": "PATCH_12N2",
+  "expected_method_count": 1,
+  "actual_method_count": 1,
+  "expected_replacement_count": 1,
+  "actual_replacement_count": 1
+}
+```
+
+## STEP 3 - PATCH_12N3
+
+```json
+{
+  "patch_id": "PATCH_12N3",
+  "expected_method_count": 1,
+  "actual_method_count": 1,
+  "expected_replacement_count": 1,
+  "actual_replacement_count": 1
 }
 ```
