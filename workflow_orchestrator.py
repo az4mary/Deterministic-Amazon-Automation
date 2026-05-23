@@ -3008,6 +3008,102 @@ Start-Sleep -Milliseconds 300
                 stage="PROCESSING",
             )
 
+    def _flow_user_info(self, message: str, **context: Any) -> None:
+        try:
+            details = ""
+            if context:
+                details = " | " + json.dumps(context, ensure_ascii=False, default=str)
+            print(f"Flow: {message}{details}", flush=True)
+        except Exception:
+            pass
+
+        try:
+            json_log(
+                level="INFO",
+                message=f"Flow: {message}",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_user_tracking_info",
+                    "tracking_message": message,
+                    **context,
+                },
+            )
+        except Exception:
+            pass
+
+    def _find_flow_prompt_box_for_submit(self, page):
+        selectors = [
+            "textarea",
+            "[contenteditable='true']",
+            "div[role='textbox']",
+            "[role='textbox']",
+        ]
+
+        viewport = page.viewport_size or {}
+        viewport_height = float(viewport.get("height") or 0)
+
+        self._flow_user_info("Looking for composer before submit", url=getattr(page, "url", ""))
+
+        for selector in selectors:
+            try:
+                collection = page.locator(selector)
+                for idx in range(min(collection.count(), 20)):
+                    candidate = collection.nth(idx)
+
+                    if not candidate.is_visible():
+                        continue
+
+                    box = candidate.bounding_box() or {}
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    y = float(box.get("y", 0) or 0)
+
+                    if width < 120 or height < 20:
+                        continue
+
+                    # Flow composer is the lower composer surface.
+                    # Reject gallery/full-view text surfaces that can appear after image clicks.
+                    if viewport_height and y < viewport_height * 0.35:
+                        self._flow_user_info(
+                            "Skipped non-composer textbox candidate",
+                            selector=selector,
+                            index=idx,
+                            rect=box,
+                            viewport_height=viewport_height,
+                        )
+                        continue
+
+                    self._flow_user_info(
+                        "Composer found",
+                        selector=selector,
+                        index=idx,
+                        rect=box,
+                    )
+                    return candidate
+
+            except Exception as exc:
+                self._flow_user_info(
+                    "Composer selector skipped",
+                    selector=selector,
+                    error=str(exc)[:200],
+                )
+
+        fail(
+            "FLOW_SUBMIT_COMPOSER_NOT_FOUND",
+            "Could not find the visible lower Flow composer before submit without activating gallery/image UI.",
+            field="flow_submit_composer",
+            expected="visible composer textbox near lower Flow composer area",
+            actual=json.dumps(
+                {
+                    "url": getattr(page, "url", ""),
+                    "summary": self._flow_prompt_surface_summary(page),
+                },
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
+
     def _click_flow_submit_arrow(self, page, prompt_box) -> None:
         rect = prompt_box.bounding_box() or {}
 

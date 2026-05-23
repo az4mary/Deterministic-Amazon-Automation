@@ -484,3 +484,10 @@ PATCH_12P_SUBMIT_CAPTURE_METHODS_OK
 ```text
 COMPLETED
 ```
+
+## STEP 1 - PATCH_12Q1: add submit-safe composer finder + user INFO trace
+
+```text
+{'click_helper_anchor': 1, 'existing_user_info': 0, 'existing_submit_finder': 0}
+PATCH_12Q1_DRY_RUN_PASS
+```
