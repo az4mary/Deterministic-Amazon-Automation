@@ -363,3 +363,9 @@ PATCH_12O4_DRY_RUN_PASS
 {'old_execute_sequence_count': 1, 'configure_existing': 0}
 PATCH_12O5_DRY_RUN_PASS
 ```
+
+## STEP 6 - O-Validation 1: compile
+
+```text
+PASS / no output
+```
