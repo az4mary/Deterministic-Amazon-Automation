@@ -328,3 +328,10 @@ PATCH_12N_FLOW_GALLERY_SELECTION_METHODS_OK
 ```text
 COMPLETED
 ```
+
+## STEP 1 - PATCH_12O1
+
+```text
+{'import_os': 1, 'import_subprocess_existing': 0, 'flow_reference_attach_strict': 1, 'flow_clipboard_wait_existing': 0}
+PATCH_12O1_DRY_RUN_PASS
+```
