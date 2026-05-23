@@ -466,3 +466,9 @@ PATCH_12P3_DRY_RUN_PASS
 ```text
 PASS / no output
 ```
+
+## STEP 5 - P-Validation 2: static marker check
+
+```text
+PATCH_12P_SUBMIT_CAPTURE_STATIC_OK
+```
