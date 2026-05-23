@@ -472,3 +472,9 @@ PASS / no output
 ```text
 PATCH_12P_SUBMIT_CAPTURE_STATIC_OK
 ```
+
+## STEP 6 - P-Validation 3: method sanity
+
+```text
+PATCH_12P_SUBMIT_CAPTURE_METHODS_OK
+```
