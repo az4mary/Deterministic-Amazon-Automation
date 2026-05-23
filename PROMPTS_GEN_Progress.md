@@ -517,3 +517,9 @@ PASS / no output
 ```text
 PATCH_12Q_SUBMIT_NO_ACTIVATION_STATIC_OK
 ```
+
+## STEP 6 - Q-Validation 3: method sanity
+
+```text
+PATCH_12Q_SUBMIT_NO_ACTIVATION_METHODS_OK
+```
