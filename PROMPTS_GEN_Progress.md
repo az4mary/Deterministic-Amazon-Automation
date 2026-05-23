@@ -213,13 +213,13 @@ Messenger request:
 PASS / no output
 ```
 
-## STEP 7 - O-Validation 2: static marker check
+## STEP 7 — O-Validation 2: static marker check
 
 ```text
 PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK
 ```
 
-## STEP 8 - O-Validation 3: method sanity
+## STEP 8 — O-Validation 3: method sanity
 
 ```text
 PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
@@ -335,60 +335,60 @@ PATCH_12N_FLOW_GALLERY_SELECTION_STATIC_OK
 PATCH_12N_FLOW_GALLERY_SELECTION_METHODS_OK
 ```
 
-## STEP 0 - Cleanup before PATCH_12O
+## STEP 0 — Cleanup before PATCH_12O
 
 ```text
 COMPLETED
 ```
 
-## STEP 1 - PATCH_12O1
+## STEP 1 — PATCH_12O1: add subprocess import + clipboard timing env vars
 
 ```text
 {'import_os': 1, 'import_subprocess_existing': 0, 'flow_reference_attach_strict': 1, 'flow_clipboard_wait_existing': 0}
 PATCH_12O1_DRY_RUN_PASS
 ```
 
-## STEP 2 - PATCH_12O2
+## STEP 2 — PATCH_12O2: add Flow settings + clipboard helper methods
 
 ```text
 {'anchor': 1, 'existing_clipboard_helper': 0, 'existing_settings_helper': 0, 'existing_paste_helper': 0}
 PATCH_12O2_DRY_RUN_PASS
 ```
 
-## STEP 3 - PATCH_12O3
+## STEP 3 — PATCH_12O3: replace `_attach_reference_images(...)`
 
 ```text
 {'method': 1, 'old_upload_marker': 2, 'old_finalize_call': 1}
 PATCH_12O3_DRY_RUN_PASS
 ```
 
-## STEP 4 - PATCH_12O4
+## STEP 4 — PATCH_12O4: replace `_submit_flow_prompt(...)`
 
 ```text
 {'method': 1, 'old_generate_click': 1, 'old_model_selection_started': 2}
 PATCH_12O4_DRY_RUN_PASS
 ```
 
-## STEP 5 - PATCH_12O5
+## STEP 5 — PATCH_12O5: replace Flow `execute_image(...)` ordering
 
 ```text
 {'old_execute_sequence_count': 1, 'configure_existing': 0}
 PATCH_12O5_DRY_RUN_PASS
 ```
 
-## STEP 6 - O-Validation 1: compile
+## STEP 6 — O-Validation 1: compile
 
 ```text
 PASS / no output
 ```
 
-## STEP 7 - O-Validation 2: static marker check
+## STEP 7 — O-Validation 2: static marker check
 
 ```text
 PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK
 ```
 
-## STEP 8 - O-Validation 3: method sanity
+## STEP 8 — O-Validation 3: method sanity
 
 ```text
 PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
