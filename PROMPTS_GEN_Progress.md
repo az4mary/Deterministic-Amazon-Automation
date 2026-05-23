@@ -460,3 +460,9 @@ PATCH_12P2_DRY_RUN_PASS
 {'download_selectors': 1, 'expect_download': 1, 'captured_download_marker': 1, 'capture_method': 1}
 PATCH_12P3_DRY_RUN_PASS
 ```
+
+## STEP 4 - P-Validation 1: compile
+
+```text
+PASS / no output
+```
