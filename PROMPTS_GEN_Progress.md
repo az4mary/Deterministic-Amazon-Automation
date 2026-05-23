@@ -381,3 +381,15 @@ PATCH_12O5_DRY_RUN_PASS
 ```text
 PASS / no output
 ```
+
+## STEP 7 - O-Validation 2: static marker check
+
+```text
+PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK
+```
+
+## STEP 8 - O-Validation 3: method sanity
+
+```text
+PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
+```
