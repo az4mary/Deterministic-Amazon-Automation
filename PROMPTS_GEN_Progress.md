@@ -453,3 +453,10 @@ PATCH_12P1_DRY_RUN_PASS
 {'method': 1, 'old_keyboard_marker': 1, 'old_control_enter_comment': 1, 'new_helper_call': 0}
 PATCH_12P2_DRY_RUN_PASS
 ```
+
+## STEP 3 - PATCH_12P3: disable download-click capture path
+
+```text
+{'download_selectors': 1, 'expect_download': 1, 'captured_download_marker': 1, 'capture_method': 1}
+PATCH_12P3_DRY_RUN_PASS
+```

@@ -3285,43 +3285,19 @@ Start-Sleep -Milliseconds 300
             except Exception:
                 continue
 
-        download_selectors = [
-            "button[aria-label*='Download']",
-            "button[aria-label*='download']",
-            "[role='button'][aria-label*='Download']",
-            "[role='button'][aria-label*='download']",
-            "button:has-text('Download')",
-            "[data-testid*='download']",
-        ]
-
         deadline = time.time() + FLOW_IMAGE_TIMEOUT_SECONDS
         last_error = ""
+        json_log(
+            level="INFO",
+            message="Flow download-click capture disabled",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_download_click_capture_disabled",
+                "reason": "avoid clicking uploaded reference images or opening image/download surfaces before generated output is detected",
+            },
+        )
         while time.time() < deadline:
-            for selector in download_selectors:
-                try:
-                    button = page.locator(selector).last
-                    if not button.count() or not button.is_visible() or not button.is_enabled():
-                        continue
-                    with page.expect_download(timeout=3000) as download_info:
-                        button.click(timeout=self.action_timeout_ms)
-                    download = download_info.value
-                    download_path = download.path()
-                    if download_path:
-                        image_base64 = base64.b64encode(Path(download_path).read_bytes()).decode("ascii")
-                        json_log(
-                            level="INFO",
-                            message="Flow generated image captured from download",
-                            stage="PROCESSING",
-                            status="COMPLETED",
-                            context={
-                                "operation": "flow_generated_image_captured_download",
-                                "image_base64_chars": len(image_base64),
-                            },
-                        )
-                        return image_base64
-                except Exception as exc:
-                    last_error = str(exc)[:500]
-
             for selector, candidate in collect_candidates():
                 try:
                     if not visible_large_enough(candidate):
