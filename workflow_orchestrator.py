@@ -3104,38 +3104,34 @@ Start-Sleep -Milliseconds 300
             stage="PROCESSING",
         )
 
-    def _click_flow_submit_arrow(self, page, prompt_box) -> None:
+    def _click_flow_submit_arrow(self, page) -> None:
+        prompt_box = self._find_flow_prompt_box_for_submit(page)
         rect = prompt_box.bounding_box() or {}
 
         if not rect:
             fail(
                 "FLOW_SUBMIT_PROMPT_BOX_RECT_MISSING",
-                "Could not resolve Flow prompt box geometry before submit.",
+                "Could not resolve Flow submit composer geometry before submit.",
                 field="flow_prompt_box",
-                expected="prompt box bounding rectangle available",
-                actual=f"url={getattr(page, 'url', '')}",
+                expected="visible lower Flow composer bounding rectangle",
+                actual=json.dumps(
+                    {
+                        "url": getattr(page, "url", ""),
+                        "summary": self._flow_prompt_surface_summary(page),
+                    },
+                    ensure_ascii=False,
+                ),
                 stage="PROCESSING",
             )
 
-        json_log(
-            level="INFO",
-            message="Flow submit button search started",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "flow_submit_button_search_start",
-                "prompt_box_rect": {
-                    "x": rect.get("x"),
-                    "y": rect.get("y"),
-                    "width": rect.get("width"),
-                    "height": rect.get("height"),
-                },
-            },
-        )
+        self._flow_user_info("Click submit button", prompt_box_rect=rect)
 
         buttons = page.locator("button, [role='button']")
+        button_count = min(buttons.count(), 140)
 
-        for idx in range(min(buttons.count(), 140)):
+        self._flow_user_info("Scanning visible buttons near composer", button_count=button_count)
+
+        for idx in range(button_count):
             try:
                 button = buttons.nth(idx)
                 if not button.is_visible() or not button.is_enabled():
@@ -3160,6 +3156,7 @@ Start-Sleep -Milliseconds 300
                         "settings",
                         "more",
                         "download",
+                        "gallery",
                     ]
                 ):
                     continue
@@ -3188,45 +3185,45 @@ Start-Sleep -Milliseconds 300
                     and rect["y"] - 120 <= cy <= rect["y"] + rect["height"] + 160
                 )
 
+                self._flow_user_info(
+                    "Submit candidate inspected",
+                    button_index=idx,
+                    label=label,
+                    rect=box,
+                    near_composer=near_composer,
+                )
+
                 if not near_composer:
                     continue
 
-                json_log(
-                    level="INFO",
-                    message="Flow submit button clicked",
-                    stage="PROCESSING",
-                    status="COMPLETED",
-                    context={
-                        "operation": "flow_submit_button_clicked",
-                        "button_label": label,
-                        "button_index": idx,
-                    },
-                )
+                self._flow_user_info("Click submit", button_index=idx, label=label)
 
                 button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
                 page.wait_for_timeout(3000)
+
+                self._flow_user_info("Submitted")
                 return
 
-            except Exception:
-                continue
+            except Exception as exc:
+                self._flow_user_info(
+                    "Submit candidate skipped",
+                    button_index=idx,
+                    error=str(exc)[:200],
+                )
 
+        # Coordinate fallback is allowed only after a verified composer rectangle exists.
         x = rect["x"] + rect["width"] + 36
         y = rect["y"] + rect["height"] / 2
 
-        json_log(
-            level="WARNING",
-            message="Flow submit button selector not found; using composer arrow coordinate fallback",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "flow_submit_coordinate_fallback_clicked",
-                "x": x,
-                "y": y,
-            },
+        self._flow_user_info(
+            "Submit selector not found; clicking right-side composer arrow fallback",
+            x=x,
+            y=y,
         )
 
         page.mouse.click(x, y)
         page.wait_for_timeout(3000)
+        self._flow_user_info("Submitted by coordinate fallback")
 
     def _submit_flow_prompt(self, page, prompt: str) -> None:
         prompt_box = self._find_flow_prompt_box(page)

@@ -491,3 +491,10 @@ COMPLETED
 {'click_helper_anchor': 1, 'existing_user_info': 0, 'existing_submit_finder': 0}
 PATCH_12Q1_DRY_RUN_PASS
 ```
+
+## STEP 2 - PATCH_12Q2: replace submit click helper
+
+```text
+{'old_signature': 1, 'old_rect_fail': 1, 'old_coord_fallback': 1, 'new_signature': 0}
+PATCH_12Q2_DRY_RUN_PASS
+```
