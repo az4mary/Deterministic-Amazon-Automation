@@ -219,6 +219,12 @@ PASS / no output
 PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK
 ```
 
+## STEP 8 - O-Validation 3: method sanity
+
+```text
+PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
+```
+
 ## STEP 6 - M-Validation 2
 
 ```text
