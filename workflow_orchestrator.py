@@ -3226,7 +3226,7 @@ Start-Sleep -Milliseconds 300
         self._flow_user_info("Submitted by coordinate fallback")
 
     def _submit_flow_prompt(self, page, prompt: str) -> None:
-        prompt_box = self._find_flow_prompt_box(page)
+        prompt_box = self._find_flow_prompt_box_for_submit(page)
         self._fill_flow_prompt_box(page, prompt_box, prompt)
 
         json_log(
@@ -3241,13 +3241,8 @@ Start-Sleep -Milliseconds 300
             },
         )
 
-        try:
-            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
-        except Exception:
-            prompt_box = self._find_flow_prompt_box(page)
-            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
-
-        self._click_flow_submit_arrow(page, prompt_box)
+        self._flow_user_info("Prompt filled; preparing submit click")
+        self._click_flow_submit_arrow(page)
 
         json_log(
             level="INFO",

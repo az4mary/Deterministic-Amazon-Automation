@@ -498,3 +498,10 @@ PATCH_12Q1_DRY_RUN_PASS
 {'old_signature': 1, 'old_rect_fail': 1, 'old_coord_fallback': 1, 'new_signature': 0}
 PATCH_12Q2_DRY_RUN_PASS
 ```
+
+## STEP 3 - PATCH_12Q3: replace submit method to avoid prompt-surface activation
+
+```text
+{'method': 1, 'old_find_call': 4, 'old_helper_call': 1, 'new_safe_find_call': 1, 'new_helper_call': 0}
+PATCH_12Q3_DRY_RUN_PASS
+```
