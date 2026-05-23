@@ -342,3 +342,10 @@ PATCH_12O1_DRY_RUN_PASS
 {'anchor': 1, 'existing_clipboard_helper': 0, 'existing_settings_helper': 0, 'existing_paste_helper': 0}
 PATCH_12O2_DRY_RUN_PASS
 ```
+
+## STEP 3 - PATCH_12O3
+
+```text
+{'method': 1, 'old_upload_marker': 2, 'old_finalize_call': 1}
+PATCH_12O3_DRY_RUN_PASS
+```
