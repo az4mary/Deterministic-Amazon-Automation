@@ -231,6 +231,26 @@ PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
 COMPLETED
 ```
 
+## STEP 1 - PATCH_12P1: add composer-scoped submit helper
+
+```text
+{'anchor': 1, 'existing_helper': 0, 'keyboard_only_marker': 1}
+PATCH_12P1_DRY_RUN_PASS
+```
+
+## STEP 0 - Cleanup before PATCH_12P
+
+```text
+COMPLETED
+```
+
+## STEP 1 - PATCH_12P1: add composer-scoped submit helper
+
+```text
+{'anchor': 1, 'existing_helper': 0, 'keyboard_only_marker': 1}
+PATCH_12P1_DRY_RUN_PASS
+```
+
 ## STEP 6 - M-Validation 2
 
 ```text
@@ -398,4 +418,17 @@ PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK
 
 ```text
 PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
+```
+
+## STEP 0 - Cleanup before PATCH_12P
+
+```text
+COMPLETED
+```
+
+## STEP 1 - PATCH_12P1: add composer-scoped submit helper
+
+```text
+{'anchor': 1, 'existing_helper': 0, 'keyboard_only_marker': 1}
+PATCH_12P1_DRY_RUN_PASS
 ```

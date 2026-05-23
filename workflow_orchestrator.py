@@ -3008,6 +3008,130 @@ Start-Sleep -Milliseconds 300
                 stage="PROCESSING",
             )
 
+    def _click_flow_submit_arrow(self, page, prompt_box) -> None:
+        rect = prompt_box.bounding_box() or {}
+
+        if not rect:
+            fail(
+                "FLOW_SUBMIT_PROMPT_BOX_RECT_MISSING",
+                "Could not resolve Flow prompt box geometry before submit.",
+                field="flow_prompt_box",
+                expected="prompt box bounding rectangle available",
+                actual=f"url={getattr(page, 'url', '')}",
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="INFO",
+            message="Flow submit button search started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_submit_button_search_start",
+                "prompt_box_rect": {
+                    "x": rect.get("x"),
+                    "y": rect.get("y"),
+                    "width": rect.get("width"),
+                    "height": rect.get("height"),
+                },
+            },
+        )
+
+        buttons = page.locator("button, [role='button']")
+
+        for idx in range(min(buttons.count(), 140)):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = (button.inner_text(timeout=500) or "").strip()
+                aria = button.get_attribute("aria-label") or ""
+                label = f"{text} {aria}".strip()
+                normalized = label.lower()
+
+                if any(
+                    bad in normalized
+                    for bad in [
+                        "add",
+                        "add_2",
+                        "media",
+                        "upload",
+                        "attach",
+                        "agent",
+                        "nano banana",
+                        "imagen",
+                        "settings",
+                        "more",
+                        "download",
+                    ]
+                ):
+                    continue
+
+                if not any(
+                    good in normalized
+                    for good in [
+                        "submit",
+                        "send",
+                        "generate",
+                        "create",
+                        "arrow_forward",
+                    ]
+                ):
+                    continue
+
+                box = button.bounding_box() or {}
+                if not box:
+                    continue
+
+                cx = box["x"] + box["width"] / 2
+                cy = box["y"] + box["height"] / 2
+
+                near_composer = (
+                    rect["x"] - 80 <= cx <= rect["x"] + rect["width"] + 180
+                    and rect["y"] - 120 <= cy <= rect["y"] + rect["height"] + 160
+                )
+
+                if not near_composer:
+                    continue
+
+                json_log(
+                    level="INFO",
+                    message="Flow submit button clicked",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_submit_button_clicked",
+                        "button_label": label,
+                        "button_index": idx,
+                    },
+                )
+
+                button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                page.wait_for_timeout(3000)
+                return
+
+            except Exception:
+                continue
+
+        x = rect["x"] + rect["width"] + 36
+        y = rect["y"] + rect["height"] / 2
+
+        json_log(
+            level="WARNING",
+            message="Flow submit button selector not found; using composer arrow coordinate fallback",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_submit_coordinate_fallback_clicked",
+                "x": x,
+                "y": y,
+            },
+        )
+
+        page.mouse.click(x, y)
+        page.wait_for_timeout(3000)
+
     def _submit_flow_prompt(self, page, prompt: str) -> None:
         prompt_box = self._find_flow_prompt_box(page)
         self._fill_flow_prompt_box(page, prompt_box, prompt)
