@@ -3208,3 +3208,497 @@ PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
 ---
 
 # Resume STEP 7 after PATCH_12O
+
+# PATCH_12P = submit-button correction + no-click capture correction
+
+Reason: the working smoke script submits by locating/clicking the real composer submit button near the prompt box, while the current orchestrator still submits with `Control+Enter` only. The current Flow capture logic also still contains `expect_download` + button click behavior, which can cause the unwanted image/download interaction.   The working submit pattern is in `click_submit_arrow(page)`. 
+
+---
+
+# STEP 0 - Cleanup before PATCH_12P
+
+```powershell
+Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
+Remove-Item -Force .\output\generated_images\image_12.png -ErrorAction SilentlyContinue
+```
+
+Do **not** delete:
+
+```text
+output/workflow_state.json
+output/image_prompts.json
+output/image_content.json
+```
+
+---
+
+# STEP 1 - PATCH_12P1: add composer-scoped submit helper
+
+## Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "anchor": text.count("    def _submit_flow_prompt(self, page, prompt: str) -> None:"),
+    "existing_helper": text.count("def _click_flow_submit_arrow"),
+    "keyboard_only_marker": text.count("flow_prompt_submitted_keyboard_only"),
+}
+
+print(checks)
+
+assert checks["anchor"] == 1
+assert checks["existing_helper"] == 0
+assert checks["keyboard_only_marker"] == 1
+print("PATCH_12P1_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+## Insert immediately before
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+```
+
+## Add
+
+```python
+    def _click_flow_submit_arrow(self, page, prompt_box) -> None:
+        rect = prompt_box.bounding_box() or {}
+
+        if not rect:
+            fail(
+                "FLOW_SUBMIT_PROMPT_BOX_RECT_MISSING",
+                "Could not resolve Flow prompt box geometry before submit.",
+                field="flow_prompt_box",
+                expected="prompt box bounding rectangle available",
+                actual=f"url={getattr(page, 'url', '')}",
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="INFO",
+            message="Flow submit button search started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_submit_button_search_start",
+                "prompt_box_rect": {
+                    "x": rect.get("x"),
+                    "y": rect.get("y"),
+                    "width": rect.get("width"),
+                    "height": rect.get("height"),
+                },
+            },
+        )
+
+        buttons = page.locator("button, [role='button']")
+
+        for idx in range(min(buttons.count(), 140)):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = (button.inner_text(timeout=500) or "").strip()
+                aria = button.get_attribute("aria-label") or ""
+                label = f"{text} {aria}".strip()
+                normalized = label.lower()
+
+                if any(
+                    bad in normalized
+                    for bad in [
+                        "add",
+                        "add_2",
+                        "media",
+                        "upload",
+                        "attach",
+                        "agent",
+                        "nano banana",
+                        "imagen",
+                        "settings",
+                        "more",
+                        "download",
+                    ]
+                ):
+                    continue
+
+                if not any(
+                    good in normalized
+                    for good in [
+                        "submit",
+                        "send",
+                        "generate",
+                        "create",
+                        "arrow_forward",
+                    ]
+                ):
+                    continue
+
+                box = button.bounding_box() or {}
+                if not box:
+                    continue
+
+                cx = box["x"] + box["width"] / 2
+                cy = box["y"] + box["height"] / 2
+
+                near_composer = (
+                    rect["x"] - 80 <= cx <= rect["x"] + rect["width"] + 180
+                    and rect["y"] - 120 <= cy <= rect["y"] + rect["height"] + 160
+                )
+
+                if not near_composer:
+                    continue
+
+                json_log(
+                    level="INFO",
+                    message="Flow submit button clicked",
+                    stage="PROCESSING",
+                    status="COMPLETED",
+                    context={
+                        "operation": "flow_submit_button_clicked",
+                        "button_label": label,
+                        "button_index": idx,
+                    },
+                )
+
+                button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                page.wait_for_timeout(3000)
+                return
+
+            except Exception:
+                continue
+
+        x = rect["x"] + rect["width"] + 36
+        y = rect["y"] + rect["height"] / 2
+
+        json_log(
+            level="WARNING",
+            message="Flow submit button selector not found; using composer arrow coordinate fallback",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_submit_coordinate_fallback_clicked",
+                "x": x,
+                "y": y,
+            },
+        )
+
+        page.mouse.click(x, y)
+        page.wait_for_timeout(3000)
+```
+
+---
+
+# STEP 2 - PATCH_12P2: replace `_submit_flow_prompt(...)`
+
+## Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "method": text.count("    def _submit_flow_prompt(self, page, prompt: str) -> None:"),
+    "old_keyboard_marker": text.count("flow_prompt_submitted_keyboard_only"),
+    "old_control_enter_comment": text.count("Confirmed smoke-test behavior: submit once with Control+Enter only."),
+    "new_helper_call": text.count("self._click_flow_submit_arrow(page, prompt_box)"),
+}
+
+print(checks)
+
+assert checks["method"] == 1
+assert checks["old_keyboard_marker"] == 1
+assert checks["old_control_enter_comment"] == 1
+assert checks["new_helper_call"] == 0
+print("PATCH_12P2_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+## Replace entire method
+
+From:
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+```
+
+Through the line immediately before:
+
+```python
+    def _capture_flow_generated_image_base64(self, page) -> str:
+```
+
+## Replacement
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+        prompt_box = self._find_flow_prompt_box(page)
+        self._fill_flow_prompt_box(page, prompt_box, prompt)
+
+        json_log(
+            level="INFO",
+            message="Flow image prompt submit command started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_prompt_submit_click_button_start",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+            },
+        )
+
+        try:
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+        except Exception:
+            prompt_box = self._find_flow_prompt_box(page)
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+
+        self._click_flow_submit_arrow(page, prompt_box)
+
+        json_log(
+            level="INFO",
+            message="Flow image prompt submitted",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_prompt_submitted_click_button",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+                "submit_method": "composer_scoped_submit_button",
+            },
+        )
+
+        if self._wait_for_flow_submit_confirmation(page):
+            return
+
+        json_log(
+            level="WARNING",
+            message="Flow prompt submission confirmation was not observed before capture wait",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_prompt_submit_confirmation_not_observed_continue_to_capture",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+            },
+        )
+```
+
+---
+
+# STEP 3 - PATCH_12P3: disable download-click capture path
+
+## Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "download_selectors": text.count("download_selectors = ["),
+    "expect_download": text.count("with page.expect_download(timeout=3000) as download_info:"),
+    "captured_download_marker": text.count("flow_generated_image_captured_download"),
+    "capture_method": text.count("    def _capture_flow_generated_image_base64(self, page) -> str:"),
+}
+
+print(checks)
+
+assert checks["capture_method"] == 1
+assert checks["download_selectors"] == 1
+assert checks["expect_download"] == 1
+assert checks["captured_download_marker"] == 1
+print("PATCH_12P3_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+## Remove this block inside `_capture_flow_generated_image_base64(...)`
+
+Remove from:
+
+```python
+        download_selectors = [
+            "button[aria-label*='Download']",
+            "button[aria-label*='download']",
+            "[role='button'][aria-label*='Download']",
+            "[role='button'][aria-label*='download']",
+            "button:has-text('Download')",
+            "[data-testid*='download']",
+        ]
+```
+
+Through the end of this loop inside `while time.time() < deadline:`:
+
+```python
+            for selector in download_selectors:
+                try:
+                    button = page.locator(selector).last
+                    if not button.count() or not button.is_visible() or not button.is_enabled():
+                        continue
+                    with page.expect_download(timeout=3000) as download_info:
+                        button.click(timeout=self.action_timeout_ms)
+                    download = download_info.value
+                    download_path = download.path()
+                    if download_path:
+                        image_base64 = base64.b64encode(Path(download_path).read_bytes()).decode("ascii")
+                        json_log(
+                            level="INFO",
+                            message="Flow generated image captured from download",
+                            stage="PROCESSING",
+                            status="COMPLETED",
+                            context={
+                                "operation": "flow_generated_image_captured_download",
+                                "image_base64_chars": len(image_base64),
+                            },
+                        )
+                        return image_base64
+                except Exception as exc:
+                    last_error = str(exc)[:500]
+```
+
+## Insert after `last_error = ""`
+
+```python
+        json_log(
+            level="INFO",
+            message="Flow download-click capture disabled",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_download_click_capture_disabled",
+                "reason": "avoid clicking uploaded reference images or opening image/download surfaces before generated output is detected",
+            },
+        )
+```
+
+Result: capture may still read/screenshot generated image candidates, but it must **not click any image/download button**.
+
+---
+
+# STEP 4 - P-Validation 1: compile
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+# STEP 5 - P-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+import re
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "def _click_flow_submit_arrow",
+    "flow_submit_button_search_start",
+    "flow_submit_button_clicked",
+    "flow_submit_coordinate_fallback_clicked",
+    "flow_prompt_submit_click_button_start",
+    "flow_prompt_submitted_click_button",
+    "flow_download_click_capture_disabled",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+for forbidden in [
+    "flow_prompt_submitted_keyboard_only",
+    "Confirmed smoke-test behavior: submit once with Control+Enter only.",
+    "with page.expect_download(timeout=3000) as download_info:",
+    "flow_generated_image_captured_download",
+    "download_selectors = [",
+]:
+    assert forbidden not in text, forbidden
+
+method = re.search(
+    r"    def _submit_flow_prompt\(self, page, prompt: str\) -> None:\n(?P<body>.*?)\n    def _capture_flow_generated_image_base64",
+    text,
+    re.S,
+)
+assert method, "submit method not found"
+
+submit_body = method.group("body")
+assert "self._click_flow_submit_arrow(page, prompt_box)" in submit_body
+assert "page.keyboard.press(\"Control+Enter\")" not in submit_body
+
+capture = re.search(
+    r"    def _capture_flow_generated_image_base64\(self, page\) -> str:\n(?P<body>.*?)\n    def execute_image",
+    text,
+    re.S,
+)
+assert capture, "capture method not found"
+
+capture_body = capture.group("body")
+assert "expect_download" not in capture_body
+assert ".click(timeout=self.action_timeout_ms)" not in capture_body
+
+print("PATCH_12P_SUBMIT_CAPTURE_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12P_SUBMIT_CAPTURE_STATIC_OK
+```
+
+---
+
+# STEP 6 - P-Validation 3: method sanity
+
+```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
+@'
+import workflow_orchestrator as w
+
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+required = [
+    "_click_flow_submit_arrow",
+    "_submit_flow_prompt",
+    "_capture_flow_generated_image_base64",
+    "_paste_flow_reference_images_into_composer",
+    "_configure_flow_generation_settings",
+]
+
+for name in required:
+    assert hasattr(adapter, name), name
+
+assert w.FLOW_REFERENCE_ATTACH_METHOD == "clipboard"
+assert w.FLOW_CLIPBOARD_PASTE_WAIT_SECONDS >= 6
+
+print("PATCH_12P_SUBMIT_CAPTURE_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12P_SUBMIT_CAPTURE_METHODS_OK
+```
+
+---
+
+# Resume STEP 7 after PATCH_12O
