@@ -356,3 +356,10 @@ PATCH_12O3_DRY_RUN_PASS
 {'method': 1, 'old_generate_click': 1, 'old_model_selection_started': 2}
 PATCH_12O4_DRY_RUN_PASS
 ```
+
+## STEP 5 - PATCH_12O5
+
+```text
+{'old_execute_sequence_count': 1, 'configure_existing': 0}
+PATCH_12O5_DRY_RUN_PASS
+```

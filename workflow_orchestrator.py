@@ -3268,8 +3268,11 @@ Start-Sleep -Milliseconds 300
     ) -> Dict[str, Any]:
         source_images, _missing_images = self._extract_reference_images(generation_context)
         page = self._page()
+
+        self._configure_flow_generation_settings(page)
         self._attach_reference_images(page, source_images)
         self._submit_flow_prompt(page, prompt)
+
         image_base64 = self._capture_flow_generated_image_base64(page)
 
         return {
