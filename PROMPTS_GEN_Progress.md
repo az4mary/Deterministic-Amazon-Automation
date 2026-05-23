@@ -511,3 +511,9 @@ PATCH_12Q3_DRY_RUN_PASS
 ```text
 PASS / no output
 ```
+
+## STEP 5 - Q-Validation 2: static marker check
+
+```text
+PATCH_12Q_SUBMIT_NO_ACTIVATION_STATIC_OK
+```
