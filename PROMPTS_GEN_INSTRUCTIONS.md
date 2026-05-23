@@ -3702,3 +3702,481 @@ PATCH_12P_SUBMIT_CAPTURE_METHODS_OK
 ---
 
 # Resume STEP 7 after PATCH_12O
+
+
+# PATCH_12Q — submit-only no-activation repair + live Flow INFO tracing
+
+## STEP 0 - Cleanup before PATCH_12Q
+
+```powershell
+Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
+Remove-Item -Force .\output\generated_images\image_12.png -ErrorAction SilentlyContinue
+```
+
+Do not delete state JSON files.
+
+---
+
+## STEP 1 - PATCH_12Q1: add submit-safe composer finder + user INFO trace
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "click_helper_anchor": text.count("    def _click_flow_submit_arrow(self, page, prompt_box) -> None:"),
+    "existing_user_info": text.count("def _flow_user_info"),
+    "existing_submit_finder": text.count("def _find_flow_prompt_box_for_submit"),
+}
+
+print(checks)
+
+assert checks["click_helper_anchor"] == 1
+assert checks["existing_user_info"] == 0
+assert checks["existing_submit_finder"] == 0
+print("PATCH_12Q1_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Insert immediately before
+
+```python
+    def _click_flow_submit_arrow(self, page, prompt_box) -> None:
+```
+
+### Add
+
+```python
+    def _flow_user_info(self, message: str, **context: Any) -> None:
+        try:
+            details = ""
+            if context:
+                details = " | " + json.dumps(context, ensure_ascii=False, default=str)
+            print(f"Flow: {message}{details}", flush=True)
+        except Exception:
+            pass
+
+        try:
+            json_log(
+                level="INFO",
+                message=f"Flow: {message}",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_user_tracking_info",
+                    "tracking_message": message,
+                    **context,
+                },
+            )
+        except Exception:
+            pass
+
+    def _find_flow_prompt_box_for_submit(self, page):
+        selectors = [
+            "textarea",
+            "[contenteditable='true']",
+            "div[role='textbox']",
+            "[role='textbox']",
+        ]
+
+        viewport = page.viewport_size or {}
+        viewport_height = float(viewport.get("height") or 0)
+
+        self._flow_user_info("Looking for composer before submit", url=getattr(page, "url", ""))
+
+        for selector in selectors:
+            try:
+                collection = page.locator(selector)
+                for idx in range(min(collection.count(), 20)):
+                    candidate = collection.nth(idx)
+
+                    if not candidate.is_visible():
+                        continue
+
+                    box = candidate.bounding_box() or {}
+                    width = float(box.get("width", 0) or 0)
+                    height = float(box.get("height", 0) or 0)
+                    y = float(box.get("y", 0) or 0)
+
+                    if width < 120 or height < 20:
+                        continue
+
+                    # Flow composer is the lower composer surface.
+                    # Reject gallery/full-view text surfaces that can appear after image clicks.
+                    if viewport_height and y < viewport_height * 0.35:
+                        self._flow_user_info(
+                            "Skipped non-composer textbox candidate",
+                            selector=selector,
+                            index=idx,
+                            rect=box,
+                            viewport_height=viewport_height,
+                        )
+                        continue
+
+                    self._flow_user_info(
+                        "Composer found",
+                        selector=selector,
+                        index=idx,
+                        rect=box,
+                    )
+                    return candidate
+
+            except Exception as exc:
+                self._flow_user_info(
+                    "Composer selector skipped",
+                    selector=selector,
+                    error=str(exc)[:200],
+                )
+
+        fail(
+            "FLOW_SUBMIT_COMPOSER_NOT_FOUND",
+            "Could not find the visible lower Flow composer before submit without activating gallery/image UI.",
+            field="flow_submit_composer",
+            expected="visible composer textbox near lower Flow composer area",
+            actual=json.dumps(
+                {
+                    "url": getattr(page, "url", ""),
+                    "summary": self._flow_prompt_surface_summary(page),
+                },
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
+```
+
+---
+
+## STEP 2 - PATCH_12Q2: replace submit click helper
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "old_signature": text.count("    def _click_flow_submit_arrow(self, page, prompt_box) -> None:"),
+    "old_rect_fail": text.count("FLOW_SUBMIT_PROMPT_BOX_RECT_MISSING"),
+    "old_coord_fallback": text.count("flow_submit_coordinate_fallback_clicked"),
+    "new_signature": text.count("    def _click_flow_submit_arrow(self, page) -> None:"),
+}
+
+print(checks)
+
+assert checks["old_signature"] == 1
+assert checks["old_rect_fail"] == 1
+assert checks["old_coord_fallback"] == 1
+assert checks["new_signature"] == 0
+print("PATCH_12Q2_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _click_flow_submit_arrow(self, page, prompt_box) -> None:
+```
+
+through the line immediately before:
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+```
+
+### Replacement
+
+```python
+    def _click_flow_submit_arrow(self, page) -> None:
+        prompt_box = self._find_flow_prompt_box_for_submit(page)
+        rect = prompt_box.bounding_box() or {}
+
+        if not rect:
+            fail(
+                "FLOW_SUBMIT_PROMPT_BOX_RECT_MISSING",
+                "Could not resolve Flow submit composer geometry before submit.",
+                field="flow_prompt_box",
+                expected="visible lower Flow composer bounding rectangle",
+                actual=json.dumps(
+                    {
+                        "url": getattr(page, "url", ""),
+                        "summary": self._flow_prompt_surface_summary(page),
+                    },
+                    ensure_ascii=False,
+                ),
+                stage="PROCESSING",
+            )
+
+        self._flow_user_info("Click submit button", prompt_box_rect=rect)
+
+        buttons = page.locator("button, [role='button']")
+        button_count = min(buttons.count(), 140)
+
+        self._flow_user_info("Scanning visible buttons near composer", button_count=button_count)
+
+        for idx in range(button_count):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = (button.inner_text(timeout=500) or "").strip()
+                aria = button.get_attribute("aria-label") or ""
+                label = f"{text} {aria}".strip()
+                normalized = label.lower()
+
+                if any(
+                    bad in normalized
+                    for bad in [
+                        "add",
+                        "add_2",
+                        "media",
+                        "upload",
+                        "attach",
+                        "agent",
+                        "nano banana",
+                        "imagen",
+                        "settings",
+                        "more",
+                        "download",
+                        "gallery",
+                    ]
+                ):
+                    continue
+
+                if not any(
+                    good in normalized
+                    for good in [
+                        "submit",
+                        "send",
+                        "generate",
+                        "create",
+                        "arrow_forward",
+                    ]
+                ):
+                    continue
+
+                box = button.bounding_box() or {}
+                if not box:
+                    continue
+
+                cx = box["x"] + box["width"] / 2
+                cy = box["y"] + box["height"] / 2
+
+                near_composer = (
+                    rect["x"] - 80 <= cx <= rect["x"] + rect["width"] + 180
+                    and rect["y"] - 120 <= cy <= rect["y"] + rect["height"] + 160
+                )
+
+                self._flow_user_info(
+                    "Submit candidate inspected",
+                    button_index=idx,
+                    label=label,
+                    rect=box,
+                    near_composer=near_composer,
+                )
+
+                if not near_composer:
+                    continue
+
+                self._flow_user_info("Click submit", button_index=idx, label=label)
+
+                button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                page.wait_for_timeout(3000)
+
+                self._flow_user_info("Submitted")
+                return
+
+            except Exception as exc:
+                self._flow_user_info(
+                    "Submit candidate skipped",
+                    button_index=idx,
+                    error=str(exc)[:200],
+                )
+
+        # Coordinate fallback is allowed only after a verified composer rectangle exists.
+        x = rect["x"] + rect["width"] + 36
+        y = rect["y"] + rect["height"] / 2
+
+        self._flow_user_info(
+            "Submit selector not found; clicking right-side composer arrow fallback",
+            x=x,
+            y=y,
+        )
+
+        page.mouse.click(x, y)
+        page.wait_for_timeout(3000)
+        self._flow_user_info("Submitted by coordinate fallback")
+```
+
+---
+
+## STEP 3 - PATCH_12Q3: replace submit method to avoid prompt-surface activation
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "method": text.count("    def _submit_flow_prompt(self, page, prompt: str) -> None:"),
+    "old_find_call": text.count("prompt_box = self._find_flow_prompt_box(page)"),
+    "old_helper_call": text.count("self._click_flow_submit_arrow(page, prompt_box)"),
+    "new_safe_find_call": text.count("prompt_box = self._find_flow_prompt_box_for_submit(page)"),
+    "new_helper_call": text.count("self._click_flow_submit_arrow(page)"),
+}
+
+print(checks)
+
+assert checks["method"] == 1
+assert checks["old_find_call"] >= 1
+assert checks["old_helper_call"] == 1
+print("PATCH_12Q3_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Replace only inside `_submit_flow_prompt(...)`
+
+Replace:
+
+```python
+        prompt_box = self._find_flow_prompt_box(page)
+```
+
+with:
+
+```python
+        prompt_box = self._find_flow_prompt_box_for_submit(page)
+```
+
+Replace this whole block:
+
+```python
+        try:
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+        except Exception:
+            prompt_box = self._find_flow_prompt_box(page)
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+
+        self._click_flow_submit_arrow(page, prompt_box)
+```
+
+with:
+
+```python
+        self._flow_user_info("Prompt filled; preparing submit click")
+        self._click_flow_submit_arrow(page)
+```
+
+---
+
+## STEP 4 - Q-Validation 1: compile
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+## STEP 5 - Q-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+import re
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "def _flow_user_info",
+    "def _find_flow_prompt_box_for_submit",
+    "Flow: ",
+    "Looking for composer before submit",
+    "Composer found",
+    "Click submit button",
+    "Scanning visible buttons near composer",
+    "Submit candidate inspected",
+    "Prompt filled; preparing submit click",
+    "self._click_flow_submit_arrow(page)",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+submit = re.search(
+    r"    def _submit_flow_prompt\(self, page, prompt: str\) -> None:\n(?P<body>.*?)\n    def _capture_flow_generated_image_base64",
+    text,
+    re.S,
+)
+assert submit, "submit method missing"
+
+body = submit.group("body")
+assert "self._find_flow_prompt_box_for_submit(page)" in body
+assert "self._find_flow_prompt_box(page)" not in body
+assert "self._click_flow_submit_arrow(page, prompt_box)" not in body
+
+print("PATCH_12Q_SUBMIT_NO_ACTIVATION_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12Q_SUBMIT_NO_ACTIVATION_STATIC_OK
+```
+
+---
+
+## STEP 6 - Q-Validation 3: method sanity
+
+```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
+@'
+import workflow_orchestrator as w
+
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+required = [
+    "_flow_user_info",
+    "_find_flow_prompt_box_for_submit",
+    "_click_flow_submit_arrow",
+    "_submit_flow_prompt",
+]
+
+for name in required:
+    assert hasattr(adapter, name), name
+
+print("PATCH_12Q_SUBMIT_NO_ACTIVATION_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12Q_SUBMIT_NO_ACTIVATION_METHODS_OK
+```
+
+---
+
+# Resume STEP 7 after PATCH_12Q
