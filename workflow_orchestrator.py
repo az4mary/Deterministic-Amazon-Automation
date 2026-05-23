@@ -1750,6 +1750,368 @@ class FlowBrowserImageGenerationAdapter(PromptExecutionAdapter):
             except Exception:
                 pass
 
+    def _flow_norm(self, text_value: str) -> str:
+        return re.sub(r"\s+", " ", (text_value or "").strip())
+
+    def _copy_image_to_windows_clipboard(self, image_path: str) -> None:
+        path = str(Path(image_path).resolve())
+
+        ps_script = f"""
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+$Path = @'
+{path}
+'@
+
+$img = [System.Drawing.Image]::FromFile($Path)
+$bmp = New-Object System.Drawing.Bitmap $img
+$img.Dispose()
+
+[System.Windows.Forms.Clipboard]::SetImage($bmp)
+Start-Sleep -Milliseconds 300
+"""
+
+        subprocess.run(
+            [
+                "powershell.exe",
+                "-STA",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_script,
+            ],
+            check=True,
+            timeout=max(30, int(self.action_timeout_ms / 1000)),
+        )
+
+    def _open_flow_composer_settings_pill(self, page) -> None:
+        selectors = [
+            "button:has-text('Nano Banana')",
+            "[role='button']:has-text('Nano Banana')",
+            "button:has-text('Imagen')",
+            "[role='button']:has-text('Imagen')",
+            "button:has-text('1x')",
+            "[role='button']:has-text('1x')",
+        ]
+
+        for selector in selectors:
+            try:
+                locator = page.locator(selector).first
+                if locator.count() and locator.is_visible() and locator.is_enabled():
+                    locator.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    page.wait_for_timeout(1000)
+                    json_log(
+                        level="INFO",
+                        message="Flow composer settings menu opened",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "flow_composer_settings_menu_opened",
+                            "selector": selector,
+                        },
+                    )
+                    return
+            except Exception:
+                continue
+
+        fail(
+            "FLOW_SETTINGS_MENU_NOT_FOUND",
+            "Could not find Flow composer model/settings pill.",
+            field="flow_composer_settings",
+            expected="composer pill containing Nano Banana, Imagen, or 1x",
+            actual=f"url={getattr(page, 'url', '')}",
+            stage="PROCESSING",
+        )
+
+    def _flow_open_menu(self, page):
+        menu = page.locator(
+            "[data-radix-menu-content][data-state='open'], [role='menu'][data-state='open']"
+        ).last
+
+        if not menu.count() or not menu.is_visible():
+            fail(
+                "FLOW_SETTINGS_MENU_NOT_OPEN",
+                "Flow composer settings menu was not open after clicking the composer model/settings pill.",
+                field="flow_settings_menu",
+                expected="open Radix menu from composer model/settings pill",
+                actual=f"url={getattr(page, 'url', '')}",
+                stage="PROCESSING",
+            )
+
+        return menu
+
+    def _flow_click_menu_button_containing(self, page, wanted: str, label: str) -> bool:
+        menu = self._flow_open_menu(page)
+        buttons = menu.locator("button, [role='tab'], [role='button'], [role='menuitem'], [role='option']")
+        wanted_l = wanted.lower()
+
+        for idx in range(min(buttons.count(), 80)):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = self._flow_norm(button.inner_text(timeout=500))
+                if wanted_l not in text.lower():
+                    continue
+
+                button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                page.wait_for_timeout(700)
+
+                json_log(
+                    level="INFO",
+                    message="Flow settings option clicked",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_settings_option_clicked",
+                        "label": label,
+                        "wanted": wanted,
+                        "actual_text": text,
+                    },
+                )
+                return True
+            except Exception:
+                continue
+
+        return False
+
+    def _select_flow_image_mode(self, page) -> bool:
+        return self._flow_click_menu_button_containing(page, "Image", "image_mode")
+
+    def _select_flow_aspect_ratio(self, page) -> bool:
+        return self._flow_click_menu_button_containing(page, FLOW_ASPECT_RATIO, "aspect_ratio")
+
+    def _select_flow_output_count(self, page) -> bool:
+        count = str(FLOW_OUTPUT_COUNT).strip()
+        label = "1x" if count == "1" else f"x{count}"
+        return self._flow_click_menu_button_containing(page, label, "output_count")
+
+    def _select_flow_model(self, page) -> bool:
+        menu = self._flow_open_menu(page)
+
+        buttons = menu.locator("button, [role='button']")
+        model_button = None
+
+        for idx in range(min(buttons.count(), 80)):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = self._flow_norm(button.inner_text(timeout=500))
+                if "Nano Banana" in text or "Imagen" in text:
+                    model_button = button
+
+                    if FLOW_IMAGE_MODEL.lower() in text.lower():
+                        json_log(
+                            level="INFO",
+                            message="Flow model selected",
+                            stage="PROCESSING",
+                            status="COMPLETED",
+                            context={
+                                "operation": "flow_model_already_selected",
+                                "target_model": FLOW_IMAGE_MODEL,
+                                "actual_text": text,
+                            },
+                        )
+                        return True
+
+                    button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    page.wait_for_timeout(1000)
+                    break
+            except Exception:
+                continue
+
+        if model_button is None:
+            return False
+
+        selectors = [
+            f"text={FLOW_IMAGE_MODEL}",
+            f"button:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='menuitem']:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='option']:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='button']:has-text('{FLOW_IMAGE_MODEL}')",
+        ]
+
+        for selector in selectors:
+            try:
+                option = page.locator(selector).last
+                if option.count() and option.is_visible():
+                    option.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    page.wait_for_timeout(800)
+
+                    json_log(
+                        level="INFO",
+                        message="Flow model selected",
+                        stage="PROCESSING",
+                        status="COMPLETED",
+                        context={
+                            "operation": "flow_model_selected",
+                            "target_model": FLOW_IMAGE_MODEL,
+                            "selector": selector,
+                        },
+                    )
+                    return True
+            except Exception:
+                continue
+
+        return False
+
+    def _configure_flow_generation_settings(self, page) -> None:
+        json_log(
+            level="INFO",
+            message="Flow generation settings selection started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_generation_settings_selection_start",
+                "target_model": FLOW_IMAGE_MODEL,
+                "aspect_ratio": FLOW_ASPECT_RATIO,
+                "output_count": FLOW_OUTPUT_COUNT,
+            },
+        )
+
+        self._open_flow_composer_settings_pill(page)
+
+        image_ok = self._select_flow_image_mode(page)
+        aspect_ok = self._select_flow_aspect_ratio(page)
+        output_ok = self._select_flow_output_count(page)
+        model_ok = self._select_flow_model(page)
+
+        try:
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(500)
+        except Exception:
+            pass
+
+        if FLOW_MODEL_STRICT and not model_ok:
+            fail(
+                "FLOW_MODEL_NOT_AVAILABLE",
+                "Required Flow image model is not visible or selectable in the Flow composer settings menu.",
+                field="FLOW_IMAGE_MODEL",
+                expected=f"{FLOW_IMAGE_MODEL} selected from Flow composer settings menu",
+                actual=json.dumps(
+                    {
+                        "image_ok": image_ok,
+                        "aspect_ok": aspect_ok,
+                        "output_ok": output_ok,
+                        "model_ok": model_ok,
+                        "url": getattr(page, "url", ""),
+                    },
+                    ensure_ascii=False,
+                ),
+                stage="PROCESSING",
+            )
+
+        if not image_ok or not aspect_ok or not output_ok:
+            fail(
+                "FLOW_SETTINGS_NOT_CONFIGURED",
+                "Flow image mode, aspect ratio, or output count could not be selected.",
+                field="flow_generation_settings",
+                expected="Image mode, requested aspect ratio, and requested output count selected",
+                actual=json.dumps(
+                    {
+                        "image_ok": image_ok,
+                        "aspect_ok": aspect_ok,
+                        "output_ok": output_ok,
+                        "model_ok": model_ok,
+                        "target_model": FLOW_IMAGE_MODEL,
+                        "aspect_ratio": FLOW_ASPECT_RATIO,
+                        "output_count": FLOW_OUTPUT_COUNT,
+                    },
+                    ensure_ascii=False,
+                ),
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="INFO",
+            message="Flow generation settings selected",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_generation_settings_selected",
+                "image_ok": image_ok,
+                "aspect_ok": aspect_ok,
+                "output_ok": output_ok,
+                "model_ok": model_ok,
+                "target_model": FLOW_IMAGE_MODEL,
+                "aspect_ratio": FLOW_ASPECT_RATIO,
+                "output_count": FLOW_OUTPUT_COUNT,
+            },
+        )
+
+    def _paste_flow_reference_images_into_composer(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        prompt_box = self._find_flow_prompt_box(page)
+
+        json_log(
+            level="INFO",
+            message="Flow reference image clipboard paste started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_clipboard_paste_start",
+                "source_image_count": len(source_images),
+                "paste_wait_seconds": FLOW_CLIPBOARD_PASTE_WAIT_SECONDS,
+                "final_settle_seconds": FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS,
+            },
+        )
+
+        for idx, image_path in enumerate(source_images, start=1):
+            before_count = self._flow_composer_reference_count(page)
+
+            self._copy_image_to_windows_clipboard(image_path)
+
+            try:
+                prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+            except Exception:
+                prompt_box = self._find_flow_prompt_box(page)
+                prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+
+            page.keyboard.press("Control+V")
+
+            # Required: let Flow finish rendering/uploading this pasted image before the next action.
+            page.wait_for_timeout(int(FLOW_CLIPBOARD_PASTE_WAIT_SECONDS * 1000))
+
+            after_count = self._flow_composer_reference_count(page)
+
+            json_log(
+                level="INFO",
+                message="Flow reference image pasted into composer",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_reference_image_pasted_into_composer",
+                    "image_index": idx,
+                    "source_image_count": len(source_images),
+                    "image_path": image_path,
+                    "before_composer_reference_count": before_count,
+                    "after_composer_reference_count": after_count,
+                    "paste_wait_seconds": FLOW_CLIPBOARD_PASTE_WAIT_SECONDS,
+                },
+            )
+
+        page.wait_for_timeout(int(FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS * 1000))
+
+        json_log(
+            level="INFO",
+            message="Flow reference images pasted into composer",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_reference_images_pasted_into_composer",
+                "source_image_count": len(source_images),
+                "composer_reference_count": self._flow_composer_reference_count(page),
+                "attach_method": "clipboard",
+            },
+        )
+
     def _flow_visible_media_count(self, page, *, scope_label: str = "page") -> int:
         selectors = [
             "img",

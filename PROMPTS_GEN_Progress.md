@@ -335,3 +335,10 @@ COMPLETED
 {'import_os': 1, 'import_subprocess_existing': 0, 'flow_reference_attach_strict': 1, 'flow_clipboard_wait_existing': 0}
 PATCH_12O1_DRY_RUN_PASS
 ```
+
+## STEP 2 - PATCH_12O2
+
+```text
+{'anchor': 1, 'existing_clipboard_helper': 0, 'existing_settings_helper': 0, 'existing_paste_helper': 0}
+PATCH_12O2_DRY_RUN_PASS
+```
