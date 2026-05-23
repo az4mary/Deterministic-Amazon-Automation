@@ -2381,3 +2381,830 @@ PATCH_12N_FLOW_GALLERY_SELECTION_METHODS_OK
 ---
 
 # Resume STEP 7 after PATCH_12N
+
+# PATCH_12O — Flow settings + clipboard paste primary path
+
+* Proceed with **PATCH_12O**.
+* Scope: replace Flow’s primary reference-attachment path with the confirmed **settings + clipboard paste + Control+Enter** workflow.
+* Keep gallery helpers in file as fallback/legacy code, but do **not** call them from the primary Flow execution path.
+* Add explicit wait after every pasted image so Flow finishes rendering/uploading the reference before the next action.
+
+Current uploaded `workflow_orchestrator.py` still has the old gallery-selection attachment path and Flow configuration variables already present.  The confirmed working smoke scripts are `flow_clipboard_paste_smoke.py` and `flow_settings_smoke.py`.  
+
+---
+
+## STEP 0 - Cleanup before PATCH_12O
+
+Run only this cleanup:
+
+```powershell
+Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .\output\flow_inspect -ErrorAction SilentlyContinue
+Remove-Item -Force .\output\generated_images\image_12.png -ErrorAction SilentlyContinue
+```
+
+Do **not** delete:
+
+```text
+output/workflow_state.json
+output/image_prompts.json
+output/image_content.json
+```
+
+---
+
+## STEP 1 — PATCH_12O1: add subprocess import + clipboard timing env vars
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "import_os": text.count("import os"),
+    "import_subprocess_existing": text.count("import subprocess"),
+    "flow_reference_attach_strict": text.count('FLOW_REFERENCE_ATTACH_STRICT = os.getenv("FLOW_REFERENCE_ATTACH_STRICT", "1") == "1"'),
+    "flow_clipboard_wait_existing": text.count("FLOW_CLIPBOARD_PASTE_WAIT_SECONDS"),
+}
+
+print(checks)
+
+assert checks["import_os"] == 1
+assert checks["import_subprocess_existing"] == 0
+assert checks["flow_reference_attach_strict"] == 1
+assert checks["flow_clipboard_wait_existing"] == 0
+print("PATCH_12O1_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Apply
+
+1. After:
+
+```python
+import os
+```
+
+Add:
+
+```python
+import subprocess
+```
+
+2. After:
+
+```python
+FLOW_REFERENCE_ATTACH_STRICT = os.getenv("FLOW_REFERENCE_ATTACH_STRICT", "1") == "1"
+```
+
+Add:
+
+```python
+FLOW_CLIPBOARD_PASTE_WAIT_SECONDS = float(os.getenv("FLOW_CLIPBOARD_PASTE_WAIT_SECONDS", "6"))
+FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS = float(os.getenv("FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS", "3"))
+FLOW_REFERENCE_ATTACH_METHOD = os.getenv("FLOW_REFERENCE_ATTACH_METHOD", "clipboard").lower()
+```
+
+---
+
+## STEP 2 — PATCH_12O2: add Flow settings + clipboard helper methods
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "anchor": text.count("    def _flow_visible_media_count(self, page, *, scope_label: str = \"page\") -> int:"),
+    "existing_clipboard_helper": text.count("def _copy_image_to_windows_clipboard"),
+    "existing_settings_helper": text.count("def _configure_flow_generation_settings"),
+    "existing_paste_helper": text.count("def _paste_flow_reference_images_into_composer"),
+}
+
+print(checks)
+
+assert checks["anchor"] == 1
+assert checks["existing_clipboard_helper"] == 0
+assert checks["existing_settings_helper"] == 0
+assert checks["existing_paste_helper"] == 0
+print("PATCH_12O2_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Insert immediately before
+
+```python
+    def _flow_visible_media_count(self, page, *, scope_label: str = "page") -> int:
+```
+
+### Add
+
+```python
+    def _flow_norm(self, text_value: str) -> str:
+        return re.sub(r"\s+", " ", (text_value or "").strip())
+
+    def _copy_image_to_windows_clipboard(self, image_path: str) -> None:
+        path = str(Path(image_path).resolve())
+
+        ps_script = f"""
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+$Path = @'
+{path}
+'@
+
+$img = [System.Drawing.Image]::FromFile($Path)
+$bmp = New-Object System.Drawing.Bitmap $img
+$img.Dispose()
+
+[System.Windows.Forms.Clipboard]::SetImage($bmp)
+Start-Sleep -Milliseconds 300
+"""
+
+        subprocess.run(
+            [
+                "powershell.exe",
+                "-STA",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_script,
+            ],
+            check=True,
+            timeout=max(30, int(self.action_timeout_ms / 1000)),
+        )
+
+    def _open_flow_composer_settings_pill(self, page) -> None:
+        selectors = [
+            "button:has-text('Nano Banana')",
+            "[role='button']:has-text('Nano Banana')",
+            "button:has-text('Imagen')",
+            "[role='button']:has-text('Imagen')",
+            "button:has-text('1x')",
+            "[role='button']:has-text('1x')",
+        ]
+
+        for selector in selectors:
+            try:
+                locator = page.locator(selector).first
+                if locator.count() and locator.is_visible() and locator.is_enabled():
+                    locator.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    page.wait_for_timeout(1000)
+                    json_log(
+                        level="INFO",
+                        message="Flow composer settings menu opened",
+                        stage="PROCESSING",
+                        status="IN_PROGRESS",
+                        context={
+                            "operation": "flow_composer_settings_menu_opened",
+                            "selector": selector,
+                        },
+                    )
+                    return
+            except Exception:
+                continue
+
+        fail(
+            "FLOW_SETTINGS_MENU_NOT_FOUND",
+            "Could not find Flow composer model/settings pill.",
+            field="flow_composer_settings",
+            expected="composer pill containing Nano Banana, Imagen, or 1x",
+            actual=f"url={getattr(page, 'url', '')}",
+            stage="PROCESSING",
+        )
+
+    def _flow_open_menu(self, page):
+        menu = page.locator(
+            "[data-radix-menu-content][data-state='open'], [role='menu'][data-state='open']"
+        ).last
+
+        if not menu.count() or not menu.is_visible():
+            fail(
+                "FLOW_SETTINGS_MENU_NOT_OPEN",
+                "Flow composer settings menu was not open after clicking the composer model/settings pill.",
+                field="flow_settings_menu",
+                expected="open Radix menu from composer model/settings pill",
+                actual=f"url={getattr(page, 'url', '')}",
+                stage="PROCESSING",
+            )
+
+        return menu
+
+    def _flow_click_menu_button_containing(self, page, wanted: str, label: str) -> bool:
+        menu = self._flow_open_menu(page)
+        buttons = menu.locator("button, [role='tab'], [role='button'], [role='menuitem'], [role='option']")
+        wanted_l = wanted.lower()
+
+        for idx in range(min(buttons.count(), 80)):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = self._flow_norm(button.inner_text(timeout=500))
+                if wanted_l not in text.lower():
+                    continue
+
+                button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                page.wait_for_timeout(700)
+
+                json_log(
+                    level="INFO",
+                    message="Flow settings option clicked",
+                    stage="PROCESSING",
+                    status="IN_PROGRESS",
+                    context={
+                        "operation": "flow_settings_option_clicked",
+                        "label": label,
+                        "wanted": wanted,
+                        "actual_text": text,
+                    },
+                )
+                return True
+            except Exception:
+                continue
+
+        return False
+
+    def _select_flow_image_mode(self, page) -> bool:
+        return self._flow_click_menu_button_containing(page, "Image", "image_mode")
+
+    def _select_flow_aspect_ratio(self, page) -> bool:
+        return self._flow_click_menu_button_containing(page, FLOW_ASPECT_RATIO, "aspect_ratio")
+
+    def _select_flow_output_count(self, page) -> bool:
+        count = str(FLOW_OUTPUT_COUNT).strip()
+        label = "1x" if count == "1" else f"x{count}"
+        return self._flow_click_menu_button_containing(page, label, "output_count")
+
+    def _select_flow_model(self, page) -> bool:
+        menu = self._flow_open_menu(page)
+
+        buttons = menu.locator("button, [role='button']")
+        model_button = None
+
+        for idx in range(min(buttons.count(), 80)):
+            try:
+                button = buttons.nth(idx)
+                if not button.is_visible() or not button.is_enabled():
+                    continue
+
+                text = self._flow_norm(button.inner_text(timeout=500))
+                if "Nano Banana" in text or "Imagen" in text:
+                    model_button = button
+
+                    if FLOW_IMAGE_MODEL.lower() in text.lower():
+                        json_log(
+                            level="INFO",
+                            message="Flow model selected",
+                            stage="PROCESSING",
+                            status="COMPLETED",
+                            context={
+                                "operation": "flow_model_already_selected",
+                                "target_model": FLOW_IMAGE_MODEL,
+                                "actual_text": text,
+                            },
+                        )
+                        return True
+
+                    button.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    page.wait_for_timeout(1000)
+                    break
+            except Exception:
+                continue
+
+        if model_button is None:
+            return False
+
+        selectors = [
+            f"text={FLOW_IMAGE_MODEL}",
+            f"button:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='menuitem']:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='option']:has-text('{FLOW_IMAGE_MODEL}')",
+            f"[role='button']:has-text('{FLOW_IMAGE_MODEL}')",
+        ]
+
+        for selector in selectors:
+            try:
+                option = page.locator(selector).last
+                if option.count() and option.is_visible():
+                    option.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+                    page.wait_for_timeout(800)
+
+                    json_log(
+                        level="INFO",
+                        message="Flow model selected",
+                        stage="PROCESSING",
+                        status="COMPLETED",
+                        context={
+                            "operation": "flow_model_selected",
+                            "target_model": FLOW_IMAGE_MODEL,
+                            "selector": selector,
+                        },
+                    )
+                    return True
+            except Exception:
+                continue
+
+        return False
+
+    def _configure_flow_generation_settings(self, page) -> None:
+        json_log(
+            level="INFO",
+            message="Flow generation settings selection started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_generation_settings_selection_start",
+                "target_model": FLOW_IMAGE_MODEL,
+                "aspect_ratio": FLOW_ASPECT_RATIO,
+                "output_count": FLOW_OUTPUT_COUNT,
+            },
+        )
+
+        self._open_flow_composer_settings_pill(page)
+
+        image_ok = self._select_flow_image_mode(page)
+        aspect_ok = self._select_flow_aspect_ratio(page)
+        output_ok = self._select_flow_output_count(page)
+        model_ok = self._select_flow_model(page)
+
+        try:
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(500)
+        except Exception:
+            pass
+
+        if FLOW_MODEL_STRICT and not model_ok:
+            fail(
+                "FLOW_MODEL_NOT_AVAILABLE",
+                "Required Flow image model is not visible or selectable in the Flow composer settings menu.",
+                field="FLOW_IMAGE_MODEL",
+                expected=f"{FLOW_IMAGE_MODEL} selected from Flow composer settings menu",
+                actual=json.dumps(
+                    {
+                        "image_ok": image_ok,
+                        "aspect_ok": aspect_ok,
+                        "output_ok": output_ok,
+                        "model_ok": model_ok,
+                        "url": getattr(page, "url", ""),
+                    },
+                    ensure_ascii=False,
+                ),
+                stage="PROCESSING",
+            )
+
+        if not image_ok or not aspect_ok or not output_ok:
+            fail(
+                "FLOW_SETTINGS_NOT_CONFIGURED",
+                "Flow image mode, aspect ratio, or output count could not be selected.",
+                field="flow_generation_settings",
+                expected="Image mode, requested aspect ratio, and requested output count selected",
+                actual=json.dumps(
+                    {
+                        "image_ok": image_ok,
+                        "aspect_ok": aspect_ok,
+                        "output_ok": output_ok,
+                        "model_ok": model_ok,
+                        "target_model": FLOW_IMAGE_MODEL,
+                        "aspect_ratio": FLOW_ASPECT_RATIO,
+                        "output_count": FLOW_OUTPUT_COUNT,
+                    },
+                    ensure_ascii=False,
+                ),
+                stage="PROCESSING",
+            )
+
+        json_log(
+            level="INFO",
+            message="Flow generation settings selected",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_generation_settings_selected",
+                "image_ok": image_ok,
+                "aspect_ok": aspect_ok,
+                "output_ok": output_ok,
+                "model_ok": model_ok,
+                "target_model": FLOW_IMAGE_MODEL,
+                "aspect_ratio": FLOW_ASPECT_RATIO,
+                "output_count": FLOW_OUTPUT_COUNT,
+            },
+        )
+
+    def _paste_flow_reference_images_into_composer(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        prompt_box = self._find_flow_prompt_box(page)
+
+        json_log(
+            level="INFO",
+            message="Flow reference image clipboard paste started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_clipboard_paste_start",
+                "source_image_count": len(source_images),
+                "paste_wait_seconds": FLOW_CLIPBOARD_PASTE_WAIT_SECONDS,
+                "final_settle_seconds": FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS,
+            },
+        )
+
+        for idx, image_path in enumerate(source_images, start=1):
+            before_count = self._flow_composer_reference_count(page)
+
+            self._copy_image_to_windows_clipboard(image_path)
+
+            try:
+                prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+            except Exception:
+                prompt_box = self._find_flow_prompt_box(page)
+                prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+
+            page.keyboard.press("Control+V")
+
+            # Required: let Flow finish rendering/uploading this pasted image before the next action.
+            page.wait_for_timeout(int(FLOW_CLIPBOARD_PASTE_WAIT_SECONDS * 1000))
+
+            after_count = self._flow_composer_reference_count(page)
+
+            json_log(
+                level="INFO",
+                message="Flow reference image pasted into composer",
+                stage="PROCESSING",
+                status="IN_PROGRESS",
+                context={
+                    "operation": "flow_reference_image_pasted_into_composer",
+                    "image_index": idx,
+                    "source_image_count": len(source_images),
+                    "image_path": image_path,
+                    "before_composer_reference_count": before_count,
+                    "after_composer_reference_count": after_count,
+                    "paste_wait_seconds": FLOW_CLIPBOARD_PASTE_WAIT_SECONDS,
+                },
+            )
+
+        page.wait_for_timeout(int(FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS * 1000))
+
+        json_log(
+            level="INFO",
+            message="Flow reference images pasted into composer",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_reference_images_pasted_into_composer",
+                "source_image_count": len(source_images),
+                "composer_reference_count": self._flow_composer_reference_count(page),
+                "attach_method": "clipboard",
+            },
+        )
+```
+
+---
+
+## STEP 3 — PATCH_12O3: replace `_attach_reference_images(...)`
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "method": text.count("    def _attach_reference_images(self, page, source_images: List[str]) -> None:"),
+    "old_upload_marker": text.count("Flow reference images uploaded"),
+    "old_finalize_call": text.count("self._finalize_flow_reference_attachment_to_composer(page, source_images)"),
+}
+
+print(checks)
+
+assert checks["method"] == 1
+assert checks["old_upload_marker"] >= 1
+assert checks["old_finalize_call"] == 1
+print("PATCH_12O3_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _attach_reference_images(self, page, source_images: List[str]) -> None:
+```
+
+Through the line immediately before:
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+```
+
+### Replacement
+
+```python
+    def _attach_reference_images(self, page, source_images: List[str]) -> None:
+        if not source_images:
+            return
+
+        json_log(
+            level="INFO",
+            message="Flow reference image attachment started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_reference_image_attach_start",
+                "source_image_count": len(source_images),
+                "attach_method": FLOW_REFERENCE_ATTACH_METHOD,
+            },
+        )
+
+        if FLOW_REFERENCE_ATTACH_METHOD != "clipboard":
+            fail(
+                "FLOW_REFERENCE_ATTACH_METHOD_UNSUPPORTED",
+                "Only the confirmed clipboard Flow reference attachment method is enabled for PATCH_12O.",
+                field="FLOW_REFERENCE_ATTACH_METHOD",
+                expected="clipboard",
+                actual=FLOW_REFERENCE_ATTACH_METHOD,
+                stage="PROCESSING",
+            )
+
+        try:
+            self._paste_flow_reference_images_into_composer(page, source_images)
+        except SystemExit:
+            raise
+        except Exception as exc:
+            fail(
+                "FLOW_REFERENCE_CLIPBOARD_PASTE_FAILED",
+                "Failed to paste Flow reference images into the composer via Windows clipboard.",
+                field="generation_context.source_images",
+                expected="each source image copied to clipboard and pasted into Flow composer with upload wait",
+                actual=str(exc)[:1000],
+                stage="PROCESSING",
+            )
+```
+
+---
+
+## STEP 4 — PATCH_12O4: replace `_submit_flow_prompt(...)`
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "method": text.count("    def _submit_flow_prompt(self, page, prompt: str) -> None:"),
+    "old_generate_click": text.count("clicked_generate = self._flow_click_first(page, generate_selectors, label=\"flow_generate_button\", force=True)"),
+    "old_model_selection_started": text.count("Flow model selection started"),
+}
+
+print(checks)
+
+assert checks["method"] == 1
+assert checks["old_generate_click"] == 1
+assert checks["old_model_selection_started"] >= 1
+print("PATCH_12O4_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+```
+
+Through the line immediately before:
+
+```python
+    def _capture_flow_generated_image_base64(self, page) -> str:
+```
+
+### Replacement
+
+```python
+    def _submit_flow_prompt(self, page, prompt: str) -> None:
+        prompt_box = self._find_flow_prompt_box(page)
+        self._fill_flow_prompt_box(page, prompt_box, prompt)
+
+        json_log(
+            level="INFO",
+            message="Flow image prompt submit command started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_prompt_submit_control_enter_start",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+            },
+        )
+
+        try:
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+        except Exception:
+            prompt_box = self._find_flow_prompt_box(page)
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
+
+        # Confirmed smoke-test behavior: submit once with Control+Enter only.
+        # Do not scan/click Create, because Flow may expose a nearby Add Media/+ Create control.
+        page.keyboard.press("Control+Enter")
+
+        json_log(
+            level="INFO",
+            message="Flow image prompt submitted",
+            stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_prompt_submitted_keyboard_only",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+                "submit_method": "Control+Enter",
+            },
+        )
+
+        if self._wait_for_flow_submit_confirmation(page):
+            return
+
+        json_log(
+            level="WARNING",
+            message="Flow prompt submission confirmation was not observed before capture wait",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_prompt_submit_confirmation_not_observed_continue_to_capture",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+            },
+        )
+```
+
+---
+
+## STEP 5 — PATCH_12O5: replace Flow `execute_image(...)` ordering
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+old = """        source_images, _missing_images = self._extract_reference_images(generation_context)
+        page = self._page()
+        self._attach_reference_images(page, source_images)
+        self._submit_flow_prompt(page, prompt)
+        image_base64 = self._capture_flow_generated_image_base64(page)
+"""
+
+print({"old_execute_sequence_count": text.count(old), "configure_existing": text.count("self._configure_flow_generation_settings(page)")})
+
+assert text.count(old) == 1
+assert text.count("self._configure_flow_generation_settings(page)") == 0
+print("PATCH_12O5_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Replace this sequence inside Flow `execute_image(...)`
+
+```python
+        source_images, _missing_images = self._extract_reference_images(generation_context)
+        page = self._page()
+        self._attach_reference_images(page, source_images)
+        self._submit_flow_prompt(page, prompt)
+        image_base64 = self._capture_flow_generated_image_base64(page)
+```
+
+### With
+
+```python
+        source_images, _missing_images = self._extract_reference_images(generation_context)
+        page = self._page()
+
+        self._configure_flow_generation_settings(page)
+        self._attach_reference_images(page, source_images)
+        self._submit_flow_prompt(page, prompt)
+
+        image_base64 = self._capture_flow_generated_image_base64(page)
+```
+
+---
+
+# PATCH_12O validation
+
+## STEP 6 — O-Validation 1: compile
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+## STEP 7 — O-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "import subprocess",
+    "FLOW_CLIPBOARD_PASTE_WAIT_SECONDS",
+    "FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS",
+    "FLOW_REFERENCE_ATTACH_METHOD",
+    "def _copy_image_to_windows_clipboard",
+    "def _open_flow_composer_settings_pill",
+    "def _configure_flow_generation_settings",
+    "def _paste_flow_reference_images_into_composer",
+    "Flow generation settings selected",
+    "Flow reference image pasted into composer",
+    "Flow reference images pasted into composer",
+    "flow_prompt_submitted_keyboard_only",
+    "self._configure_flow_generation_settings(page)",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+for forbidden in [
+    "self._finalize_flow_reference_attachment_to_composer(page, source_images)",
+    "clicked_generate = self._flow_click_first(page, generate_selectors, label=\"flow_generate_button\", force=True)",
+]:
+    assert forbidden not in text, forbidden
+
+print("PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12O_FLOW_CLIPBOARD_SETTINGS_STATIC_OK
+```
+
+---
+
+## STEP 8 — O-Validation 3: method sanity
+
+```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
+@'
+import workflow_orchestrator as w
+
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+required = [
+    "_copy_image_to_windows_clipboard",
+    "_open_flow_composer_settings_pill",
+    "_configure_flow_generation_settings",
+    "_paste_flow_reference_images_into_composer",
+    "_attach_reference_images",
+    "_submit_flow_prompt",
+]
+
+for name in required:
+    assert hasattr(adapter, name), name
+
+assert w.FLOW_REFERENCE_ATTACH_METHOD == "clipboard"
+assert w.FLOW_CLIPBOARD_PASTE_WAIT_SECONDS >= 6
+
+print("PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12O_FLOW_CLIPBOARD_SETTINGS_METHODS_OK
+```
+
+---
+
+# Resume STEP 7 after PATCH_12O
