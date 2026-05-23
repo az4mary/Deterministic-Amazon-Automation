@@ -95,25 +95,36 @@ These practices are learned from the Codex_Tech messenger task and should guide 
 
 ## PART 3 - Usable Messenger Scripts And Commands
 
-These command and script patterns are approved helpers for messenger workflow diagnostics. Adapt paths, target IDs, filenames, and prompt text to the active messenger. Do not paste long helper output into messenger-facing files unless the messenger explicitly asks for it.
+These command and script patterns are approved helpers for messenger workflow work. Adapt the messenger name, paths, URL, step label, and prompt text to the active workflow. Do not paste helper output into messenger-facing files unless the messenger explicitly requests it.
 
-### Local Checkpoint And Git Commands
+This section exists to prevent the repeated workflow failures seen during PATCH_12O and PATCH_12P: progress entries inserted into old duplicate sections, stalled ChatGPT upload tiles, disabled send buttons, old assistant replies being mistaken for new confirmations, and unrelated generated files being staged.
 
-Use these commands to capture local time, inspect the worktree, and push only the confirmed messenger files:
+### Standard Variables
+
+Set these at the start of a messenger work session and adapt only the values that change:
+
+```powershell
+$Repo = 'D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch'
+$MessengerName = 'PROMPTS_GEN'
+$MessengerUrl = 'https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa'
+$ProgressFile = Join-Path $Repo "$MessengerName`_Progress.md"
+$ResponseFile = Join-Path $Repo "$MessengerName`_response.md"
+$InstructionsFile = Join-Path $Repo "$MessengerName`_INSTRUCTIONS.md"
+Set-Location -LiteralPath $Repo
+```
+
+### Local Time, Waits, And Git
+
+Capture local checkpoint time with fractional seconds and UTC offset:
 
 ```powershell
 Get-Date -Format o
-git status --short
-git diff -- WORKFLOW_RULES.md Codex_Tech_response.md Codex_Tech_INSTRUCTIONS.md Codex_Tech_Progress.md
-git add -- Codex_Tech_response.md
-git commit -m "Extract Codex_Tech messenger response"
-git push origin codex_branch
 ```
 
-Use this wait pattern for the required local-time pause. Replace the timestamp with the correct checkpoint plus at least 5 minutes:
+Wait at least 5 minutes from the last extracted messenger response checkpoint before sending a new messenger prompt:
 
 ```powershell
-$target = Get-Date '2026-05-19T00:30:55-05:00'
+$target = Get-Date '2026-05-23T15:40:52.1468918-05:00'
 $now = Get-Date
 if ($now -lt $target) {
   $seconds = [int][Math]::Ceiling(($target - $now).TotalSeconds)
@@ -122,315 +133,317 @@ if ($now -lt $target) {
 Get-Date -Format o
 ```
 
-Use these read-only remote-debugging checks before browser work:
+Inspect only relevant workflow files and leave unrelated generated files alone:
+
+```powershell
+git status -sb
+git diff -- $ProgressFile $ResponseFile $InstructionsFile WORKFLOW_RULES.md
+```
+
+Stage and push only the file that was just updated:
+
+```powershell
+git add -- $ProgressFile
+git commit -m 'Record PROMPTS_GEN STEP 5 validation'
+git push origin codex_branch
+```
+
+```powershell
+git add -- $ResponseFile
+git commit -m 'Extract PROMPTS_GEN STEP 5 response'
+git push origin codex_branch
+```
+
+Do not use `git add .` in messenger workflows.
+
+### Append-To-Bottom Progress Updates
+
+Always append progress to the bottom of the active progress file. Do not patch by matching an old step heading, because repeated step names can place the report in the wrong block.
+
+Use this pattern for progress entries:
+
+````powershell
+$block = @"
+## STEP 5 - P-Validation 2: static marker check
+
+```text
+PATCH_12P_SUBMIT_CAPTURE_STATIC_OK
+```
+"@
+Add-Content -LiteralPath $ProgressFile -Value "`r`n$block"
+Get-Content -LiteralPath $ProgressFile -Tail 60
+````
+
+Use full step names exactly as the messenger/instructions provide them. Prefer:
+
+```md
+## STEP 5 - PATCH_12O5: replace Flow `execute_image(...)` ordering
+```
+
+Do not shorten to:
+
+```md
+## STEP 5 - PATCH_12O5
+```
+
+After every progress edit, verify the true bottom of the file:
+
+```powershell
+Get-Content -LiteralPath $ProgressFile -Tail 60
+```
+
+If an entry lands anywhere except the bottom, append the corrected block to the bottom immediately. Do not delete evidence unless the user or messenger explicitly confirms cleanup.
+
+### Response Extraction Template
+
+After a new assistant response appears, append only the checkpoint fields and extracted response to the active response file:
+
+```powershell
+$checkpoint = Get-Date -Format o
+$responseText = @"
+STEP 5 - P-Validation 2: static marker check is confirmed.
+
+Next action:
+
+Proceed with STEP 6 - P-Validation 3: method sanity.
+"@
+$block = @"
+---
+
+# PROMPTS_GEN Messenger Checkpoint - $checkpoint
+
+- Source URL: $MessengerUrl
+- Page title: PROMPTS_GEN
+- Local checkpoint time: ``$checkpoint``
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+$responseText
+"@
+Add-Content -LiteralPath $ResponseFile -Value "`r`n$block"
+Get-Content -LiteralPath $ResponseFile -Tail 40
+```
+
+Commit and push the response file before analyzing or acting on the response.
+
+### Remote Browser Checks
+
+Before browser work, confirm the remote-debugging endpoint and the intended ChatGPT tab:
 
 ```powershell
 Invoke-RestMethod -Uri 'http://127.0.0.1:9222/json/version' -TimeoutSec 5 | ConvertTo-Json -Depth 4
 Invoke-RestMethod -Uri 'http://127.0.0.1:9222/json/list' -TimeoutSec 5 | ConvertTo-Json -Depth 4
 ```
 
-Use this placeholder dry-run check before replacing an initialized response file. Replace the messenger name and placeholder text as needed. If the count is not exactly `1`, do not use that replacement path; re-read the current file and choose a new exact target or rewrite the active response file with a confirmed full-file patch.
+Bind automation to the tab whose URL matches `$MessengerUrl`. Do not act on the first ChatGPT tab by convenience.
 
-```powershell
-(Select-String -LiteralPath 'D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\PROMPTS_GEN_response.md' -Pattern 'NOT EXTRACTED YET - active PROMPTS_GEN response file initialized.' -SimpleMatch).Count
-```
+### Preferred Send-With-Attachment Helper
 
-Use this command to open a new temporary ChatGPT tab in the same remote-debugging browser session:
+Use Playwright over the existing Chrome DevTools session when available. This helper clears stale attachments, clears the composer, types a short prompt, attaches the progress file, waits for a real ready state, sends, and verifies that the latest user message is the one just submitted.
 
-```powershell
-Invoke-RestMethod -Uri 'http://127.0.0.1:9222/json/new?https%3A%2F%2Fchatgpt.com%2F' -Method Put -TimeoutSec 10
-```
-
-### CDP Python Helper Skeleton
-
-Use this skeleton when direct Chrome DevTools Protocol access is needed without extra Python packages. It connects to a known page target from `/json/list`, evaluates page state, and can be extended for attach/type/submit/extract steps.
+Save or run this as a Python helper after setting the constants at the top:
 
 ```python
-import base64
 import json
-import os
-import socket
-import struct
 import time
-import urllib.request
+from playwright.sync_api import sync_playwright
 
-TARGET_ID = "REPLACE_WITH_PAGE_TARGET_ID"
+URL = "https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa"
+PROGRESS = r"D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\PROMPTS_GEN_Progress.md"
+PROMPT = "Please review attached PROMPTS_GEN_Progress.md and confirm STEP 5 - P-Validation 2: static marker check."
+REQUIRED_USER_MARKER = "STEP 5"
+COMPOSER = "#prompt-textarea, div.ProseMirror[contenteditable='true'], [contenteditable='true'][data-lexical-editor='true']"
 
-def get_ws(target_id):
-    tabs = json.load(urllib.request.urlopen("http://127.0.0.1:9222/json/list", timeout=5))
-    for tab in tabs:
-        if tab.get("id") == target_id:
-            return tab["webSocketDebuggerUrl"]
-    raise SystemExit("target not found")
 
-class CDP:
-    def __init__(self, wsurl):
-        rest = wsurl[5:]
-        hostport, path = rest.split("/", 1)
-        host, port = hostport.split(":")
-        self.sock = socket.create_connection((host, int(port)), timeout=10)
-        key = base64.b64encode(os.urandom(16)).decode()
-        request = (
-            f"GET /{path} HTTP/1.1\r\n"
-            f"Host: {hostport}\r\n"
-            "Upgrade: websocket\r\n"
-            "Connection: Upgrade\r\n"
-            f"Sec-WebSocket-Key: {key}\r\n"
-            "Sec-WebSocket-Version: 13\r\n\r\n"
-        )
-        self.sock.sendall(request.encode())
-        response = b""
-        while b"\r\n\r\n" not in response:
-            response += self.sock.recv(4096)
-        if b" 101 " not in response.split(b"\r\n", 1)[0]:
-            raise RuntimeError(response[:500])
-        self.next_id = 1
+def transcript(page):
+    return page.evaluate("""() => {
+      const articles = [...document.querySelectorAll('article,[data-message-author-role]')]
+        .map((element, index) => ({
+          index,
+          role: element.getAttribute('data-message-author-role') || '',
+          text: (element.innerText || '').trim(),
+        }));
+      const users = articles.filter((message) => message.role === 'user');
+      const assistants = articles.filter((message) => message.role === 'assistant' && message.text && message.text !== 'Thinking');
+      const thinking = (document.body.innerText || '').includes('Thinking') || !!document.querySelector('[aria-label*="Stop"], button[aria-label*="Stop"]');
+      return { url: location.href, title: document.title, user_count: users.length, assistant_count: assistants.length, latest_user: users.at(-1) || null, latest_assistant: assistants.at(-1) || null, thinking };
+    }""")
 
-    def send_frame(self, text):
-        payload = text.encode("utf-8")
-        header = bytearray([0x81])
-        size = len(payload)
-        if size < 126:
-            header.append(0x80 | size)
-        elif size < 65536:
-            header.append(0x80 | 126)
-            header.extend(struct.pack("!H", size))
-        else:
-            header.append(0x80 | 127)
-            header.extend(struct.pack("!Q", size))
-        mask = os.urandom(4)
-        header.extend(mask)
-        self.sock.sendall(bytes(header) + bytes(byte ^ mask[i % 4] for i, byte in enumerate(payload)))
 
-    def recv_frame(self):
-        head = self.sock.recv(2)
-        b1, b2 = head
-        size = b2 & 0x7F
-        if size == 126:
-            size = struct.unpack("!H", self.sock.recv(2))[0]
-        elif size == 127:
-            size = struct.unpack("!Q", self.sock.recv(8))[0]
-        data = b""
-        if b2 & 0x80:
-            mask = self.sock.recv(4)
-            while len(data) < size:
-                data += self.sock.recv(size - len(data))
-            data = bytes(byte ^ mask[i % 4] for i, byte in enumerate(data))
-        else:
-            while len(data) < size:
-                data += self.sock.recv(size - len(data))
-        opcode = b1 & 0x0F
-        if opcode == 8:
-            raise RuntimeError("websocket closed")
-        if opcode == 9:
-            return self.recv_frame()
-        return data.decode("utf-8", "replace")
+def composer_state(page):
+    return page.evaluate("""() => {
+      const composer = document.querySelector('#prompt-textarea, div.ProseMirror[contenteditable="true"], [contenteditable="true"][data-lexical-editor="true"]');
+      const form = composer?.closest('form') || document;
+      const send = form.querySelector('[data-testid="send-button"], button[aria-label*="Send" i]');
+      const remove = [...form.querySelectorAll('button,[aria-label]')]
+        .map((element) => element.getAttribute('aria-label') || element.innerText || '')
+        .filter((text) => /^Remove file/i.test(text));
+      const cursorWait = [...form.querySelectorAll('*')].filter((element) => String(element.className || '').includes('cursor-wait')).length;
+      const progressBars = [...form.querySelectorAll('[role="progressbar"], progress')].length;
+      const alerts = [...document.querySelectorAll('[role="alert"], [data-testid*="error" i]')].map((element) => element.innerText).filter(Boolean);
+      return { composer_present: !!composer, composer_text: composer ? composer.innerText : null, attachment_count: remove.length, remove_file_signals: remove, send_present: !!send, send_disabled: send ? !!send.disabled : null, cursor_wait_count: cursorWait, progress_bars: progressBars, active_error_alerts: alerts };
+    }""")
 
-    def call(self, method, params=None, timeout=20):
-        call_id = self.next_id
-        self.next_id += 1
-        self.send_frame(json.dumps({"id": call_id, "method": method, "params": params or {}}))
-        end = time.time() + timeout
-        while time.time() < end:
-            self.sock.settimeout(max(0.1, end - time.time()))
-            message = json.loads(self.recv_frame())
-            if message.get("id") == call_id:
-                return message
-        raise TimeoutError(method)
 
-def evaluate(cdp, expression, timeout=20):
-    result = cdp.call(
-        "Runtime.evaluate",
-        {"expression": expression, "awaitPromise": True, "returnByValue": True},
-        timeout=timeout,
-    )
-    return result.get("result", {}).get("result", {}).get("value")
+with sync_playwright() as p:
+    browser = p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+    pages = [pg for ctx in browser.contexts for pg in ctx.pages]
+    page = next((pg for pg in pages if pg.url.startswith(URL)), None)
+    if page is None:
+        raise RuntimeError(f"messenger tab not found: {URL}")
 
-cdp = CDP(get_ws(TARGET_ID))
-for method in ["Page.enable", "Runtime.enable", "DOM.enable"]:
-    cdp.call(method, timeout=5)
-cdp.call("Page.bringToFront", timeout=5)
-print(json.dumps(evaluate(cdp, "({ url: location.href, title: document.title })"), indent=2))
+    page.bring_to_front()
+    before = transcript(page)
+
+    for _ in range(5):
+        clicked = page.evaluate("""() => {
+          const composer = document.querySelector('#prompt-textarea, div.ProseMirror[contenteditable="true"], [contenteditable="true"][data-lexical-editor="true"]');
+          const form = composer?.closest('form') || document;
+          const button = [...form.querySelectorAll('button')].find((item) => /^Remove file/i.test(item.getAttribute('aria-label') || item.innerText || ''));
+          if (!button) return false;
+          button.click();
+          return true;
+        }""")
+        if not clicked:
+            break
+        page.wait_for_timeout(1000)
+
+    composer = page.locator(COMPOSER).last
+    composer.wait_for(state="visible", timeout=30000)
+    composer.click(timeout=10000)
+    page.keyboard.press("Control+A")
+    page.keyboard.press("Backspace")
+    page.keyboard.type(PROMPT, delay=5)
+
+    ready = None
+    for _attempt in range(3):
+        page.locator("input#upload-files").set_input_files(PROGRESS)
+        deadline = time.time() + 120
+        while time.time() < deadline:
+            ready = composer_state(page)
+            if ready["attachment_count"] >= 1 and ready["send_present"] and not ready["send_disabled"] and ready["cursor_wait_count"] == 0 and ready["progress_bars"] == 0 and not ready["active_error_alerts"]:
+                break
+            page.wait_for_timeout(1000)
+        if ready and ready["attachment_count"] >= 1 and not ready["send_disabled"] and ready["cursor_wait_count"] == 0:
+            break
+    else:
+        raise RuntimeError("attachment/send not ready: " + json.dumps(ready, indent=2))
+
+    page.locator("[data-testid='send-button']").last.click(timeout=30000)
+
+    sent = None
+    deadline = time.time() + 90
+    while time.time() < deadline:
+        sent = transcript(page)
+        latest_user = sent.get("latest_user") or {}
+        if sent["user_count"] > before["user_count"] and REQUIRED_USER_MARKER in latest_user.get("text", ""):
+            break
+        page.wait_for_timeout(1000)
+    else:
+        raise RuntimeError("sent user message not detected: " + json.dumps(sent, indent=2))
+
+    print(json.dumps({"attachment": ready, "after_send": sent}, indent=2))
 ```
 
-### Composer Readiness Probe
+If upload stalls with a visible tile but `send_disabled` remains true, remove the stalled attachment and retry upload. Do not click send until `send_disabled` is false and `cursor_wait_count` is zero.
 
-Use this page expression to confirm the active ChatGPT composer before attaching or typing:
+### Transcript Wait And Extraction Helper
+
+After sending, wait for a new assistant response whose article index is greater than the submitted user message index. This prevents reading the previous assistant reply.
+
+```python
+import json
+import time
+from playwright.sync_api import sync_playwright
+
+URL = "https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa"
+USER_MARKER = "STEP 5"
+ASSISTANT_MARKER = "STEP 5"
+
+with sync_playwright() as p:
+    browser = p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+    page = next(pg for ctx in browser.contexts for pg in ctx.pages if pg.url.startswith(URL))
+    page.bring_to_front()
+
+    stable_text = None
+    stable_count = 0
+    last = None
+    deadline = time.time() + 420
+    while time.time() < deadline:
+        state = page.evaluate("""() => {
+          const articles = [...document.querySelectorAll('article,[data-message-author-role]')]
+            .map((element, index) => ({ index, role: element.getAttribute('data-message-author-role') || '', text: (element.innerText || '').trim() }));
+          const users = articles.filter((message) => message.role === 'user');
+          const assistants = articles.filter((message) => message.role === 'assistant' && message.text && message.text !== 'Thinking');
+          const thinking = (document.body.innerText || '').includes('Thinking') || !!document.querySelector('[aria-label*="Stop"], button[aria-label*="Stop"]');
+          return { url: location.href, title: document.title, user_count: users.length, assistant_count: assistants.length, latest_user: users.at(-1) || null, latest_assistant: assistants.at(-1) || null, thinking };
+        }""")
+        last = state
+        latest_user = state.get("latest_user") or {}
+        latest_assistant = state.get("latest_assistant") or {}
+        user_text = latest_user.get("text") or ""
+        assistant_text = latest_assistant.get("text") or ""
+        user_index = latest_user.get("index", -1)
+        assistant_index = latest_assistant.get("index", -1)
+
+        if USER_MARKER in user_text and ASSISTANT_MARKER in assistant_text and assistant_index > user_index and not state["thinking"]:
+            if assistant_text == stable_text:
+                stable_count += 1
+            else:
+                stable_text = assistant_text
+                stable_count = 1
+            if stable_count >= 3:
+                break
+        else:
+            stable_text = None
+            stable_count = 0
+        page.wait_for_timeout(2000)
+    else:
+        raise RuntimeError("assistant reply not stable: " + json.dumps(last, indent=2))
+
+    print(json.dumps(last, indent=2))
+```
+
+Extract the full latest assistant response into the response file before doing any analysis or next-step work.
+
+### Read-Only Composer Probe
+
+Use this probe when diagnosing a stuck composer. Do not paste its output into messenger-facing files unless requested.
 
 ```javascript
 (() => {
-  const composer = document.querySelector(
-    '#prompt-textarea, div.ProseMirror[contenteditable="true"], [contenteditable="true"][data-lexical-editor="true"]'
-  );
-  const form = composer ? composer.closest("form") : null;
-  const alerts = [...document.querySelectorAll('[role="alert"], [data-testid*="error" i]')]
-    .map((element) => element.innerText)
-    .filter(Boolean);
+  const composer = document.querySelector('#prompt-textarea, div.ProseMirror[contenteditable="true"], [contenteditable="true"][data-lexical-editor="true"]');
+  const form = composer?.closest('form') || document;
+  const send = form.querySelector('[data-testid="send-button"], button[aria-label*="Send" i]');
+  const remove = [...form.querySelectorAll('button,[aria-label]')]
+    .map((element) => element.getAttribute('aria-label') || element.innerText || '')
+    .filter((text) => /^Remove file/i.test(text));
+  const cursorWait = [...form.querySelectorAll('*')]
+    .filter((element) => String(element.className || '').includes('cursor-wait')).length;
   return {
     url: location.href,
     title: document.title,
-    readyState: document.readyState,
     composer_present: !!composer,
-    composer_visible: composer ? !!(composer.offsetWidth || composer.offsetHeight || composer.getClientRects().length) : false,
-    composer_enabled: composer ? !composer.closest('[aria-disabled="true"]') : false,
     composer_text: composer ? composer.innerText : null,
-    composer_form_present: !!form,
-    active_error_alerts: alerts,
-  };
-})()
-```
-
-### Attachment Confirmation Probe
-
-Use this page expression after `DOM.setFileInputFiles`. It intentionally avoids treating filenames such as `Codex_Tech_Progress.md` as upload progress.
-
-```javascript
-(() => {
-  const composer = document.querySelector(
-    '#prompt-textarea, div.ProseMirror[contenteditable="true"], [contenteditable="true"][data-lexical-editor="true"]'
-  );
-  const scope = composer?.closest("form") || document;
-  const remove = [...scope.querySelectorAll("button,[aria-label]")]
-    .map((element) => element.getAttribute("aria-label") || element.innerText || "")
-    .filter((text) => /^Remove file/i.test(text));
-  const alerts = [...document.querySelectorAll('[role="alert"], [data-testid*="error" i]')]
-    .map((element) => element.innerText)
-    .filter(Boolean);
-  const uploadingSignals = [...scope.querySelectorAll('[aria-label*="upload" i], [data-testid*="upload" i]')]
-    .filter((element) => !/^Remove file/i.test(element.getAttribute("aria-label") || ""))
-    .map((element) => element.getAttribute("aria-label") || element.innerText || "")
-    .filter(Boolean);
-  const progressBars = [...scope.querySelectorAll('[role="progressbar"], progress')].length;
-  return {
     attachment_count: remove.length,
     remove_file_signals: remove,
-    uploading: uploadingSignals.length > 0,
-    pending: false,
-    error: alerts.length > 0,
-    progress: progressBars > 0,
-    uploading_signals: uploadingSignals,
-    progress_bars: progressBars,
-    active_error_alerts: alerts,
+    send_present: !!send,
+    send_disabled: send ? !!send.disabled : null,
+    cursor_wait_count: cursorWait,
+    progress_bars: [...form.querySelectorAll('[role="progressbar"], progress')].length,
   };
 })()
 ```
 
-### Transcript Extraction Probe
+### Blocked Report Template
 
-Use this page expression after submitting a messenger prompt. Treat `Thinking` as not final. Extract the latest assistant text into the active response file before analysis.
+If the current step fails or cannot be confirmed, append only the requested diagnostic fields plus these exact blocker lines to the active progress file:
 
-```javascript
-(() => {
-  const articles = [...document.querySelectorAll("article,[data-message-author-role]")]
-    .map((element, index) => ({
-      index,
-      role: element.getAttribute("data-message-author-role") || "",
-      text: (element.innerText || "").trim(),
-    }));
-  const users = articles.filter((message) => message.role === "user");
-  const assistants = articles.filter(
-    (message) => message.role === "assistant" && message.text && message.text !== "Thinking"
-  );
-  const thinking =
-    (document.body.innerText || "").includes("Thinking") ||
-    !!document.querySelector('[aria-label*="Stop"], button[aria-label*="Stop"]');
-  return {
-    url: location.href,
-    title: document.title,
-    user_count: users.length,
-    assistant_count: assistants.length,
-    latest_user: users.at(-1) || null,
-    latest_assistant: assistants.at(-1) || null,
-    thinking,
-  };
-})()
+```md
+NEXT STEP BLOCKED
+No future-step edits/proceeding
+Do you need any additional files/logs for troubleshooting?
 ```
 
-Use this full read-only PowerShell command when a messenger response is visible in ChatGPT and Codex needs to extract the active tab transcript through Chrome remote debugging. First get the correct `TARGET_ID` from `/json/list`, then replace `TARGET_ID` below with the page id for the intended messenger tab.
-
-```powershell
-@'
-import urllib.request, json, socket, base64, os, struct, time
-TARGET_ID='REPLACE_WITH_PAGE_TARGET_ID'
-
-def get_ws(target_id):
-    tabs=json.load(urllib.request.urlopen('http://127.0.0.1:9222/json/list', timeout=5))
-    for t in tabs:
-        if t.get('id')==target_id:
-            return t['webSocketDebuggerUrl']
-    raise SystemExit('target not found')
-
-class CDP:
-    def __init__(self, wsurl):
-        rest=wsurl[5:]; hostport,path=rest.split('/',1); host,port=hostport.split(':')
-        self.s=socket.create_connection((host,int(port)), timeout=10)
-        key=base64.b64encode(os.urandom(16)).decode()
-        self.s.sendall((f"GET /{path} HTTP/1.1\r\nHost: {hostport}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n").encode())
-        resp=b''
-        while b'\r\n\r\n' not in resp: resp+=self.s.recv(4096)
-        if b' 101 ' not in resp.split(b'\r\n',1)[0]: raise RuntimeError(resp[:500])
-        self.next_id=1
-
-    def sf(self,t):
-        p=t.encode('utf-8'); h=bytearray([0x81]); n=len(p)
-        if n<126: h.append(0x80|n)
-        elif n<65536: h.append(0x80|126); h.extend(struct.pack('!H',n))
-        else: h.append(0x80|127); h.extend(struct.pack('!Q',n))
-        m=os.urandom(4); h.extend(m); self.s.sendall(bytes(h)+bytes(b^m[i%4] for i,b in enumerate(p)))
-
-    def rf(self):
-        h=self.s.recv(2); b1,b2=h; n=b2&0x7f
-        if n==126: n=struct.unpack('!H', self.s.recv(2))[0]
-        elif n==127: n=struct.unpack('!Q', self.s.recv(8))[0]
-        data=b''
-        if b2&0x80:
-            m=self.s.recv(4)
-            while len(data)<n: data+=self.s.recv(n-len(data))
-            data=bytes(x^m[i%4] for i,x in enumerate(data))
-        else:
-            while len(data)<n: data+=self.s.recv(n-len(data))
-        if (b1&0xf)==8: raise RuntimeError('websocket closed')
-        if (b1&0xf)==9: return self.rf()
-        return data.decode('utf-8','replace')
-
-    def call(self, method, params=None, timeout=20):
-        cid=self.next_id; self.next_id+=1
-        self.sf(json.dumps({'id':cid,'method':method,'params':params or {}}))
-        end=time.time()+timeout
-        while time.time()<end:
-            self.s.settimeout(max(.1,end-time.time()))
-            msg=json.loads(self.rf())
-            if msg.get('id')==cid: return msg
-        raise TimeoutError(method)
-
-def ev(cdp, expr, timeout=20):
-    return cdp.call('Runtime.evaluate', {'expression':expr,'awaitPromise':True,'returnByValue':True}, timeout=timeout).get('result',{}).get('result',{}).get('value')
-
-cdp=CDP(get_ws(TARGET_ID))
-for m in ['Runtime.enable','DOM.enable','Page.enable']: cdp.call(m, timeout=5)
-cdp.call('Page.bringToFront', timeout=5)
-expr=r'''(() => {
-  const articles = [...document.querySelectorAll('article,[data-message-author-role]')]
-    .map((element, index) => ({
-      index,
-      role: element.getAttribute('data-message-author-role') || '',
-      text: (element.innerText || '').trim(),
-    }));
-  const users = articles.filter((message) => message.role === 'user');
-  const assistants = articles.filter((message) => message.role === 'assistant' && message.text && message.text !== 'Thinking');
-  const thinking = (document.body.innerText || '').includes('Thinking') || !!document.querySelector('[aria-label*="Stop"], button[aria-label*="Stop"]');
-  return {
-    url: location.href,
-    title: document.title,
-    user_count: users.length,
-    assistant_count: assistants.length,
-    latest_user: users.at(-1) || null,
-    latest_assistant: assistants.at(-1) || null,
-    thinking,
-    articles: articles.slice(-8),
-  };
-})()'''
-state=ev(cdp,expr,timeout=20)
-print(json.dumps(state, indent=2))
-'@ | python -
-```
+Do not edit future steps while blocked.
