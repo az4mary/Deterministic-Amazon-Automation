@@ -3142,7 +3142,7 @@ Start-Sleep -Milliseconds 300
             stage="PROCESSING",
             status="IN_PROGRESS",
             context={
-                "operation": "flow_prompt_submit_control_enter_start",
+                "operation": "flow_prompt_submit_click_button_start",
                 "prompt_chars": len(prompt or ""),
                 "target_model": FLOW_IMAGE_MODEL,
             },
@@ -3154,9 +3154,7 @@ Start-Sleep -Milliseconds 300
             prompt_box = self._find_flow_prompt_box(page)
             prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
 
-        # Confirmed smoke-test behavior: submit once with Control+Enter only.
-        # Do not scan/click Create, because Flow may expose a nearby Add Media/+ Create control.
-        page.keyboard.press("Control+Enter")
+        self._click_flow_submit_arrow(page, prompt_box)
 
         json_log(
             level="INFO",
@@ -3164,10 +3162,10 @@ Start-Sleep -Milliseconds 300
             stage="PROCESSING",
             status="COMPLETED",
             context={
-                "operation": "flow_prompt_submitted_keyboard_only",
+                "operation": "flow_prompt_submitted_click_button",
                 "prompt_chars": len(prompt or ""),
                 "target_model": FLOW_IMAGE_MODEL,
-                "submit_method": "Control+Enter",
+                "submit_method": "composer_scoped_submit_button",
             },
         )
 

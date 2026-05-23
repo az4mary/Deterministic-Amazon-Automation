@@ -238,6 +238,20 @@ COMPLETED
 PATCH_12P1_DRY_RUN_PASS
 ```
 
+## STEP 2 - PATCH_12P2: replace `_submit_flow_prompt(...)`
+
+```text
+{'method': 1, 'old_keyboard_marker': 1, 'old_control_enter_comment': 1, 'new_helper_call': 0}
+PATCH_12P2_DRY_RUN_PASS
+```
+
+## STEP 2 - PATCH_12P2: replace `_submit_flow_prompt(...)`
+
+```text
+{'method': 1, 'old_keyboard_marker': 1, 'old_control_enter_comment': 1, 'new_helper_call': 0}
+PATCH_12P2_DRY_RUN_PASS
+```
+
 ## STEP 0 - Cleanup before PATCH_12P
 
 ```text
@@ -431,4 +445,11 @@ COMPLETED
 ```text
 {'anchor': 1, 'existing_helper': 0, 'keyboard_only_marker': 1}
 PATCH_12P1_DRY_RUN_PASS
+```
+
+## STEP 2 - PATCH_12P2: replace `_submit_flow_prompt(...)`
+
+```text
+{'method': 1, 'old_keyboard_marker': 1, 'old_control_enter_comment': 1, 'new_helper_call': 0}
+PATCH_12P2_DRY_RUN_PASS
 ```
