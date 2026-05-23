@@ -349,3 +349,10 @@ PATCH_12O2_DRY_RUN_PASS
 {'method': 1, 'old_upload_marker': 2, 'old_finalize_call': 1}
 PATCH_12O3_DRY_RUN_PASS
 ```
+
+## STEP 4 - PATCH_12O4
+
+```text
+{'method': 1, 'old_generate_click': 1, 'old_model_selection_started': 2}
+PATCH_12O4_DRY_RUN_PASS
+```

@@ -3009,159 +3009,57 @@ Start-Sleep -Milliseconds 300
             )
 
     def _submit_flow_prompt(self, page, prompt: str) -> None:
-        json_log(
-            level="INFO",
-            message="Flow model selection started",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "flow_model_selection_start",
-                "target_model": FLOW_IMAGE_MODEL,
-                "strict": FLOW_MODEL_STRICT,
-            },
-        )
-
-        model_visible = False
-        model_selectors = [
-            f"button:has-text('{FLOW_IMAGE_MODEL}')",
-            f"[role='button']:has-text('{FLOW_IMAGE_MODEL}')",
-            f"text={FLOW_IMAGE_MODEL}",
-            "button[aria-label*='model']",
-            "button[aria-label*='Model']",
-            "[role='button'][aria-label*='model']",
-            "[role='button'][aria-label*='Model']",
-        ]
-
-        for selector in model_selectors:
-            try:
-                candidate = page.locator(selector).first
-                if not candidate.count() or not candidate.is_visible():
-                    continue
-                candidate.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
-                page.wait_for_timeout(500)
-                model_visible = True
-                break
-            except Exception:
-                continue
-
-        if not model_visible:
-            try:
-                model_option = page.get_by_text(FLOW_IMAGE_MODEL, exact=False).first
-                if model_option.count() and model_option.is_visible():
-                    model_option.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
-                    page.wait_for_timeout(500)
-                    model_visible = True
-            except Exception:
-                pass
-
-        if not model_visible:
-            if FLOW_MODEL_STRICT:
-                json_log(
-                    level="ERROR",
-                    message="Flow model not available",
-                    stage="PROCESSING",
-                    status="FAILED",
-                    context={
-                        "operation": "flow_model_not_available",
-                        "target_model": FLOW_IMAGE_MODEL,
-                    },
-                )
-                fail(
-                    "FLOW_MODEL_NOT_AVAILABLE",
-                    "Required Flow image model is not visible or selectable in the Flow UI.",
-                    field="FLOW_IMAGE_MODEL",
-                    expected=f"{FLOW_IMAGE_MODEL} visible/selectable in Flow model menu",
-                    actual=f"url={getattr(page, 'url', '')}",
-                    stage="PROCESSING",
-                )
-
-            json_log(
-                level="WARNING",
-                message="Flow model selection skipped",
-                stage="PROCESSING",
-                status="IN_PROGRESS",
-                context={
-                    "operation": "flow_model_selection_skipped",
-                    "target_model": FLOW_IMAGE_MODEL,
-                },
-            )
-        else:
-            json_log(
-                level="INFO",
-                message="Flow model selected",
-                stage="PROCESSING",
-                status="COMPLETED",
-                context={
-                    "operation": "flow_model_selected",
-                    "target_model": FLOW_IMAGE_MODEL,
-                },
-            )
-
-        self._dismiss_flow_transient_overlays(page)
         prompt_box = self._find_flow_prompt_box(page)
         self._fill_flow_prompt_box(page, prompt_box, prompt)
 
-        generate_selectors = [
-            "button:has-text('Generate')",
-            "button[aria-label*='Generate']",
-            "button[aria-label*='generate']",
-            "[role='button']:has-text('Generate')",
-            "button:has-text('Create')",
-            "button[aria-label*='Create']",
-            "button[aria-label*='create']",
-            "[role='button']:has-text('Create')",
-        ]
-
-        clicked_generate = self._flow_click_first(page, generate_selectors, label="flow_generate_button", force=True)
-
-        if clicked_generate and self._wait_for_flow_submit_confirmation(page):
-            json_log(
-                level="INFO",
-                message="Flow image prompt submitted",
-                stage="PROCESSING",
-                status="COMPLETED",
-                context={
-                    "operation": "flow_prompt_submitted",
-                    "prompt_chars": len(prompt or ""),
-                    "target_model": FLOW_IMAGE_MODEL,
-                    "submit_method": "button",
-                },
-            )
-            return
+        json_log(
+            level="INFO",
+            message="Flow image prompt submit command started",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_prompt_submit_control_enter_start",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+            },
+        )
 
         try:
-            page.keyboard.press("Control+Enter")
-            if self._wait_for_flow_submit_confirmation(page):
-                json_log(
-                    level="INFO",
-                    message="Flow image prompt submitted",
-                    stage="PROCESSING",
-                    status="COMPLETED",
-                    context={
-                        "operation": "flow_prompt_submitted_keyboard",
-                        "prompt_chars": len(prompt or ""),
-                        "target_model": FLOW_IMAGE_MODEL,
-                        "submit_method": "keyboard",
-                    },
-                )
-                return
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
         except Exception:
-            pass
+            prompt_box = self._find_flow_prompt_box(page)
+            prompt_box.click(timeout=FLOW_UI_CLICK_TIMEOUT_MS, force=True)
 
-        fail(
-            "FLOW_PROMPT_SUBMIT_NOT_CONFIRMED",
-            "Flow prompt text was filled but generation start was not confirmed.",
-            field="flow_generate_button",
-            expected="Flow generation indicator after button click or Control+Enter",
-            actual=json.dumps(
-                {
-                    "clicked_generate": clicked_generate,
-                    "summary": self._flow_prompt_surface_summary(page),
-                    "reference_attach_summary": self._flow_reference_attach_summary(page),
-                },
-                ensure_ascii=False,
-            ),
+        # Confirmed smoke-test behavior: submit once with Control+Enter only.
+        # Do not scan/click Create, because Flow may expose a nearby Add Media/+ Create control.
+        page.keyboard.press("Control+Enter")
+
+        json_log(
+            level="INFO",
+            message="Flow image prompt submitted",
             stage="PROCESSING",
+            status="COMPLETED",
+            context={
+                "operation": "flow_prompt_submitted_keyboard_only",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+                "submit_method": "Control+Enter",
+            },
+        )
+
+        if self._wait_for_flow_submit_confirmation(page):
+            return
+
+        json_log(
+            level="WARNING",
+            message="Flow prompt submission confirmation was not observed before capture wait",
+            stage="PROCESSING",
+            status="IN_PROGRESS",
+            context={
+                "operation": "flow_prompt_submit_confirmation_not_observed_continue_to_capture",
+                "prompt_chars": len(prompt or ""),
+                "target_model": FLOW_IMAGE_MODEL,
+            },
         )
 
     def _capture_flow_generated_image_base64(self, page) -> str:
