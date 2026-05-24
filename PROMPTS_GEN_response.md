@@ -661,3 +661,61 @@ The current failure is a detector/scope mismatch, not proof that images were abs
 Next diagnostic action:
 
 Proceed with STEP 2 - Inspect all visible media-like nodes near the composer.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-24T05:44:06.9242223-05:00
+
+- Source URL: https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa
+- Page title: PROMPTS_GEN
+- Local checkpoint time: `2026-05-24T05:44:06.9242223-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STEP 2 - Inspect all visible media-like nodes near the composer is confirmed.
+
+Key finding
+
+The STEP 2 diagnostic confirms the composer has exactly two visible attached reference-image nodes:
+
+index 35: IMG, 50x50, y=748
+src=/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3
+
+index 36: IMG, 50x50, y=748
+src=/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e
+
+Both have this distinguishing attachment alt text:
+
+A piece of media generated or uploaded by you, that is present in your collection.
+
+That differs from gallery/grid images, which use:
+
+alt="Generated image"
+
+So the issue is now clear: the images are attached, but the current readiness detector is not using the correct DOM signature. It should not rely on the old broad composer counter alone. The reliable attached-reference signature is now:
+
+CSS
+img[alt="A piece of media generated or uploaded by you, that is present in your collection."][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]
+
+and the safest spatial filter is:
+
+visible 50x50-ish image chips near the lower composer region
+
+The progress file records STEP 2 diagnostic submission, and the STEP 2 JSON confirms the two actual attached media nodes. 
+
+PROMPTS_GEN_Progress
+
+ 
+
+PROMPTS_GEN_STEP2_visible_media…
+
+Conclusion:
+
+STEP 2 confirmed.
+The Flow reference upload/attach succeeded.
+The failure is a detector selector/scope mismatch.
+
+Next diagnostic action:
+
+Proceed with STEP 3 - Inspect the composer textbox and its nearby DOM.
