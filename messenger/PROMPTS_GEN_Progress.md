@@ -668,3 +668,5 @@ PROMPTS_GEN_STEP5_generated_image_candidates.json
 ```text
 PROMPTS_GEN_STEP6_flow_generation_done_state.json
 ```
+
+# PATCH_12T = replace Flow generated-image capture timeout loop with inspected state-based generated-output detector
