@@ -2170,6 +2170,7 @@ Start-Sleep -Milliseconds 300
             )
 
         page.wait_for_timeout(int(FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS * 1000))
+        self._wait_for_flow_reference_uploads_ready(page, len(source_images))
 
         json_log(
             level="INFO",

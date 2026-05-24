@@ -538,3 +538,10 @@ COMPLETED
 {'paste_method': 1, 'reference_count_method': 1, 'existing_wait_helper': 0}
 PATCH_12R1_DRY_RUN_PASS
 ```
+
+## STEP 2 - PATCH_12R2: call upload-ready wait before submit
+
+```text
+{'final_settle_log': 1, 'ready_call': 0}
+PATCH_12R2_DRY_RUN_PASS
+```
