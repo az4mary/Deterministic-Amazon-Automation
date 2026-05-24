@@ -676,3 +676,10 @@ PROMPTS_GEN_STEP6_flow_generation_done_state.json
 ```text
 PASS / cleanup completed
 ```
+
+## STEP 1 - PATCH_12T1: add Flow generated-image state detector
+
+```text
+{'capture_method': 1, 'existing_state_helper': 0, 'existing_baseline_helper': 0, 'existing_fetch_helper': 0}
+PATCH_12T1_DRY_RUN_PASS
+```

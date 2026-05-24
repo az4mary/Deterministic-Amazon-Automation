@@ -3531,6 +3531,252 @@ Start-Sleep -Milliseconds 300
 
             raise
 
+    def _flow_generated_image_state(self, page, baseline_keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        baseline_keys = baseline_keys or []
+
+        try:
+            result = page.evaluate(
+                """
+(baselineKeys) => {
+  const baseline = new Set(baselineKeys || []);
+  const GENERATED_SELECTOR =
+    'img[alt="Generated image"][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]';
+
+  function rectOf(node) {
+    const r = node.getBoundingClientRect();
+    const style = getComputedStyle(node);
+    const visible = !!(
+      r.width &&
+      r.height &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      Number(style.opacity || "1") > 0
+    );
+
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible,
+      inViewport:
+        r.bottom > 0 &&
+        r.right > 0 &&
+        r.top < window.innerHeight &&
+        r.left < window.innerWidth
+    };
+  }
+
+  function nodeText(node) {
+    return (node.innerText || node.textContent || "").trim();
+  }
+
+  function visibleNode(node) {
+    if (!node) return false;
+    const r = rectOf(node);
+    return r.visible && r.inViewport;
+  }
+
+  function closestTileId(node) {
+    let current = node;
+    while (current && current !== document.body) {
+      if (current.getAttribute && current.getAttribute("data-tile-id")) {
+        return current.getAttribute("data-tile-id") || "";
+      }
+      current = current.parentElement;
+    }
+    return "";
+  }
+
+  function closestEditHref(node) {
+    let current = node;
+    while (current && current !== document.body) {
+      if (current.tagName === "A" && current.getAttribute("href")) {
+        return current.getAttribute("href") || "";
+      }
+      const link = current.querySelector && current.querySelector('a[href*="/edit/"]');
+      if (link) return link.getAttribute("href") || "";
+      current = current.parentElement;
+    }
+    return "";
+  }
+
+  const images = [...document.querySelectorAll(GENERATED_SELECTOR)]
+    .map((img, index) => {
+      const rect = rectOf(img);
+      const src = img.getAttribute("src") || "";
+      const currentSrc = img.currentSrc || "";
+      const tileId = closestTileId(img);
+      const editHref = closestEditHref(img);
+      const key = tileId || src || currentSrc;
+      const loaded = !!img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+      const largeEnough = rect.width >= 120 && rect.height >= 120;
+      const inBaseline = baseline.has(key) || baseline.has(src) || baseline.has(currentSrc) || baseline.has(tileId);
+
+      return {
+        index,
+        key,
+        src,
+        currentSrc,
+        alt: img.getAttribute("alt") || "",
+        tileId,
+        editHref,
+        rect,
+        complete: img.complete,
+        naturalWidth: img.naturalWidth || 0,
+        naturalHeight: img.naturalHeight || 0,
+        loaded,
+        largeEnough,
+        inBaseline,
+        likelyGeneratedOutput:
+          rect.visible &&
+          rect.inViewport &&
+          loaded &&
+          largeEnough &&
+          !!tileId &&
+          !inBaseline
+      };
+    })
+    .filter(item => item.rect.visible)
+    .sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
+
+  const bodyText = document.body.innerText || "";
+
+  const busyNodes = [...document.querySelectorAll("[aria-busy='true'],[role='progressbar']")]
+    .filter(visibleNode)
+    .map((node, index) => ({
+      index,
+      tag: node.tagName,
+      text: nodeText(node).slice(0, 120),
+      role: node.getAttribute("role") || "",
+      ariaBusy: node.getAttribute("aria-busy") || "",
+      rect: rectOf(node)
+    }));
+
+  const cancelControls = [...document.querySelectorAll("button,[role='button']")]
+    .filter(visibleNode)
+    .map((node, index) => ({
+      index,
+      tag: node.tagName,
+      text: nodeText(node).slice(0, 120),
+      disabled:
+        node.disabled === true ||
+        node.getAttribute("aria-disabled") === "true" ||
+        node.getAttribute("disabled") !== null,
+      rect: rectOf(node)
+    }))
+    .filter(item => /cancel|stop/i.test(item.text));
+
+  const scroller = document.querySelector("[data-testid='virtuoso-scroller']");
+  const itemList = document.querySelector("[data-testid='virtuoso-item-list']");
+
+  const bodyFlags = {
+    hasGeneratingText: /generating|creating|processing|loading/i.test(bodyText),
+    hasCreateText: /create/i.test(bodyText),
+    hasCancelText: /cancel|stop/i.test(bodyText)
+  };
+
+  const activeGeneration =
+    bodyFlags.hasGeneratingText ||
+    bodyFlags.hasCancelText ||
+    busyNodes.length > 0 ||
+    cancelControls.length > 0;
+
+  const newCandidates = images.filter(item => item.likelyGeneratedOutput);
+  const readyCandidate = newCandidates[0] || null;
+
+  return {
+    url: location.href,
+    viewport: {width: window.innerWidth, height: window.innerHeight},
+    baseline_key_count: baseline.size,
+    generated_count: images.length,
+    generated_keys: images.map(item => item.key).filter(Boolean),
+    new_generated_count: newCandidates.length,
+    active_generation: activeGeneration,
+    output_grid_ready: !!(scroller && itemList && visibleNode(scroller) && visibleNode(itemList)),
+    bodyFlags,
+    busyNodes,
+    cancelControls,
+    ready_candidate: readyCandidate,
+    candidates: images.slice(0, 30)
+  };
+}
+""",
+                baseline_keys,
+            )
+
+            if isinstance(result, dict):
+                return result
+
+            return {
+                "url": getattr(page, "url", ""),
+                "generated_count": 0,
+                "new_generated_count": 0,
+                "active_generation": False,
+                "output_grid_ready": False,
+                "ready_candidate": None,
+                "candidates": [],
+                "state_error": f"non-dict result: {type(result).__name__}",
+            }
+
+        except Exception as exc:
+            return {
+                "url": getattr(page, "url", ""),
+                "generated_count": 0,
+                "new_generated_count": 0,
+                "active_generation": False,
+                "output_grid_ready": False,
+                "ready_candidate": None,
+                "candidates": [],
+                "state_error": str(exc)[:500],
+            }
+
+    def _flow_generated_image_baseline_keys(self, page) -> List[str]:
+        state = self._flow_generated_image_state(page)
+        keys = [
+            key
+            for key in (state.get("generated_keys") or [])
+            if isinstance(key, str) and key
+        ]
+
+        self._flow_user_info(
+            "Flow generated image baseline captured",
+            generated_count=state.get("generated_count"),
+            baseline_key_count=len(keys),
+            output_grid_ready=state.get("output_grid_ready"),
+        )
+
+        return keys
+
+    def _flow_fetch_image_src_base64(self, page, src: str) -> Optional[str]:
+        if not src:
+            return None
+
+        try:
+            return page.evaluate(
+                """
+async (src) => {
+  const url = new URL(src, location.href).href;
+  const response = await fetch(url, {credentials: "include"});
+  if (!response.ok) {
+    throw new Error(`fetch failed ${response.status}`);
+  }
+  const blob = await response.blob();
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+}
+""",
+                src,
+            )
+        except Exception:
+            return None
+
     def _capture_flow_generated_image_base64(self, page) -> str:
         json_log(
             level="INFO",
