@@ -709,3 +709,9 @@ PASS / no output
 ```text
 PATCH_12T_STATE_CAPTURE_STATIC_OK
 ```
+
+## STEP 6 - T-Validation 3: method sanity
+
+```text
+PATCH_12T_STATE_CAPTURE_METHODS_OK
+```
