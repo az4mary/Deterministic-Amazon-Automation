@@ -1053,3 +1053,66 @@ PROMPTS_GEN_STEP5_generated_ima…
 Next diagnostic action:
 
 Proceed with STEP C - Inspect Flow generation-complete state.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-24T12:22:08.2676868-05:00
+
+- Source URL: https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa
+- Page title: PROMPTS_GEN
+- Local checkpoint time: `2026-05-24T12:22:08.2676868-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STEP C - Inspect Flow generation-complete state is confirmed. 
+
+PROMPTS_GEN_Progress
+
+Confirmed generation-complete state
+
+The PROMPTS_GEN_STEP6_flow_generation_done_state.json confirms the page is in a completed, idle state:
+
+JSON
+{
+  "hasGeneratingText": false,
+  "hasCancelText": false,
+  "hasCreateText": true,
+  "hasDownloadText": false,
+  "hasReusePromptText": false,
+  "hasFavoriteText": false
+}
+
+The visible Flow controls are not reporting aria-busy, and the visible generated media grid is present through:
+
+data-testid="virtuoso-scroller"
+data-testid="virtuoso-item-list"
+
+The generated tiles are visible as draggable/button-like media tiles with:
+
+role="button"
+aria-disabled="false"
+data-state="closed"
+
+So the deterministic post-submit condition is now:
+
+new loaded Generated image tile exists
+AND generation/busy/cancel state is absent
+AND visible output grid is stable
+
+This confirms STEP C. 
+
+PROMPTS_GEN_STEP6_flow_generati…
+
+Resulting rule
+
+The capture phase should no longer depend on FLOW_IMAGE_TIMEOUT_SECONDS=1200 as the primary logic. It should use a state-machine:
+
+baseline generated tile IDs before submit
+submit prompt
+detect new loaded generated tile
+confirm no active generation/busy/cancel state
+capture newest non-baseline tile
+move next
+
+No patch issued yet.
