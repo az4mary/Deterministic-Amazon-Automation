@@ -690,3 +690,10 @@ PATCH_12T1_DRY_RUN_PASS
 {'old_timeout_marker': True, 'old_deadline_marker': True, 'old_timeout_error': True, 'new_state_marker': False}
 PATCH_12T2_DRY_RUN_PASS
 ```
+
+## STEP 3 - PATCH_12T3: capture generated baseline before submit
+
+```text
+{'old_sequence_count': 1, 'new_sequence_count': 0}
+PATCH_12T3_DRY_RUN_PASS
+```

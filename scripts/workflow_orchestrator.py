@@ -3943,9 +3943,10 @@ async (src) => {
 
         self._configure_flow_generation_settings(page)
         self._attach_reference_images(page, source_images)
+        generated_baseline_keys = self._flow_generated_image_baseline_keys(page)
         self._submit_flow_prompt(page, prompt)
 
-        image_base64 = self._capture_flow_generated_image_base64(page)
+        image_base64 = self._capture_flow_generated_image_base64(page, generated_baseline_keys)
 
         return {
             "image_base64": image_base64,
