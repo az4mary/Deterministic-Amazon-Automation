@@ -571,3 +571,9 @@ PASS / no output
 ```text
 PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_STATIC_OK
 ```
+
+## STEP 7 - R-Validation 3: method sanity
+
+```text
+PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_METHODS_OK
+```
