@@ -630,3 +630,9 @@ PATCH_12S3_DRY_RUN_PASS
 {'old_composer_reference_count': True, 'new_reference_chip_details': False}
 PATCH_12S4_DRY_RUN_PASS
 ```
+
+## STEP 5 - S-Validation 1: compile
+
+```text
+PASS / no output
+```
