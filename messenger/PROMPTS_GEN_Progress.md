@@ -683,3 +683,10 @@ PASS / cleanup completed
 {'capture_method': 1, 'existing_state_helper': 0, 'existing_baseline_helper': 0, 'existing_fetch_helper': 0}
 PATCH_12T1_DRY_RUN_PASS
 ```
+
+## STEP 2 - PATCH_12T2: replace capture method with state-machine capture
+
+```text
+{'old_timeout_marker': True, 'old_deadline_marker': True, 'old_timeout_error': True, 'new_state_marker': False}
+PATCH_12T2_DRY_RUN_PASS
+```

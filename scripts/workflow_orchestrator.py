@@ -3777,184 +3777,158 @@ async (src) => {
         except Exception:
             return None
 
-    def _capture_flow_generated_image_base64(self, page) -> str:
-        json_log(
-            level="INFO",
-            message="Flow image generation wait started",
-            stage="PROCESSING",
-            status="IN_PROGRESS",
-            context={
-                "operation": "flow_image_generation_wait_start",
-                "timeout_seconds": FLOW_IMAGE_TIMEOUT_SECONDS,
-            },
-        )
+    def _capture_flow_generated_image_base64(self, page, baseline_keys: Optional[List[str]] = None) -> str:
+        baseline_keys = baseline_keys or []
+        stable_required = int(os.getenv("FLOW_GENERATED_IMAGE_READY_STABLE_POLLS", "2"))
+        guard_polls = int(os.getenv("FLOW_GENERATED_IMAGE_STATE_GUARD_POLLS", "360"))
+        poll_ms = int(os.getenv("FLOW_GENERATED_IMAGE_STATE_POLL_MS", "500"))
 
-        def locator_key(locator) -> str:
-            try:
-                src = locator.get_attribute("src") or ""
-                if src:
-                    return src[:500]
-            except Exception:
-                pass
-            try:
-                box = locator.bounding_box() or {}
-                tag_name = locator.evaluate("el => el.tagName.toLowerCase()")
-                return json.dumps(
-                    {
-                        "tag": tag_name,
-                        "x": round(float(box.get("x", 0)), 1),
-                        "y": round(float(box.get("y", 0)), 1),
-                        "w": round(float(box.get("width", 0)), 1),
-                        "h": round(float(box.get("height", 0)), 1),
-                    },
-                    sort_keys=True,
-                )
-            except Exception:
-                return ""
-
-        def visible_large_enough(locator) -> bool:
-            try:
-                if not locator.is_visible():
-                    return False
-                box = locator.bounding_box() or {}
-                return float(box.get("width", 0)) >= 180 and float(box.get("height", 0)) >= 180
-            except Exception:
-                return False
-
-        def collect_candidates():
-            candidates = []
-            selectors = [
-                "main img[src^='blob:']",
-                "main img[src^='data:image']",
-                "main img",
-                "main canvas",
-                "[data-testid*='generation'] img",
-                "[data-testid*='generation'] canvas",
-                "[data-testid*='result'] img",
-                "[data-testid*='result'] canvas",
-                "[role='img']",
-            ]
-            for selector in selectors:
-                try:
-                    collection = page.locator(selector)
-                    count = min(collection.count(), 20)
-                    for idx in range(count):
-                        candidates.append((selector, collection.nth(idx)))
-                except Exception:
-                    continue
-            return candidates
-
-        def read_locator_image_base64(locator) -> Optional[str]:
-            try:
-                src = locator.get_attribute("src") or ""
-                if src.startswith("data:image") and "," in src:
-                    return src.split(",", 1)[1]
-                if src.startswith("blob:") or src.startswith("http://") or src.startswith("https://"):
-                    return page.evaluate(
-                        """
-                        async (src) => {
-                          const response = await fetch(src);
-                          const blob = await response.blob();
-                          const bytes = new Uint8Array(await blob.arrayBuffer());
-                          let binary = "";
-                          for (let i = 0; i < bytes.length; i += 1) {
-                            binary += String.fromCharCode(bytes[i]);
-                          }
-                          return btoa(binary);
-                        }
-                        """,
-                        src,
-                    )
-            except Exception:
-                return None
-            return None
-
-        baseline_keys = set()
-        for _selector, candidate in collect_candidates():
-            try:
-                key = locator_key(candidate)
-                if key:
-                    baseline_keys.add(key)
-            except Exception:
-                continue
-
-        deadline = time.time() + FLOW_IMAGE_TIMEOUT_SECONDS
+        stable_seen = 0
+        last_ready_key = ""
+        last_state: Dict[str, Any] = {}
         last_error = ""
+
         self._flow_user_info(
-            "Flow capture scan started",
-            timeout_seconds=FLOW_IMAGE_TIMEOUT_SECONDS,
+            "Flow state-based capture started",
+            baseline_key_count=len(baseline_keys),
+            stable_required=stable_required,
+            guard_polls=guard_polls,
+            poll_ms=poll_ms,
             url=getattr(page, "url", ""),
         )
+
         json_log(
             level="INFO",
-            message="Flow download-click capture disabled",
+            message="Flow state-based generated image capture started",
             stage="PROCESSING",
             status="IN_PROGRESS",
             context={
-                "operation": "flow_download_click_capture_disabled",
-                "reason": "avoid clicking uploaded reference images or opening image/download surfaces before generated output is detected",
+                "operation": "flow_state_based_generated_image_capture_start",
+                "baseline_key_count": len(baseline_keys),
+                "stable_required": stable_required,
+                "guard_polls": guard_polls,
+                "poll_ms": poll_ms,
             },
         )
-        while time.time() < deadline:
-            for selector, candidate in collect_candidates():
-                try:
-                    if not visible_large_enough(candidate):
-                        continue
-                    key = locator_key(candidate)
-                    if key and key in baseline_keys:
-                        continue
 
-                    image_base64 = read_locator_image_base64(candidate)
+        for poll_index in range(guard_polls):
+            last_state = self._flow_generated_image_state(page, baseline_keys)
+            ready_candidate = last_state.get("ready_candidate")
+
+            if isinstance(ready_candidate, dict):
+                ready_key = str(ready_candidate.get("key") or "")
+                active_generation = bool(last_state.get("active_generation"))
+
+                if ready_key and ready_key == last_ready_key and not active_generation:
+                    stable_seen += 1
+                else:
+                    stable_seen = 1 if not active_generation else 0
+                    last_ready_key = ready_key
+
+                self._flow_user_info(
+                    "Flow generated image candidate observed",
+                    poll_index=poll_index,
+                    stable_seen=stable_seen,
+                    stable_required=stable_required,
+                    active_generation=active_generation,
+                    tile_id=ready_candidate.get("tileId"),
+                    src=ready_candidate.get("src"),
+                    natural_width=ready_candidate.get("naturalWidth"),
+                    natural_height=ready_candidate.get("naturalHeight"),
+                    output_grid_ready=last_state.get("output_grid_ready"),
+                )
+
+                if stable_seen >= stable_required:
+                    src = str(ready_candidate.get("src") or "")
+                    image_base64 = self._flow_fetch_image_src_base64(page, src)
+
                     if image_base64:
                         json_log(
                             level="INFO",
-                            message="Flow generated image captured from image tile",
+                            message="Flow generated image captured from inspected generated tile src",
                             stage="PROCESSING",
                             status="COMPLETED",
                             context={
-                                "operation": "flow_generated_image_captured_tile",
-                                "selector": selector,
+                                "operation": "flow_generated_image_captured_state_tile_src",
+                                "tile_id": ready_candidate.get("tileId"),
+                                "src": src,
                                 "image_base64_chars": len(image_base64),
+                                "natural_width": ready_candidate.get("naturalWidth"),
+                                "natural_height": ready_candidate.get("naturalHeight"),
                             },
                         )
-                        self._flow_user_info("Flow generated image captured", capture_method="tile", selector=selector)
+                        self._flow_user_info(
+                            "Flow generated image captured",
+                            capture_method="state_tile_src",
+                            tile_id=ready_candidate.get("tileId"),
+                            image_base64_chars=len(image_base64),
+                        )
                         return image_base64
 
-                    screenshot_bytes = candidate.screenshot(timeout=self.action_timeout_ms)
-                    image_base64 = base64.b64encode(screenshot_bytes).decode("ascii")
-                    json_log(
-                        level="INFO",
-                        message="Flow generated image captured from canvas/screenshot",
-                        stage="PROCESSING",
-                        status="COMPLETED",
-                        context={
-                            "operation": "flow_generated_image_captured_screenshot",
-                            "selector": selector,
-                            "image_base64_chars": len(image_base64),
-                        },
+                    try:
+                        selector = 'img[alt="Generated image"][src=' + json.dumps(src) + ']'
+                        locator = page.locator(selector).first
+                        if locator.count() and locator.is_visible():
+                            screenshot_bytes = locator.screenshot(timeout=self.action_timeout_ms)
+                            image_base64 = base64.b64encode(screenshot_bytes).decode("ascii")
+
+                            json_log(
+                                level="INFO",
+                                message="Flow generated image captured from inspected generated tile screenshot",
+                                stage="PROCESSING",
+                                status="COMPLETED",
+                                context={
+                                    "operation": "flow_generated_image_captured_state_tile_screenshot",
+                                    "tile_id": ready_candidate.get("tileId"),
+                                    "src": src,
+                                    "selector": selector,
+                                    "image_base64_chars": len(image_base64),
+                                },
+                            )
+                            self._flow_user_info(
+                                "Flow generated image captured",
+                                capture_method="state_tile_screenshot",
+                                tile_id=ready_candidate.get("tileId"),
+                                image_base64_chars=len(image_base64),
+                            )
+                            return image_base64
+                    except Exception as exc:
+                        last_error = str(exc)[:500]
+
+            else:
+                stable_seen = 0
+                last_ready_key = ""
+
+                if poll_index % 4 == 0:
+                    self._flow_user_info(
+                        "Flow generated image state pending",
+                        poll_index=poll_index,
+                        generated_count=last_state.get("generated_count"),
+                        new_generated_count=last_state.get("new_generated_count"),
+                        active_generation=last_state.get("active_generation"),
+                        output_grid_ready=last_state.get("output_grid_ready"),
+                        state_error=last_state.get("state_error"),
                     )
-                    self._flow_user_info("Flow generated image captured", capture_method="screenshot", selector=selector)
-                    return image_base64
-                except Exception as exc:
-                    last_error = str(exc)[:500]
 
-            page = self._flow_safe_capture_wait(page, 1000)
+            page = self._flow_safe_capture_wait(page, poll_ms)
 
         fail(
-            "FLOW_IMAGE_GENERATION_TIMEOUT",
-            "Timed out waiting for Flow to produce a downloadable, image, canvas, or screenshot-capturable result.",
-            field="flow_generated_image",
-            expected="generated Flow output captured as base64 image",
-            actual=last_error,
-            stage="PROCESSING",
-        )
-
-        fail(
-            "FLOW_GENERATED_IMAGE_CAPTURE_FAILED",
-            "Flow generated image capture failed after waiting for generation output.",
-            field="flow_generated_image",
-            expected="generated Flow output captured as base64 image",
-            actual=last_error,
+            "FLOW_GENERATED_IMAGE_STATE_NOT_READY",
+            "Flow did not expose a new loaded generated-image tile matching the inspected DOM contract.",
+            field="flow_generated_image_state",
+            expected=(
+                "new loaded img[alt='Generated image'][src*='/fx/api/trpc/media.getMediaUrlRedirect?name='] "
+                "with ancestor data-tile-id, absent from pre-submit baseline, and no active generation state"
+            ),
+            actual=json.dumps(
+                {
+                    "baseline_key_count": len(baseline_keys),
+                    "last_error": last_error,
+                    "last_state": last_state,
+                    "url": getattr(page, "url", ""),
+                },
+                ensure_ascii=False,
+            ),
             stage="PROCESSING",
         )
 
