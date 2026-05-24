@@ -993,3 +993,63 @@ ancestor has data-tile-id
 not composer reference alt text
 
 This confirms STEP A. Proceed with STEP B - Inspect all generated-image candidates on the page.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-24T12:14:55.7753589-05:00
+
+- Source URL: https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa
+- Page title: PROMPTS_GEN
+- Local checkpoint time: `2026-05-24T12:14:55.7753589-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STEP B - Inspect all generated-image candidates on the page is confirmed. 
+
+PROMPTS_GEN_Progress
+
+Confirmed candidate pattern
+
+The diagnostic file shows 15 visible generated-image candidates on the current Flow page. Each candidate follows the same loaded-output contract:
+
+CSS
+img[alt="Generated image"][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]
+
+Each confirmed candidate has:
+
+JSON
+{
+  "isComposerReference": false,
+  "isGeneratedAlt": true,
+  "isMediaRedirect": true,
+  "isLargeEnoughForOutput": true,
+  "loaded": true,
+  "likelyGeneratedOutput": true
+}
+
+The first candidate also confirms the required tile ancestry:
+
+HTML
+data-tile-id="fe_id_519678f8-7d90-4dbb-9f8d-b2cfaa35dd74"
+
+and an edit-link parent:
+
+/fx/tools/flow/project/.../edit/519678f8-7d90-4dbb-9f8d-b2cfaa35dd74
+
+This means the generated image detector can be state-based, not timeout-based:
+
+new visible loaded Generated image media node
++ media redirect src
++ naturalWidth/naturalHeight > 0
++ not composer reference
++ ancestor data-tile-id
++ not in pre-submit baseline
+
+The STEP B JSON confirms the candidate classifier is valid. 
+
+PROMPTS_GEN_STEP5_generated_ima…
+
+Next diagnostic action:
+
+Proceed with STEP C - Inspect Flow generation-complete state.
