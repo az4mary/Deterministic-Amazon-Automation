@@ -642,3 +642,9 @@ PASS / no output
 ```text
 PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_STATIC_OK
 ```
+
+## STEP 7 - S-Validation 3: method sanity
+
+```text
+PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_METHODS_OK
+```
