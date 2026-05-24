@@ -5458,3 +5458,375 @@ PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_METHODS_OK
 ---
 
 # Resume STEP 7 after PATCH_12S
+
+# DIAGNOSTIC_12S
+
+Agreed. We should stop treating Flow generation as “wait up to N seconds” and replace that with **state-based detection**:
+
+```text
+submit accepted → generation in progress detected → generated output tile appears → generated media is fully loaded → capture → move next
+```
+
+No patch yet. First inspect the actual generated-output DOM.
+
+The current `1200` comes from `FLOW_IMAGE_TIMEOUT_SECONDS`, and the capture loop currently starts with that broad max window. That is exactly what we need to replace with inspected state signals. 
+
+## Run these diagnostics on the current generated image page
+
+Use Chrome DevTools on the Flow page where the generated image is visible.
+
+### STEP A — Inspect the actual generated image element
+
+In DevTools:
+
+```text
+F12 → Elements tab → element picker → click the large generated image output tile
+```
+
+Then run this in Console:
+
+```javascript
+(() => {
+  const el = $0;
+
+  function attrs(node) {
+    if (!node || !node.attributes) return {};
+    return Object.fromEntries([...node.attributes].map(a => [a.name, a.value]));
+  }
+
+  function rect(node) {
+    const r = node.getBoundingClientRect();
+    const s = getComputedStyle(node);
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible: !!(
+        r.width &&
+        r.height &&
+        s.display !== "none" &&
+        s.visibility !== "hidden" &&
+        Number(s.opacity || "1") > 0
+      ),
+      inViewport:
+        r.bottom > 0 &&
+        r.right > 0 &&
+        r.top < innerHeight &&
+        r.left < innerWidth
+    };
+  }
+
+  function mediaState(node) {
+    return {
+      src: node?.getAttribute?.("src") || "",
+      currentSrc: node?.currentSrc || "",
+      alt: node?.getAttribute?.("alt") || "",
+      complete: typeof node?.complete === "boolean" ? node.complete : null,
+      naturalWidth: node?.naturalWidth || null,
+      naturalHeight: node?.naturalHeight || null,
+      decoding: node?.decoding || "",
+      loading: node?.loading || ""
+    };
+  }
+
+  function buttonsInside(node) {
+    if (!node) return [];
+    return [...node.querySelectorAll("button,[role='button'],a")]
+      .map((b, index) => ({
+        index,
+        tag: b.tagName,
+        attrs: attrs(b),
+        text: (b.innerText || b.textContent || "").trim().slice(0, 200),
+        rect: rect(b)
+      }))
+      .filter(x => x.rect.visible)
+      .slice(0, 30);
+  }
+
+  const chain = [];
+  let node = el;
+
+  for (let depth = 0; node && depth < 14; depth++, node = node.parentElement) {
+    chain.push({
+      depth,
+      tag: node.tagName,
+      attrs: attrs(node),
+      text: (node.innerText || node.textContent || "").trim().slice(0, 500),
+      rect: rect(node),
+      mediaState: node.tagName === "IMG" ? mediaState(node) : null,
+      buttons: buttonsInside(node).slice(0, 10),
+      outerHTML: node.outerHTML.slice(0, 1500)
+    });
+  }
+
+  const result = {
+    url: location.href,
+    viewport: { width: innerWidth, height: innerHeight },
+    selected: {
+      tag: el?.tagName || null,
+      attrs: attrs(el),
+      text: (el?.innerText || el?.textContent || "").trim().slice(0, 500),
+      rect: rect(el),
+      mediaState: el?.tagName === "IMG" ? mediaState(el) : null,
+      outerHTML: el?.outerHTML?.slice(0, 1500) || ""
+    },
+    ancestors: chain
+  };
+
+  console.log(result);
+  copy(JSON.stringify(result, null, 2));
+})();
+```
+
+Save/send as:
+
+```text
+PROMPTS_GEN_STEP4_generated_image_element.json
+```
+
+---
+
+### STEP B — Inspect all generated-image candidates on the page
+
+Run this after STEP A, while the generated image is still visible:
+
+```javascript
+(() => {
+  function attrs(node) {
+    if (!node || !node.attributes) return {};
+    return Object.fromEntries([...node.attributes].map(a => [a.name, a.value]));
+  }
+
+  function rect(node) {
+    const r = node.getBoundingClientRect();
+    const s = getComputedStyle(node);
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible: !!(
+        r.width &&
+        r.height &&
+        s.display !== "none" &&
+        s.visibility !== "hidden" &&
+        Number(s.opacity || "1") > 0
+      ),
+      inViewport:
+        r.bottom > 0 &&
+        r.right > 0 &&
+        r.top < innerHeight &&
+        r.left < innerWidth
+    };
+  }
+
+  function closestInfo(node) {
+    const result = [];
+    let p = node;
+    for (let depth = 0; p && depth < 8; depth++, p = p.parentElement) {
+      result.push({
+        depth,
+        tag: p.tagName,
+        attrs: attrs(p),
+        text: (p.innerText || p.textContent || "").trim().slice(0, 300),
+        rect: rect(p),
+        outerHTML: p.outerHTML.slice(0, 800)
+      });
+    }
+    return result;
+  }
+
+  const composerAttachmentAlt =
+    "A piece of media generated or uploaded by you, that is present in your collection.";
+
+  const imgs = [...document.querySelectorAll("img")]
+    .map((img, index) => {
+      const r = rect(img);
+      const src = img.getAttribute("src") || "";
+      const alt = img.getAttribute("alt") || "";
+      const isComposerReference = alt === composerAttachmentAlt;
+      const isGeneratedAlt = alt === "Generated image";
+      const isMediaRedirect = src.includes("/fx/api/trpc/media.getMediaUrlRedirect?name=");
+      const isLargeEnoughForOutput = r.width >= 120 && r.height >= 120;
+      const loaded = !!img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+
+      return {
+        index,
+        tag: img.tagName,
+        attrs: attrs(img),
+        text: "",
+        rect: r,
+        src,
+        currentSrc: img.currentSrc || "",
+        alt,
+        complete: img.complete,
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+        isComposerReference,
+        isGeneratedAlt,
+        isMediaRedirect,
+        isLargeEnoughForOutput,
+        loaded,
+        likelyGeneratedOutput:
+          r.visible &&
+          r.inViewport &&
+          isMediaRedirect &&
+          isGeneratedAlt &&
+          isLargeEnoughForOutput &&
+          loaded,
+        ancestors: closestInfo(img)
+      };
+    })
+    .filter(row =>
+      row.rect.visible &&
+      row.rect.inViewport &&
+      row.isMediaRedirect
+    )
+    .sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
+
+  console.table(imgs.map(r => ({
+    index: r.index,
+    y: r.rect.y,
+    x: r.rect.x,
+    w: r.rect.width,
+    h: r.rect.height,
+    alt: r.alt,
+    loaded: r.loaded,
+    likelyGeneratedOutput: r.likelyGeneratedOutput,
+    src: r.src.slice(0, 90)
+  })));
+
+  copy(JSON.stringify({
+    url: location.href,
+    viewport: { width: innerWidth, height: innerHeight },
+    generated_image_candidates: imgs
+  }, null, 2));
+})();
+```
+
+Save/send as:
+
+```text
+PROMPTS_GEN_STEP5_generated_image_candidates.json
+```
+
+---
+
+### STEP C — Inspect Flow generation-complete state
+
+This captures the page-level “done” indicators: visible buttons, disabled states, spinners/progress nodes, and the composer state.
+
+```javascript
+(() => {
+  function attrs(node) {
+    if (!node || !node.attributes) return {};
+    return Object.fromEntries([...node.attributes].map(a => [a.name, a.value]));
+  }
+
+  function rect(node) {
+    const r = node.getBoundingClientRect();
+    const s = getComputedStyle(node);
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible: !!(
+        r.width &&
+        r.height &&
+        s.display !== "none" &&
+        s.visibility !== "hidden" &&
+        Number(s.opacity || "1") > 0
+      ),
+      inViewport:
+        r.bottom > 0 &&
+        r.right > 0 &&
+        r.top < innerHeight &&
+        r.left < innerWidth
+    };
+  }
+
+  const controls = [...document.querySelectorAll(
+    "button,[role='button'],[role='progressbar'],[aria-busy],[data-state],[data-testid],svg,i"
+  )]
+    .map((node, index) => ({
+      index,
+      tag: node.tagName,
+      attrs: attrs(node),
+      text: (node.innerText || node.textContent || "").trim().slice(0, 200),
+      rect: rect(node),
+      disabled:
+        node.disabled === true ||
+        node.getAttribute("aria-disabled") === "true" ||
+        node.getAttribute("disabled") !== null,
+      ariaBusy: node.getAttribute("aria-busy"),
+      role: node.getAttribute("role"),
+      dataState: node.getAttribute("data-state"),
+      dataTestId: node.getAttribute("data-testid"),
+      className: node.getAttribute("class") || ""
+    }))
+    .filter(row => row.rect.visible && row.rect.inViewport)
+    .sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
+
+  const textSnapshot = document.body.innerText || "";
+
+  const state = {
+    url: location.href,
+    viewport: { width: innerWidth, height: innerHeight },
+    bodyFlags: {
+      hasGeneratingText: /generating|creating|processing|loading/i.test(textSnapshot),
+      hasCreateText: /create/i.test(textSnapshot),
+      hasCancelText: /cancel/i.test(textSnapshot),
+      hasDownloadText: /download/i.test(textSnapshot),
+      hasReusePromptText: /reuse prompt/i.test(textSnapshot),
+      hasFavoriteText: /favorite/i.test(textSnapshot)
+    },
+    visibleControls: controls,
+    composerTextboxes: [...document.querySelectorAll(
+      "textarea,[contenteditable='true'],[role='textbox'],[data-slate-editor='true']"
+    )]
+      .map((node, index) => ({
+        index,
+        tag: node.tagName,
+        attrs: attrs(node),
+        text: (node.innerText || node.textContent || node.value || "").trim().slice(0, 300),
+        rect: rect(node),
+        outerHTML: node.outerHTML.slice(0, 1000)
+      }))
+      .filter(row => row.rect.visible)
+  };
+
+  console.log(state);
+  copy(JSON.stringify(state, null, 2));
+})();
+```
+
+Save/send as:
+
+```text
+PROMPTS_GEN_STEP6_flow_generation_done_state.json
+```
+
+## What we are looking for
+
+We need to establish these deterministic conditions:
+
+```text
+1. Generated output image selector
+2. Generated output parent/tile selector
+3. Loaded/completed media signal
+4. Done-state signal after generation
+5. Safe capture target that is not a reference chip and not gallery history
+```
+
+Once those JSON files are available, we can replace the broad `FLOW_IMAGE_TIMEOUT_SECONDS` capture behavior with a bounded state-machine:
+
+```text
+baseline generated media IDs before submit
+submit
+wait for active generation indicator
+wait until active generation indicator disappears OR new output tile appears loaded
+capture newest loaded generated tile
+move next
+```
