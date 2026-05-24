@@ -650,3 +650,9 @@ PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_STATIC_OK
 ```text
 PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_METHODS_OK
 ```
+
+## STEP A - Inspect the actual generated image element
+
+```text
+PROMPTS_GEN_STEP4_generated_image_element.json
+```
