@@ -559,3 +559,9 @@ PATCH_12R3_DRY_RUN_PASS
 {'capture_method': 1, 'capture_info_existing': 0}
 PATCH_12R4_DRY_RUN_PASS
 ```
+
+## STEP 5 - R-Validation 1: compile
+
+```text
+PASS / no output
+```
