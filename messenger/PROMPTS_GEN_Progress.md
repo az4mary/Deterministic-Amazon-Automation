@@ -662,3 +662,9 @@ PROMPTS_GEN_STEP4_generated_image_element.json
 ```text
 PROMPTS_GEN_STEP5_generated_image_candidates.json
 ```
+
+## STEP C - Inspect Flow generation-complete state
+
+```text
+PROMPTS_GEN_STEP6_flow_generation_done_state.json
+```

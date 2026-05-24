@@ -1,0 +1,2211 @@
+{
+  "url": "https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28",
+  "viewport": {
+    "width": 1101,
+    "height": 920
+  },
+  "bodyFlags": {
+    "hasGeneratingText": false,
+    "hasCreateText": true,
+    "hasCancelText": false,
+    "hasDownloadText": false,
+    "hasReusePromptText": false,
+    "hasFavoriteText": false
+  },
+  "visibleControls": [
+    {
+      "index": 36,
+      "tag": "DIV",
+      "attrs": {
+        "data-state": "closed",
+        "class": "sc-e0104c23-0 iLMBiY"
+      },
+      "text": "",
+      "rect": {
+        "x": 228,
+        "y": 0,
+        "width": 873,
+        "height": 920,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e0104c23-0 iLMBiY"
+    },
+    {
+      "index": 37,
+      "tag": "DIV",
+      "attrs": {
+        "data-testid": "virtuoso-scroller",
+        "data-virtuoso-scroller": "true",
+        "tabindex": "0",
+        "class": "sc-a4608c-1 jSiWza sc-a4608c-0 gKnpl",
+        "style": "height: 100%; outline: none; overflow-y: auto; position: relative;"
+      },
+      "text": "",
+      "rect": {
+        "x": 228,
+        "y": 0,
+        "width": 873,
+        "height": 920,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": "virtuoso-scroller",
+      "className": "sc-a4608c-1 jSiWza sc-a4608c-0 gKnpl"
+    },
+    {
+      "index": 17,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-70f5962-0 GXcuS"
+      },
+      "text": "PRO",
+      "rect": {
+        "x": 982,
+        "y": 14,
+        "width": 99,
+        "height": 48,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-70f5962-0 GXcuS"
+    },
+    {
+      "index": 7,
+      "tag": "BUTTON",
+      "attrs": {
+        "type": "button",
+        "id": "radix-:r25:",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        "data-state": "closed",
+        "class": "sc-16c4830a-1 dnFqQq sc-e7a64add-0 sc-e7a64add-2 fPutAP blvbdy sc-b8eb33e3-8 bWUKjc"
+      },
+      "text": "filter_list\nSort & Filter",
+      "rect": {
+        "x": 723,
+        "y": 18,
+        "width": 42,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-16c4830a-1 dnFqQq sc-e7a64add-0 sc-e7a64add-2 fPutAP blvbdy sc-b8eb33e3-8 bWUKjc"
+    },
+    {
+      "index": 6,
+      "tag": "INPUT",
+      "attrs": {
+        "data-testid": "search-input",
+        "type": "text",
+        "class": "sc-55822125-3 elpEQU",
+        "value": ""
+      },
+      "text": "",
+      "rect": {
+        "x": 334,
+        "y": 19,
+        "width": 370,
+        "height": 38,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": "search-input",
+      "className": "sc-55822125-3 elpEQU"
+    },
+    {
+      "index": 0,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-2eac5247-2 ewGlDn famhRe jUJxHE"
+      },
+      "text": "arrow_back\nGo Back",
+      "rect": {
+        "x": 24,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-2eac5247-2 ewGlDn famhRe jUJxHE"
+    },
+    {
+      "index": 2,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-26aa1721-3 ewGlDn famhRe dUDRen",
+        "color": "currentColor",
+        "type": "button",
+        "id": "radix-:r23:",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        "data-state": "closed"
+      },
+      "text": "more_vert\nMore options",
+      "rect": {
+        "x": 212,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-26aa1721-3 ewGlDn famhRe dUDRen"
+    },
+    {
+      "index": 4,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-55822125-2 ewGlDn famhRe XtyjO"
+      },
+      "text": "search\nSearch",
+      "rect": {
+        "x": 296,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-55822125-2 ewGlDn famhRe XtyjO"
+    },
+    {
+      "index": 9,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-240605d2-1 ewGlDn famhRe kimDit",
+        "type": "button",
+        "id": "radix-:r27:",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        "data-state": "closed"
+      },
+      "text": "add\nAdd Media",
+      "rect": {
+        "x": 806,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-240605d2-1 ewGlDn famhRe kimDit"
+    },
+    {
+      "index": 11,
+      "tag": "BUTTON",
+      "attrs": {
+        "data-state": "closed",
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-7e11f006-2 ewGlDn famhRe gBGwpL"
+      },
+      "text": "help\nProduct Help",
+      "rect": {
+        "x": 850,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-7e11f006-2 ewGlDn famhRe gBGwpL"
+    },
+    {
+      "index": 13,
+      "tag": "BUTTON",
+      "attrs": {
+        "type": "button",
+        "id": "radix-:r2b:",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        "data-state": "closed",
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-a4925f7f-6 ewGlDn famhRe gdBgFb"
+      },
+      "text": "settings_2\nView Settings",
+      "rect": {
+        "x": 894,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-a4925f7f-6 ewGlDn famhRe gdBgFb"
+    },
+    {
+      "index": 15,
+      "tag": "BUTTON",
+      "attrs": {
+        "type": "button",
+        "id": "radix-:r2e:",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        "data-state": "closed",
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-362690a9-1 ewGlDn famhRe fHpFkO"
+      },
+      "text": "more_vert\nMore",
+      "rect": {
+        "x": 938,
+        "y": 22,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-362690a9-1 ewGlDn famhRe fHpFkO"
+    },
+    {
+      "index": 1,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "arrow_back",
+      "rect": {
+        "x": 28,
+        "y": 26,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 3,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "more_vert",
+      "rect": {
+        "x": 216,
+        "y": 26,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 10,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "add",
+      "rect": {
+        "x": 810,
+        "y": 26,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 12,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "help",
+      "rect": {
+        "x": 854,
+        "y": 26,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 14,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "settings_2",
+      "rect": {
+        "x": 898,
+        "y": 26,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 16,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "more_vert",
+      "rect": {
+        "x": 942,
+        "y": 26,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 5,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 bNCKGB google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.25rem",
+        "color": "currentColor"
+      },
+      "text": "search",
+      "rect": {
+        "x": 302,
+        "y": 28,
+        "width": 20,
+        "height": 20,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 bNCKGB google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 8,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 bNCKGB google-symbols undefined",
+        "font-size": "1.25rem",
+        "color": "currentColor"
+      },
+      "text": "filter_list",
+      "rect": {
+        "x": 734,
+        "y": 28,
+        "width": 20,
+        "height": 20,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 bNCKGB google-symbols undefined"
+    },
+    {
+      "index": 38,
+      "tag": "DIV",
+      "attrs": {
+        "data-testid": "virtuoso-item-list",
+        "class": "sc-a4608c-2 keZUea",
+        "style": "box-sizing: border-box; margin-top: 0px; padding-bottom: 9655.47px; padding-top: 0px;"
+      },
+      "text": "",
+      "rect": {
+        "x": 228,
+        "y": 76,
+        "width": 865,
+        "height": 11471,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": "virtuoso-item-list",
+      "className": "sc-a4608c-2 keZUea"
+    },
+    {
+      "index": 39,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 40,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 41,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 42,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 43,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 44,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 45,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 46,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 47,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 48,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 49,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 50,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 51,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 52,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 53,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 76,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 18,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 sc-c8f55314-0 ewGlDn lnCuH fqbaql kiwuwp"
+      },
+      "text": "dashboard\nAll Media",
+      "rect": {
+        "x": 20,
+        "y": 80,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 sc-c8f55314-0 ewGlDn lnCuH fqbaql kiwuwp"
+    },
+    {
+      "index": 19,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "dashboard",
+      "rect": {
+        "x": 28,
+        "y": 88,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 20,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "image\nView images",
+      "rect": {
+        "x": 20,
+        "y": 133,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 21,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "image",
+      "rect": {
+        "x": 28,
+        "y": 141,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 22,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "videocam\nView videos",
+      "rect": {
+        "x": 20,
+        "y": 186,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 23,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "videocam",
+      "rect": {
+        "x": 28,
+        "y": 194,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 24,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "accessibility_new\nCharacters",
+      "rect": {
+        "x": 20,
+        "y": 238,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 25,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "accessibility_new",
+      "rect": {
+        "x": 28,
+        "y": 246,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 26,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "movie\nView scenes",
+      "rect": {
+        "x": 20,
+        "y": 291,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 27,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "movie",
+      "rect": {
+        "x": 28,
+        "y": 299,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 28,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "drive_folder_upload\nView uploaded media",
+      "rect": {
+        "x": 20,
+        "y": 344,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 29,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "drive_folder_upload",
+      "rect": {
+        "x": 28,
+        "y": 352,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 54,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 55,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 56,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 57,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 58,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 59,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 60,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 61,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 62,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 63,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 64,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 65,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 66,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 67,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 68,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 365,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 30,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "apps_spark_2\nTools",
+      "rect": {
+        "x": 20,
+        "y": 419,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 31,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "apps_spark_2",
+      "rect": {
+        "x": 28,
+        "y": 427,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 69,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 70,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 71,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 244,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 72,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 73,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 74,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 414,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 75,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 76,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 77,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 584,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 78,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 79,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 80,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 753,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 81,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 82,
+      "tag": "DIV",
+      "attrs": {
+        "role": "button",
+        "tabindex": "0",
+        "aria-disabled": "false",
+        "aria-roledescription": "draggable",
+        "aria-describedby": "DndDescribedBy-0",
+        "class": "sc-61a617e9-0 huAXWT"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": "button",
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-61a617e9-0 huAXWT"
+    },
+    {
+      "index": 83,
+      "tag": "SPAN",
+      "attrs": {
+        "data-state": "closed"
+      },
+      "text": "",
+      "rect": {
+        "x": 923,
+        "y": 655,
+        "width": 154,
+        "height": 273,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": ""
+    },
+    {
+      "index": 32,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "delete\nView Trash",
+      "rect": {
+        "x": 20,
+        "y": 743,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 33,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "delete",
+      "rect": {
+        "x": 28,
+        "y": 751,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 34,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+      },
+      "text": "left_panel_close\nCollapse",
+      "rect": {
+        "x": 20,
+        "y": 796,
+        "width": 40,
+        "height": 40,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-5 sc-3ce961f7-0 ewGlDn hGbzYr fqbaql"
+    },
+    {
+      "index": 35,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.5rem",
+        "color": "currentColor"
+      },
+      "text": "left_panel_close",
+      "rect": {
+        "x": 28,
+        "y": 804,
+        "width": 24,
+        "height": 24,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 123,
+      "tag": "BUTTON",
+      "attrs": {
+        "type": "button",
+        "id": "radix-:r2n:",
+        "aria-haspopup": "menu",
+        "aria-expanded": "false",
+        "data-state": "closed",
+        "class": "sc-16c4830a-1 dnFqQq sc-e7a64add-0 sc-e7a64add-1 fPutAP jmLZrS sc-93abd9dc-1 ldbhld"
+      },
+      "text": "🍌 Nano Banana 2\ncrop_9_16\n1x",
+      "rect": {
+        "x": 651,
+        "y": 846,
+        "width": 154,
+        "height": 34,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-16c4830a-1 dnFqQq sc-e7a64add-0 sc-e7a64add-1 fPutAP jmLZrS sc-93abd9dc-1 ldbhld"
+    },
+    {
+      "index": 120,
+      "tag": "BUTTON",
+      "attrs": {
+        "type": "button",
+        "aria-haspopup": "dialog",
+        "aria-expanded": "false",
+        "aria-controls": "radix-:r2m:",
+        "data-state": "closed",
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-7bf23aea-0 ewGlDn famhRe bBIfoD"
+      },
+      "text": "add_2\nCreate",
+      "rect": {
+        "x": 261,
+        "y": 847,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": "closed",
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-7bf23aea-0 ewGlDn famhRe bBIfoD"
+    },
+    {
+      "index": 122,
+      "tag": "BUTTON",
+      "attrs": {
+        "type": "button",
+        "aria-pressed": "false",
+        "class": "sc-59223abb-3 dmZGYv"
+      },
+      "text": "Agent",
+      "rect": {
+        "x": 298,
+        "y": 847,
+        "width": 67,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-59223abb-3 dmZGYv"
+    },
+    {
+      "index": 125,
+      "tag": "BUTTON",
+      "attrs": {
+        "aria-disabled": "true",
+        "class": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-439ac1d3-5 ewGlDn famhRe iIhbxv"
+      },
+      "text": "arrow_forward\nCreate",
+      "rect": {
+        "x": 811,
+        "y": 847,
+        "width": 32,
+        "height": 32,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": true,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-439ac1d3-5 ewGlDn famhRe iIhbxv"
+    },
+    {
+      "index": 121,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 fIIelS google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.35rem",
+        "color": "currentColor"
+      },
+      "text": "add_2",
+      "rect": {
+        "x": 266,
+        "y": 852,
+        "width": 22,
+        "height": 22,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 fIIelS google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 126,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 kNytsX google-symbols sc-e8425ea6-1 jZhFNn",
+        "font-size": "1.25rem",
+        "color": "currentColor"
+      },
+      "text": "arrow_forward",
+      "rect": {
+        "x": 817,
+        "y": 853,
+        "width": 20,
+        "height": 20,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 kNytsX google-symbols sc-e8425ea6-1 jZhFNn"
+    },
+    {
+      "index": 124,
+      "tag": "I",
+      "attrs": {
+        "class": "sc-a39c2a59-0 fHEXAe google-symbols sc-e2462b20-1 iXcFLz",
+        "font-size": "1rem",
+        "color": "hsla(0, 0%, 18.8%)"
+      },
+      "text": "crop_9_16",
+      "rect": {
+        "x": 763,
+        "y": 855,
+        "width": 16,
+        "height": 16,
+        "visible": true,
+        "inViewport": true
+      },
+      "disabled": false,
+      "ariaBusy": null,
+      "role": null,
+      "dataState": null,
+      "dataTestId": null,
+      "className": "sc-a39c2a59-0 fHEXAe google-symbols sc-e2462b20-1 iXcFLz"
+    }
+  ],
+  "composerTextboxes": [
+    {
+      "index": 0,
+      "tag": "DIV",
+      "attrs": {
+        "role": "textbox",
+        "aria-multiline": "true",
+        "spellcheck": "false",
+        "class": "sc-a8ba1f43-0 djaQmW sc-439ac1d3-6 gmMGa",
+        "data-slate-editor": "true",
+        "data-slate-node": "value",
+        "contenteditable": "true",
+        "zindex": "-1",
+        "style": "position: relative; white-space: pre-wrap; overflow-wrap: break-word; min-height: 20px;"
+      },
+      "text": "What do you want to create?",
+      "rect": {
+        "x": 261,
+        "y": 810,
+        "width": 566,
+        "height": 20,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div role=\"textbox\" aria-multiline=\"true\" spellcheck=\"false\" class=\"sc-a8ba1f43-0 djaQmW sc-439ac1d3-6 gmMGa\" data-slate-editor=\"true\" data-slate-node=\"value\" contenteditable=\"true\" zindex=\"-1\" style=\"position: relative; white-space: pre-wrap; overflow-wrap: break-word; min-height: 20px;\"><p data-slate-node=\"element\"><span data-slate-node=\"text\"><span data-slate-leaf=\"true\"><span data-slate-placeholder=\"true\" contenteditable=\"false\" style=\"position: absolute; top: 0px; pointer-events: none; width: 100%; max-width: 100%; display: block; opacity: 0.333; user-select: none; text-decoration: none;\">What do you want to create?</span><span data-slate-zero-width=\"n\" data-slate-length=\"0\">﻿<br></span></span></span></p></div>"
+    }
+  ]
+}
