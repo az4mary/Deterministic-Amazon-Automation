@@ -703,3 +703,9 @@ PATCH_12T3_DRY_RUN_PASS
 ```text
 PASS / no output
 ```
+
+## STEP 5 - T-Validation 2: static marker check
+
+```text
+PATCH_12T_STATE_CAPTURE_STATIC_OK
+```
