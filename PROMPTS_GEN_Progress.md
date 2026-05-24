@@ -602,3 +602,10 @@ PROMPTS_GEN_STEP3_composer_nearby_dom.json
 ```text
 PASS / cleanup completed
 ```
+
+## STEP 1 - PATCH_12S1: add inspected attached-reference diagnostic helper
+
+```text
+{'count_method': 1, 'existing_helper': 0, 'attach_alt_in_code': 0}
+PATCH_12S1_DRY_RUN_PASS
+```

@@ -2213,6 +2213,191 @@ Start-Sleep -Milliseconds 300
                 continue
         return seen
 
+    def _flow_attached_reference_chip_details(self, page) -> Dict[str, Any]:
+        try:
+            result = page.evaluate(
+                """
+() => {
+  const ATTACHMENT_ALT = "A piece of media generated or uploaded by you, that is present in your collection.";
+  const ATTACHMENT_SELECTOR =
+    `img[alt="${ATTACHMENT_ALT}"][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]`;
+
+  const COMPOSER_SELECTOR = [
+    "div[role='textbox'][contenteditable='true'][data-slate-editor='true']",
+    "[role='textbox'][contenteditable='true'][data-slate-editor='true']",
+    "[data-slate-editor='true'][contenteditable='true']"
+  ].join(",");
+
+  function rectOf(node) {
+    const r = node.getBoundingClientRect();
+    const style = getComputedStyle(node);
+    const visible = !!(
+      r.width &&
+      r.height &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      Number(style.opacity || "1") > 0
+    );
+
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible
+    };
+  }
+
+  function nodeText(node) {
+    return (node.innerText || node.textContent || "").trim().slice(0, 300);
+  }
+
+  const composers = [...document.querySelectorAll(COMPOSER_SELECTOR)]
+    .map((node, index) => ({
+      index,
+      node,
+      rect: rectOf(node),
+      text: nodeText(node),
+      outerHTML: node.outerHTML.slice(0, 800)
+    }))
+    .filter(item =>
+      item.rect.visible &&
+      item.rect.width >= 120 &&
+      item.rect.height >= 16 &&
+      item.rect.y >= window.innerHeight * 0.35
+    )
+    .sort((a, b) => b.rect.y - a.rect.y);
+
+  const composer = composers[0] || null;
+
+  if (!composer) {
+    const pageChips = [...document.querySelectorAll(ATTACHMENT_SELECTOR)]
+      .map((img, index) => ({
+        index,
+        src: img.getAttribute("src") || "",
+        alt: img.getAttribute("alt") || "",
+        rect: rectOf(img),
+        outerHTML: img.outerHTML.slice(0, 500)
+      }))
+      .filter(chip =>
+        chip.rect.visible &&
+        chip.rect.width >= 35 &&
+        chip.rect.height >= 35 &&
+        chip.rect.width <= 140 &&
+        chip.rect.height <= 140 &&
+        chip.rect.y >= window.innerHeight * 0.45
+      );
+
+    const unique = [...new Map(pageChips.map(chip => [chip.src, chip])).values()];
+
+    return {
+      count: unique.length,
+      strategy: "page_level_attachment_alt_fallback_no_composer",
+      composer_found: false,
+      composer_candidates: composers.map(({node, ...rest}) => rest),
+      chips: unique,
+      url: location.href,
+      viewport: {width: window.innerWidth, height: window.innerHeight}
+    };
+  }
+
+  let node = composer.node;
+  const inspectedAncestors = [];
+
+  for (let depth = 0; node && depth <= 8; depth += 1, node = node.parentElement) {
+    const rootRect = rectOf(node);
+    const chips = [...node.querySelectorAll(ATTACHMENT_SELECTOR)]
+      .map((img, index) => ({
+        index,
+        src: img.getAttribute("src") || "",
+        alt: img.getAttribute("alt") || "",
+        rect: rectOf(img),
+        outerHTML: img.outerHTML.slice(0, 500)
+      }))
+      .filter(chip =>
+        chip.rect.visible &&
+        chip.rect.width >= 35 &&
+        chip.rect.height >= 35 &&
+        chip.rect.width <= 140 &&
+        chip.rect.height <= 140 &&
+        chip.rect.y >= composer.rect.y - 180 &&
+        chip.rect.y <= composer.rect.y + 120
+      );
+
+    const unique = [...new Map(chips.map(chip => [chip.src, chip])).values()];
+
+    inspectedAncestors.push({
+      depth,
+      tag: node.tagName,
+      className: node.getAttribute("class") || "",
+      rect: rootRect,
+      text: nodeText(node),
+      attached_chip_count: unique.length
+    });
+
+    if (unique.length > 0) {
+      return {
+        count: unique.length,
+        strategy: "slate_composer_ancestor_attachment_alt",
+        composer_found: true,
+        composer: {
+          index: composer.index,
+          rect: composer.rect,
+          text: composer.text,
+          outerHTML: composer.outerHTML
+        },
+        root: {
+          depth,
+          tag: node.tagName,
+          className: node.getAttribute("class") || "",
+          rect: rootRect,
+          text: nodeText(node),
+          outerHTML: node.outerHTML.slice(0, 1200)
+        },
+        chips: unique,
+        inspected_ancestors: inspectedAncestors,
+        url: location.href,
+        viewport: {width: window.innerWidth, height: window.innerHeight}
+      };
+    }
+  }
+
+  return {
+    count: 0,
+    strategy: "slate_composer_ancestor_attachment_alt_not_found",
+    composer_found: true,
+    composer: {
+      index: composer.index,
+      rect: composer.rect,
+      text: composer.text,
+      outerHTML: composer.outerHTML
+    },
+    inspected_ancestors: inspectedAncestors,
+    url: location.href,
+    viewport: {width: window.innerWidth, height: window.innerHeight}
+  };
+}
+"""
+            )
+
+            if not isinstance(result, dict):
+                return {
+                    "count": 0,
+                    "strategy": "flow_reference_chip_diagnostic_non_dict",
+                    "raw_type": type(result).__name__,
+                    "url": getattr(page, "url", ""),
+                }
+
+            return result
+
+        except Exception as exc:
+            return {
+                "count": 0,
+                "strategy": "flow_reference_chip_diagnostic_failed",
+                "error": str(exc)[:500],
+                "url": getattr(page, "url", ""),
+            }
+
     def _flow_composer_reference_count(self, page) -> int:
         composer_scopes = [
             "form",
