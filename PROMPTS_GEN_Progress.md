@@ -523,3 +523,5 @@ PATCH_12Q_SUBMIT_NO_ACTIVATION_STATIC_OK
 ```text
 PATCH_12Q_SUBMIT_NO_ACTIVATION_METHODS_OK
 ```
+
+# PATCH_12R — enforce pasted-reference readiness before submit + recover from Flow page closure during capture
