@@ -565,3 +565,9 @@ PATCH_12R4_DRY_RUN_PASS
 ```text
 PASS / no output
 ```
+
+## STEP 6 - R-Validation 2: static marker check
+
+```text
+PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_STATIC_OK
+```
