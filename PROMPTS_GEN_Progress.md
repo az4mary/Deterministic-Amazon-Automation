@@ -577,3 +577,249 @@ PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_STATIC_OK
 ```text
 PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_METHODS_OK
 ```
+
+## STEP 1 - Inspect the actual attached image/chip element
+
+``json
+{   "url": "https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28",   "selected": {     "depth": 0,     "tag": "IMG",     "attrs": {       "src": "/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3",       "alt": "A piece of media generated or uploaded by you, that is present in your collection.",       "class": "sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb",       "crossorigin": "anonymous",       "style": "opacity: 1;"     },     "text": "",     "rect": {       "x": 269,       "y": 748,       "width": 50,       "height": 50,       "visible": true,       "inViewport": true     },     "outerHTML": "<img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\">"   },   "ancestors": [     {       "depth": 0,       "tag": "IMG",       "attrs": {         "src": "/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3",         "alt": "A piece of media generated or uploaded by you, that is present in your collection.",         "class": "sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb",         "crossorigin": "anonymous",         "style": "opacity: 1;"       },       "text": "",       "rect": {         "x": 269,         "y": 748,         "width": 50,         "height": 50,         "visible": true,         "inViewport": true       },       "outerHTML": "<img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\">"     },     {       "depth": 1,       "tag": "DIV",       "attrs": {         "class": "sc-272106cb-1 dziwlH"       },       "text": "",       "rect": {         "x": 269,         "y": 748,         "width": 50,         "height": 50,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div>"     },     {       "depth": 2,       "tag": "BUTTON",       "attrs": {         "class": "sc-272106cb-0 iPeszA",         "data-card-open": "false",         "data-state": "closed"       },       "text": "cancel",       "rect": {         "x": 269,         "y": 748,         "width": 50,         "height": 50,         "visible": true,         "inViewport": true       },       "outerHTML": "<button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button>"     },     {       "depth": 3,       "tag": "DIV",       "attrs": {         "class": "sc-784d6f75-1 cbvblO"       },       "text": "cancel",       "rect": {         "x": 269,         "y": 748,         "width": 50,         "height": 50,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div>"     },     {       "depth": 4,       "tag": "DIV",       "attrs": {         "class": "sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg"       },       "text": "cancel",       "rect": {         "x": 269,         "y": 748,         "width": 50,         "height": 50,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div>"     },     {       "depth": 5,       "tag": "DIV",       "attrs": {         "class": "sc-273a6a40-0 hpgSgT"       },       "text": "cancel\ncancel",       "rect": {         "x": 261,         "y": 748,         "width": 582,         "height": 54,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gD"     },     {       "depth": 6,       "tag": "DIV",       "attrs": {         "class": "sc-439ac1d3-0 hMIBvb"       },       "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",       "rect": {         "x": 251,         "y": 736,         "width": 600,         "height": 152,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\">"     },     {       "depth": 7,       "tag": "DIV",       "attrs": {},       "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",       "rect": {         "x": 251,         "y": 736,         "width": 600,         "height": 152,         "visible": true,         "inViewport": true       },       "outerHTML": "<div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity:"     },     {       "depth": 8,       "tag": "DIV",       "attrs": {         "class": "sc-c9e4708a-0 kvaRPo"       },       "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",       "rect": {         "x": 251,         "y": 736,         "width": 600,         "height": 152,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-c9e4708a-0 kvaRPo\"><div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" cross"     },     {       "depth": 9,       "tag": "DIV",       "attrs": {         "class": "sc-53efa541-3 dJTbJz",         "style": "opacity: 1;"       },       "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",       "rect": {         "x": 0,         "y": 736,         "width": 1101,         "height": 152,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-53efa541-3 dJTbJz\" style=\"opacity: 1;\"><div class=\"sc-c9e4708a-0 kvaRPo\"><div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" c"     },     {       "depth": 10,       "tag": "DIV",       "attrs": {         "class": "sc-53efa541-1 bJLueu"       },       "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",       "rect": {         "x": 0,         "y": 736,         "width": 1101,         "height": 152,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-53efa541-1 bJLueu\"><div class=\"sc-53efa541-3 dJTbJz\" style=\"opacity: 1;\"><div class=\"sc-c9e4708a-0 kvaRPo\"><div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that"     },     {       "depth": 11,       "tag": "DIV",       "attrs": {         "class": "sc-c7ee1759-1 jhwuTJ"       },       "text": "arrow_back\nGo Back\nmore_vert\nMore options\nsearch\nSearch\nfilter_list\nSort & Filter\nadd\nAdd Media\nhelp\nProduct Help\nsettings_2\nView Settings\nmore_vert\nMore\nPRO\ndashboard\nAll Media\nAll Media\nimage\nView images\nImages\nvideocam\nView videos\nVideos\naccessibility_new\nCharacters\nCharacters\nmovie\nView scenes\nS",       "rect": {         "x": 0,         "y": 0,         "width": 1101,         "height": 920,         "visible": true,         "inViewport": true       },       "outerHTML": "<div class=\"sc-c7ee1759-1 jhwuTJ\"><div class=\"sc-8e1ee57d-0 sc-64b9b34d-9 loqVPM jWvFmt\"></div><div id=\"flow-desktop-header\" class=\"sc-64b9b34d-0 kZKCjW\" style=\"transform: translateY(0px);\"><div class=\"sc-64b9b34d-2 bCpdRw\"><nav class=\"sc-2eac5247-0 niIkg sc-64b9b34d-7 iIEIHk\"><div class=\"sc-2eac5247-1 eGKJom\" style=\"pointer-events: auto; opacity: 1; width: auto;\"><button class=\"sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-2eac5247-2 ewGlDn famhRe jUJxHE\"><i class=\"sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn\" font-size=\"1.5rem\" color=\"currentColor\">arrow_back</i><span style=\"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; overflow-wrap: normal;\">Go Back</span></button><div class=\"sc-e98e0e95-0 cynypI sc-2eac5247-3 bqmeht\"><input type=\"text\" size=\"8\" aria-label=\"Editable text\" class=\"sc-e98e0e95-2 dwTWkV\" value=\"PRODUCTS\"></div><button class=\"sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-26aa1721-3 ewGlDn famhRe dUDRen\" color=\"currentColor\" type=\"button\" id=\"radix-:r3:\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\"><i class=\"sc-a39c2a"     }   ] }
+``
+
+## STEP 1 - Inspect the actual attached image/chip element
+
+```json
+{
+  "url": "https://labs.google/fx/tools/flow/project/7b90caae-5286-48de-85d2-f7e5b112ee28",
+  "selected": {
+    "depth": 0,
+    "tag": "IMG",
+    "attrs": {
+      "src": "/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3",
+      "alt": "A piece of media generated or uploaded by you, that is present in your collection.",
+      "class": "sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb",
+      "crossorigin": "anonymous",
+      "style": "opacity: 1;"
+    },
+    "text": "",
+    "rect": {
+      "x": 269,
+      "y": 748,
+      "width": 50,
+      "height": 50,
+      "visible": true,
+      "inViewport": true
+    },
+    "outerHTML": "<img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\">"
+  },
+  "ancestors": [
+    {
+      "depth": 0,
+      "tag": "IMG",
+      "attrs": {
+        "src": "/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3",
+        "alt": "A piece of media generated or uploaded by you, that is present in your collection.",
+        "class": "sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb",
+        "crossorigin": "anonymous",
+        "style": "opacity: 1;"
+      },
+      "text": "",
+      "rect": {
+        "x": 269,
+        "y": 748,
+        "width": 50,
+        "height": 50,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\">"
+    },
+    {
+      "depth": 1,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-272106cb-1 dziwlH"
+      },
+      "text": "",
+      "rect": {
+        "x": 269,
+        "y": 748,
+        "width": 50,
+        "height": 50,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div>"
+    },
+    {
+      "depth": 2,
+      "tag": "BUTTON",
+      "attrs": {
+        "class": "sc-272106cb-0 iPeszA",
+        "data-card-open": "false",
+        "data-state": "closed"
+      },
+      "text": "cancel",
+      "rect": {
+        "x": 269,
+        "y": 748,
+        "width": 50,
+        "height": 50,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button>"
+    },
+    {
+      "depth": 3,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-784d6f75-1 cbvblO"
+      },
+      "text": "cancel",
+      "rect": {
+        "x": 269,
+        "y": 748,
+        "width": 50,
+        "height": 50,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div>"
+    },
+    {
+      "depth": 4,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg"
+      },
+      "text": "cancel",
+      "rect": {
+        "x": 269,
+        "y": 748,
+        "width": 50,
+        "height": 50,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div>"
+    },
+    {
+      "depth": 5,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-273a6a40-0 hpgSgT"
+      },
+      "text": "cancel\ncancel",
+      "rect": {
+        "x": 261,
+        "y": 748,
+        "width": 582,
+        "height": 54,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gD"
+    },
+    {
+      "depth": 6,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-439ac1d3-0 hMIBvb"
+      },
+      "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",
+      "rect": {
+        "x": 251,
+        "y": 736,
+        "width": 600,
+        "height": 152,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\">"
+    },
+    {
+      "depth": 7,
+      "tag": "DIV",
+      "attrs": {},
+      "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",
+      "rect": {
+        "x": 251,
+        "y": 736,
+        "width": 600,
+        "height": 152,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity:"
+    },
+    {
+      "depth": 8,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-c9e4708a-0 kvaRPo"
+      },
+      "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",
+      "rect": {
+        "x": 251,
+        "y": 736,
+        "width": 600,
+        "height": 152,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-c9e4708a-0 kvaRPo\"><div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" cross"
+    },
+    {
+      "depth": 9,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-53efa541-3 dJTbJz",
+        "style": "opacity: 1;"
+      },
+      "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",
+      "rect": {
+        "x": 0,
+        "y": 736,
+        "width": 1101,
+        "height": 152,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-53efa541-3 dJTbJz\" style=\"opacity: 1;\"><div class=\"sc-c9e4708a-0 kvaRPo\"><div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" c"
+    },
+    {
+      "depth": 10,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-53efa541-1 bJLueu"
+      },
+      "text": "cancel\ncancel\n\nWhat do you want to create?\n?\n\n\nadd_2\nCreate\nAgent\n?? Nano Banana 2\ncrop_9_16\n1x\narrow_forward\nCreate\nclose\nClear prompt",
+      "rect": {
+        "x": 0,
+        "y": 736,
+        "width": 1101,
+        "height": 152,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-53efa541-1 bJLueu\"><div class=\"sc-53efa541-3 dJTbJz\" style=\"opacity: 1;\"><div class=\"sc-c9e4708a-0 kvaRPo\"><div><div class=\"sc-439ac1d3-0 hMIBvb\"><div class=\"sc-273a6a40-0 hpgSgT\"><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=1833e051-0ae1-4b55-a6c2-ac1798c662c3\" alt=\"A piece of media generated or uploaded by you, that is present in your collection.\" class=\"sc-f803b119-0 bhyZfD sc-621e6fb9-1 hZlsYb\" crossorigin=\"anonymous\" style=\"opacity: 1;\"></div><div class=\"sc-272106cb-2 gDtvdv\"><i class=\"sc-a39c2a59-0 lkKicR google-symbols sc-272106cb-3 husQRa\" font-size=\"1rem\" color=\"white\">cancel</i></div></button></div></div><div class=\"sc-784d6f75-0 bEnOCH sc-621e6fb9-0 buIBIg\"><div class=\"sc-784d6f75-1 cbvblO\"><button class=\"sc-272106cb-0 iPeszA\" data-card-open=\"false\" data-state=\"closed\"><div class=\"sc-272106cb-1 dziwlH\"><img src=\"/fx/api/trpc/media.getMediaUrlRedirect?name=eff0732a-4325-476d-b016-8ad41187376e\" alt=\"A piece of media generated or uploaded by you, that"
+    },
+    {
+      "depth": 11,
+      "tag": "DIV",
+      "attrs": {
+        "class": "sc-c7ee1759-1 jhwuTJ"
+      },
+      "text": "arrow_back\nGo Back\nmore_vert\nMore options\nsearch\nSearch\nfilter_list\nSort & Filter\nadd\nAdd Media\nhelp\nProduct Help\nsettings_2\nView Settings\nmore_vert\nMore\nPRO\ndashboard\nAll Media\nAll Media\nimage\nView images\nImages\nvideocam\nView videos\nVideos\naccessibility_new\nCharacters\nCharacters\nmovie\nView scenes\nS",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1101,
+        "height": 920,
+        "visible": true,
+        "inViewport": true
+      },
+      "outerHTML": "<div class=\"sc-c7ee1759-1 jhwuTJ\"><div class=\"sc-8e1ee57d-0 sc-64b9b34d-9 loqVPM jWvFmt\"></div><div id=\"flow-desktop-header\" class=\"sc-64b9b34d-0 kZKCjW\" style=\"transform: translateY(0px);\"><div class=\"sc-64b9b34d-2 bCpdRw\"><nav class=\"sc-2eac5247-0 niIkg sc-64b9b34d-7 iIEIHk\"><div class=\"sc-2eac5247-1 eGKJom\" style=\"pointer-events: auto; opacity: 1; width: auto;\"><button class=\"sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-2eac5247-2 ewGlDn famhRe jUJxHE\"><i class=\"sc-a39c2a59-0 ZeJCP google-symbols sc-e8425ea6-1 jZhFNn\" font-size=\"1.5rem\" color=\"currentColor\">arrow_back</i><span style=\"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; overflow-wrap: normal;\">Go Back</span></button><div class=\"sc-e98e0e95-0 cynypI sc-2eac5247-3 bqmeht\"><input type=\"text\" size=\"8\" aria-label=\"Editable text\" class=\"sc-e98e0e95-2 dwTWkV\" value=\"PRODUCTS\"></div><button class=\"sc-e8425ea6-0 hOBPaw sc-d3791a4f-0 sc-d3791a4f-4 sc-26aa1721-3 ewGlDn famhRe dUDRen\" color=\"currentColor\" type=\"button\" id=\"radix-:r3:\" aria-haspopup=\"menu\" aria-expanded=\"false\" data-state=\"closed\"><i class=\"sc-a39c2a"
+    }
+  ]
+}
+```
