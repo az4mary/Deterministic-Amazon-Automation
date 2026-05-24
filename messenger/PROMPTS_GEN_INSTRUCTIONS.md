@@ -5852,7 +5852,7 @@ A deadlock guard remains only to prevent infinite execution. It is **not** the s
 
 ---
 
-# STEP 0 - Cleanup before PATCH_12T
+## STEP 0 - Cleanup before PATCH_12T
 
 ```powershell
 Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
@@ -5875,9 +5875,9 @@ PASS / cleanup completed
 
 ---
 
-# STEP 1 - PATCH_12T1: add Flow generated-image state detector
+## STEP 1 - PATCH_12T1: add Flow generated-image state detector
 
-## Dry-run
+### Dry-run
 
 ```powershell
 @'
@@ -5909,13 +5909,13 @@ Expected:
 PATCH_12T1_DRY_RUN_PASS
 ```
 
-## Insert immediately before
+### Insert immediately before
 
 ```python
     def _capture_flow_generated_image_base64(self, page) -> str:
 ```
 
-## Add
+### Add
 
 ```python
     def _flow_generated_image_state(self, page, baseline_keys: Optional[List[str]] = None) -> Dict[str, Any]:
@@ -6167,9 +6167,9 @@ async (src) => {
 
 ---
 
-# STEP 2 - PATCH_12T2: replace capture method with state-machine capture
+## STEP 2 - PATCH_12T2: replace capture method with state-machine capture
 
-## Dry-run
+### Dry-run
 
 ```powershell
 @'
@@ -6212,7 +6212,7 @@ Expected:
 PATCH_12T2_DRY_RUN_PASS
 ```
 
-## Replace entire method
+### Replace entire method
 
 From:
 
@@ -6226,7 +6226,7 @@ through the line immediately before:
     def execute_image(
 ```
 
-## Replacement
+### Replacement
 
 ```python
     def _capture_flow_generated_image_base64(self, page, baseline_keys: Optional[List[str]] = None) -> str:
@@ -6389,7 +6389,7 @@ through the line immediately before:
 
 # STEP 3 - PATCH_12T3: capture generated baseline before submit
 
-## Dry-run
+### Dry-run
 
 ```powershell
 @'
@@ -6432,7 +6432,7 @@ Expected:
 PATCH_12T3_DRY_RUN_PASS
 ```
 
-## Replace
+### Replace
 
 ```python
         self._configure_flow_generation_settings(page)
@@ -6442,7 +6442,7 @@ PATCH_12T3_DRY_RUN_PASS
         image_base64 = self._capture_flow_generated_image_base64(page)
 ```
 
-## With
+### With
 
 ```python
         self._configure_flow_generation_settings(page)
@@ -6455,7 +6455,7 @@ PATCH_12T3_DRY_RUN_PASS
 
 ---
 
-# STEP 4 - T-Validation 1: compile
+## STEP 4 - T-Validation 1: compile
 
 ```powershell
 D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
@@ -6469,7 +6469,7 @@ PASS / no output
 
 ---
 
-# STEP 5 - T-Validation 2: static marker check
+## STEP 5 - T-Validation 2: static marker check
 
 ```powershell
 @'
@@ -6528,7 +6528,7 @@ PATCH_12T_STATE_CAPTURE_STATIC_OK
 
 ---
 
-# STEP 6 - T-Validation 3: method sanity
+## STEP 6 - T-Validation 3: method sanity
 
 ```powershell
 $env:IMAGE_EXECUTION_BACKEND="flow_browser"
