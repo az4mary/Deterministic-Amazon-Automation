@@ -2044,6 +2044,78 @@ Start-Sleep -Milliseconds 300
             },
         )
 
+    def _wait_for_flow_reference_uploads_ready(self, page, expected_count: int) -> None:
+        deadline = time.time() + max(
+            FLOW_REFERENCE_COMPOSER_TIMEOUT_SECONDS,
+            FLOW_CLIPBOARD_PASTE_WAIT_SECONDS * max(1, expected_count) + FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS,
+        )
+
+        stable_required = 3
+        stable_seen = 0
+        last_count = -1
+
+        self._flow_user_info(
+            "Waiting for pasted reference uploads to finish",
+            expected_count=expected_count,
+            timeout_seconds=round(deadline - time.time(), 2),
+        )
+
+        while time.time() < deadline:
+            try:
+                current_count = self._flow_composer_reference_count(page)
+            except Exception as exc:
+                current_count = -1
+                self._flow_user_info("Reference upload count check skipped", error=str(exc)[:200])
+
+            if current_count >= expected_count:
+                if current_count == last_count:
+                    stable_seen += 1
+                else:
+                    stable_seen = 1
+                    last_count = current_count
+
+                self._flow_user_info(
+                    "Reference upload count observed",
+                    expected_count=expected_count,
+                    current_count=current_count,
+                    stable_seen=stable_seen,
+                    stable_required=stable_required,
+                )
+
+                if stable_seen >= stable_required:
+                    self._flow_user_info(
+                        "Reference uploads ready",
+                        expected_count=expected_count,
+                        current_count=current_count,
+                    )
+                    return
+            else:
+                stable_seen = 0
+                last_count = current_count
+                self._flow_user_info(
+                    "Reference uploads still pending",
+                    expected_count=expected_count,
+                    current_count=current_count,
+                )
+
+            page.wait_for_timeout(1000)
+
+        fail(
+            "FLOW_REFERENCE_UPLOAD_NOT_READY",
+            "Flow pasted reference images did not become stable in the composer before submit.",
+            field="flow_reference_uploads",
+            expected=f"composer_reference_count >= {expected_count} and stable before submit",
+            actual=json.dumps(
+                {
+                    "composer_reference_count": self._flow_composer_reference_count(page),
+                    "source_image_count": expected_count,
+                    "url": getattr(page, "url", ""),
+                },
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
+
     def _paste_flow_reference_images_into_composer(self, page, source_images: List[str]) -> None:
         if not source_images:
             return

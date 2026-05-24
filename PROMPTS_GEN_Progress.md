@@ -531,3 +531,10 @@ PATCH_12Q_SUBMIT_NO_ACTIVATION_METHODS_OK
 ```text
 COMPLETED
 ```
+
+## STEP 1 - PATCH_12R1: add strict reference upload-ready wait
+
+```text
+{'paste_method': 1, 'reference_count_method': 1, 'existing_wait_helper': 0}
+PATCH_12R1_DRY_RUN_PASS
+```
