@@ -2428,10 +2428,13 @@ Start-Sleep -Milliseconds 300
             return 0
 
     def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
+        attached_reference_chip_details = self._flow_attached_reference_chip_details(page)
+
         return {
             "url": getattr(page, "url", ""),
             "visible_media_count": self._flow_visible_media_count(page),
             "composer_reference_count": self._flow_composer_reference_count(page),
+            "attached_reference_chip_details": attached_reference_chip_details,
             "surface_summary": self._flow_prompt_surface_summary(page),
         }
 

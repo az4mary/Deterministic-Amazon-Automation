@@ -623,3 +623,10 @@ PATCH_12S2_DRY_RUN_PASS
 {'old_current_count_call': True, 'old_failure_count': True, 'new_details_call': False}
 PATCH_12S3_DRY_RUN_PASS
 ```
+
+## STEP 4 - PATCH_12S4: improve attachment summary diagnostics
+
+```text
+{'old_composer_reference_count': True, 'new_reference_chip_details': False}
+PATCH_12S4_DRY_RUN_PASS
+```
