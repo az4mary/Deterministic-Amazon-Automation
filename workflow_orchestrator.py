@@ -2053,6 +2053,7 @@ Start-Sleep -Milliseconds 300
         stable_required = 3
         stable_seen = 0
         last_count = -1
+        last_details: Dict[str, Any] = {}
 
         self._flow_user_info(
             "Waiting for pasted reference uploads to finish",
@@ -2062,9 +2063,16 @@ Start-Sleep -Milliseconds 300
 
         while time.time() < deadline:
             try:
-                current_count = self._flow_composer_reference_count(page)
+                last_details = self._flow_attached_reference_chip_details(page)
+                current_count = int(last_details.get("count") or 0)
             except Exception as exc:
                 current_count = -1
+                last_details = {
+                    "count": current_count,
+                    "strategy": "flow_reference_upload_count_check_exception",
+                    "error": str(exc)[:500],
+                    "url": getattr(page, "url", ""),
+                }
                 self._flow_user_info("Reference upload count check skipped", error=str(exc)[:200])
 
             if current_count >= expected_count:
@@ -2080,6 +2088,13 @@ Start-Sleep -Milliseconds 300
                     current_count=current_count,
                     stable_seen=stable_seen,
                     stable_required=stable_required,
+                    detection_strategy=last_details.get("strategy"),
+                    chip_count=last_details.get("count"),
+                    chip_sources=[
+                        chip.get("src")
+                        for chip in (last_details.get("chips") or [])
+                        if isinstance(chip, dict)
+                    ],
                 )
 
                 if stable_seen >= stable_required:
@@ -2087,6 +2102,7 @@ Start-Sleep -Milliseconds 300
                         "Reference uploads ready",
                         expected_count=expected_count,
                         current_count=current_count,
+                        detection_strategy=last_details.get("strategy"),
                     )
                     return
             else:
@@ -2096,6 +2112,9 @@ Start-Sleep -Milliseconds 300
                     "Reference uploads still pending",
                     expected_count=expected_count,
                     current_count=current_count,
+                    detection_strategy=last_details.get("strategy"),
+                    composer_found=last_details.get("composer_found"),
+                    chip_count=last_details.get("count"),
                 )
 
             page.wait_for_timeout(1000)
@@ -2104,11 +2123,13 @@ Start-Sleep -Milliseconds 300
             "FLOW_REFERENCE_UPLOAD_NOT_READY",
             "Flow pasted reference images did not become stable in the composer before submit.",
             field="flow_reference_uploads",
-            expected=f"composer_reference_count >= {expected_count} and stable before submit",
+            expected=f"attached reference chip count >= {expected_count} and stable before submit",
             actual=json.dumps(
                 {
-                    "composer_reference_count": self._flow_composer_reference_count(page),
+                    "attached_reference_chip_count": last_details.get("count"),
                     "source_image_count": expected_count,
+                    "detection_strategy": last_details.get("strategy"),
+                    "details": last_details,
                     "url": getattr(page, "url", ""),
                 },
                 ensure_ascii=False,

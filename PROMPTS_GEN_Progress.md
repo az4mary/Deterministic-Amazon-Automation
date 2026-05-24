@@ -616,3 +616,10 @@ PATCH_12S1_DRY_RUN_PASS
 {'old_composer_scopes': True, 'old_main_scope': True, 'new_helper_call': False}
 PATCH_12S2_DRY_RUN_PASS
 ```
+
+## STEP 3 - PATCH_12S3: replace upload-ready wait with diagnostic-backed wait
+
+```text
+{'old_current_count_call': True, 'old_failure_count': True, 'new_details_call': False}
+PATCH_12S3_DRY_RUN_PASS
+```
