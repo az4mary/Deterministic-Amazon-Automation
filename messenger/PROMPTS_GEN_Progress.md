@@ -697,3 +697,9 @@ PATCH_12T2_DRY_RUN_PASS
 {'old_sequence_count': 1, 'new_sequence_count': 0}
 PATCH_12T3_DRY_RUN_PASS
 ```
+
+## STEP 4 - T-Validation 1: compile
+
+```text
+PASS / no output
+```
