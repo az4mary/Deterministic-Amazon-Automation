@@ -719,3 +719,67 @@ The failure is a detector selector/scope mismatch.
 Next diagnostic action:
 
 Proceed with STEP 3 - Inspect the composer textbox and its nearby DOM.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-24T05:51:11.4635825-05:00
+
+- Source URL: https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa
+- Page title: PROMPTS_GEN
+- Local checkpoint time: `2026-05-24T05:51:11.4635825-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STEP 3 - Inspect the composer textbox and its nearby DOM is confirmed.
+
+Confirmed DOM contract
+
+The composer textbox is:
+
+CSS
+div[role="textbox"][contenteditable="true"][data-slate-editor="true"]
+
+with visible rect:
+
+JSON
+{"x":261,"y":810,"width":566,"height":20}
+
+The important finding is that the two attached reference images are not separate from the composer. They are inside the same composer container at ancestor depth 2:
+
+DIV.sc-439ac1d3-0.hMIBvb
+
+That container includes, in order:
+
+cancel
+cancel
+What do you want to create?
+add_2 Create
+Agent
+Nano Banana 2
+crop_9_16
+1x
+arrow_forward Create
+close Clear prompt
+
+and its HTML includes both attached image chips before the Slate textbox. 
+
+PROMPTS_GEN_STEP3_composer_near…
+
+The progress file also records that the STEP 3 diagnostic file was submitted under “STEP 3 - Inspect the composer textbox and its nearby DOM.” 
+
+PROMPTS_GEN_Progress
+
+Conclusion
+STEP 3 confirmed.
+The correct readiness detector should anchor on the real bottom Slate composer, climb to the shared composer container, then count attached reference image chips inside that same container.
+
+The detector should not depend on broad main, form, or generic class-name scopes anymore. The stable evidence is:
+
+CSS
+[data-slate-editor="true"][contenteditable="true"]
+
+then ancestor container containing:
+
+CSS
+img[alt="A piece of media generated or uploaded by you, that is present in your collection."][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]
