@@ -656,3 +656,9 @@ PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_METHODS_OK
 ```text
 PROMPTS_GEN_STEP4_generated_image_element.json
 ```
+
+## STEP B - Inspect all generated-image candidates on the page
+
+```text
+PROMPTS_GEN_STEP5_generated_image_candidates.json
+```
