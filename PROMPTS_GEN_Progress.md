@@ -594,3 +594,5 @@ PROMPTS_GEN_STEP2_visible_media_like_nodes.json
 ```text
 PROMPTS_GEN_STEP3_composer_nearby_dom.json
 ```
+
+# PATCH_12S = replace Flow reference-readiness detector with inspected DOM contract
