@@ -4539,3 +4539,240 @@ PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_METHODS_OK
 ```
 
 # Resume STEP 7 after PATCH_12R
+
+
+
+In the code, `_wait_for_flow_reference_uploads_ready(...)` relies entirely on `_flow_composer_reference_count(page)`. After each paste, the code calls `_flow_composer_reference_count(page)` again and later blocks submit until that count reaches the number of source images. 
+
+The problem is likely here: `_flow_composer_reference_count(...)` only counts visible `img`, `canvas`, `[role='img']`, some `data-testid` nodes, and remove buttons inside broad scopes like `form`, `[data-testid*='composer']`, `[class*='composer']`, `[class*='prompt']`, or `main`. 
+
+So if Flow renders the attached reference images as any of these, the counter can stay zero even though the UI looks correct:
+
+```text
+1. CSS background-image instead of <img>
+2. attachment chip outside the searched composer scope
+3. Radix/React portal outside the form/main subtree being inspected
+4. hidden input/state object with visible canvas elsewhere
+5. thumbnail rendered inside a shadow-like component structure
+6. visible thumbnail smaller/different than the current >=16px media rules
+7. attachment represented by text/button metadata, not img/canvas
+```
+
+So this is not an upload failure yet. It is a **DOM contract mismatch** between Flow’s actual attachment UI and our detector.
+
+## What we need to inspect
+
+Do this with the page in the exact state where the two reference images are visibly attached in the composer, before clicking submit.
+
+### STEP 1. Inspect the actual attached image/chip element
+
+In Chrome:
+
+```text
+F12 → Elements tab → click the element picker → click one attached reference image/chip in the composer
+```
+
+Then run this in the DevTools Console:
+
+```javascript
+(() => {
+  const el = $0;
+
+  function attrs(node) {
+    if (!node || !node.attributes) return {};
+    return Object.fromEntries([...node.attributes].map(a => [a.name, a.value]));
+  }
+
+  function rect(node) {
+    const r = node.getBoundingClientRect();
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible: !!(r.width && r.height)
+    };
+  }
+
+  const chain = [];
+  let node = el;
+
+  for (let i = 0; node && i < 12; i++, node = node.parentElement) {
+    chain.push({
+      depth: i,
+      tag: node.tagName,
+      attrs: attrs(node),
+      text: (node.innerText || node.textContent || "").trim().slice(0, 300),
+      rect: rect(node),
+      outerHTML: node.outerHTML.slice(0, 1200)
+    });
+  }
+
+  const result = {
+    url: location.href,
+    selected: chain[0],
+    ancestors: chain
+  };
+
+  console.log(result);
+  copy(JSON.stringify(result, null, 2));
+})();
+```
+
+Send back the copied JSON.
+
+This tells us the real tag, classes, `data-testid`, ARIA labels, bounding box, and ancestor structure of the visible attachment.
+
+---
+
+### STEP 2. Inspect all visible media-like nodes near the composer
+
+Run this while the images are visibly attached:
+
+```javascript
+(() => {
+  function attrs(node) {
+    if (!node || !node.attributes) return {};
+    return Object.fromEntries([...node.attributes].map(a => [a.name, a.value]));
+  }
+
+  function rect(node) {
+    const r = node.getBoundingClientRect();
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible: !!(r.width && r.height)
+    };
+  }
+
+  const selectors = [
+    "img",
+    "canvas",
+    "[role='img']",
+    "[aria-label*='Remove']",
+    "[aria-label*='remove']",
+    "[data-testid]",
+    "[class*='attach' i]",
+    "[class*='media' i]",
+    "[class*='image' i]",
+    "[class*='asset' i]",
+    "[class*='chip' i]",
+    "[class*='prompt' i]",
+    "[class*='composer' i]"
+  ].join(",");
+
+  const rows = [...document.querySelectorAll(selectors)]
+    .map((node, index) => ({
+      index,
+      tag: node.tagName,
+      attrs: attrs(node),
+      text: (node.innerText || node.textContent || "").trim().slice(0, 200),
+      rect: rect(node),
+      src: node.getAttribute("src") || "",
+      bg: getComputedStyle(node).backgroundImage || "",
+      outerHTML: node.outerHTML.slice(0, 800)
+    }))
+    .filter(row => row.rect.visible)
+    .sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
+
+  console.table(rows.map(r => ({
+    index: r.index,
+    tag: r.tag,
+    y: r.rect.y,
+    x: r.rect.x,
+    w: r.rect.width,
+    h: r.rect.height,
+    text: r.text,
+    src: r.src.slice(0, 60),
+    bg: r.bg.slice(0, 60),
+    testid: r.attrs["data-testid"] || "",
+    cls: r.attrs["class"] || "",
+    aria: r.attrs["aria-label"] || ""
+  })));
+
+  copy(JSON.stringify({
+    url: location.href,
+    viewport: { width: innerWidth, height: innerHeight },
+    visible_media_like_nodes: rows
+  }, null, 2));
+})();
+```
+
+Send back the copied JSON.
+
+This will show whether the visible attachment is an `img`, `canvas`, CSS background, chip, button, or some other node.
+
+---
+
+### STEP 3. Inspect the composer textbox and its nearby DOM
+
+Run this after images are attached:
+
+```javascript
+(() => {
+  function attrs(node) {
+    if (!node || !node.attributes) return {};
+    return Object.fromEntries([...node.attributes].map(a => [a.name, a.value]));
+  }
+
+  function rect(node) {
+    const r = node.getBoundingClientRect();
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible: !!(r.width && r.height)
+    };
+  }
+
+  const boxes = [...document.querySelectorAll("textarea,[contenteditable='true'],[role='textbox']")]
+    .map((node, index) => ({
+      index,
+      tag: node.tagName,
+      attrs: attrs(node),
+      text: (node.innerText || node.textContent || node.value || "").trim().slice(0, 300),
+      rect: rect(node),
+      outerHTML: node.outerHTML.slice(0, 1000)
+    }))
+    .filter(row => row.rect.visible)
+    .sort((a, b) => b.rect.y - a.rect.y);
+
+  const composer = boxes[0] ? document.querySelectorAll("textarea,[contenteditable='true'],[role='textbox']")[boxes[0].index] : null;
+
+  const ancestors = [];
+  let node = composer;
+  for (let i = 0; node && i < 10; i++, node = node.parentElement) {
+    ancestors.push({
+      depth: i,
+      tag: node.tagName,
+      attrs: attrs(node),
+      text: (node.innerText || node.textContent || "").trim().slice(0, 500),
+      rect: rect(node),
+      outerHTML: node.outerHTML.slice(0, 1500)
+    });
+  }
+
+  const result = {
+    url: location.href,
+    composer_candidates: boxes,
+    selected_bottom_composer: boxes[0] || null,
+    composer_ancestors: ancestors
+  };
+
+  console.log(result);
+  copy(JSON.stringify(result, null, 2));
+})();
+```
+
+Send back the copied JSON.
+
+This tells us whether our current scope assumptions are wrong. Specifically, it will show whether the attachments are siblings/ancestors of the composer, or rendered somewhere else entirely.
+
+## What I expect we will learn
+
+Most likely, the reference images are being rendered in a container that `_flow_composer_reference_count(...)` is not scanning correctly. The current script says “0” because it is not looking at the same DOM structure that the human-visible composer is using.
+
+Once we have the three JSON outputs above, we can define the detector against the actual Flow DOM instead of guessing. No further patch should be written until those outputs identify the correct selector/relationship.
