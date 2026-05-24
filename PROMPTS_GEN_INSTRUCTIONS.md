@@ -4776,3 +4776,685 @@ This tells us whether our current scope assumptions are wrong. Specifically, it 
 Most likely, the reference images are being rendered in a container that `_flow_composer_reference_count(...)` is not scanning correctly. The current script says “0” because it is not looking at the same DOM structure that the human-visible composer is using.
 
 Once we have the three JSON outputs above, we can define the detector against the actual Flow DOM instead of guessing. No further patch should be written until those outputs identify the correct selector/relationship.
+
+# PATCH_12S = replace Flow reference-readiness detector with inspected DOM contract
+
+* Current code counts references through broad scopes like `form`, `[class*='composer']`, `[class*='prompt']`, and `main`, then generic media selectors. That is why the detector can return `0` even when the images are visibly attached. 
+* STEP 2 shows the two real attached reference chips as `IMG` nodes with the exact attachment alt text and `50x50` rects near the lower composer. 
+* STEP 3 shows those chips are inside the same composer root as the Slate textbox: `div[role="textbox"][contenteditable="true"][data-slate-editor="true"]`. 
+
+Future rule for this Flow UI area:
+
+```text
+When a Flow UI detector fails but visual behavior appears correct, pause patching and inspect DOM first:
+1. selected target element
+2. visible nearby nodes
+3. composer/control ancestor structure
+Only patch against the inspected contract.
+```
+
+---
+
+## STEP 0 - Cleanup before PATCH_12S
+
+```powershell
+Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
+Remove-Item -Force .\output\generated_images\image_12.png -ErrorAction SilentlyContinue
+```
+
+Do **not** delete:
+
+```text
+output/workflow_state.json
+output/image_prompts.json
+output/image_content.json
+```
+
+Expected:
+
+```text
+PASS / cleanup completed
+```
+
+---
+
+## STEP 1 - PATCH_12S1: add inspected attached-reference diagnostic helper
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+checks = {
+    "count_method": text.count("    def _flow_composer_reference_count(self, page) -> int:"),
+    "existing_helper": text.count("def _flow_attached_reference_chip_details"),
+    "attach_alt_in_code": text.count("A piece of media generated or uploaded by you, that is present in your collection."),
+}
+
+print(checks)
+
+assert checks["count_method"] == 1
+assert checks["existing_helper"] == 0
+print("PATCH_12S1_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12S1_DRY_RUN_PASS
+```
+
+### Insert immediately before
+
+```python
+    def _flow_composer_reference_count(self, page) -> int:
+```
+
+### Add
+
+```python
+    def _flow_attached_reference_chip_details(self, page) -> Dict[str, Any]:
+        try:
+            result = page.evaluate(
+                """
+() => {
+  const ATTACHMENT_ALT = "A piece of media generated or uploaded by you, that is present in your collection.";
+  const ATTACHMENT_SELECTOR =
+    `img[alt="${ATTACHMENT_ALT}"][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]`;
+
+  const COMPOSER_SELECTOR = [
+    "div[role='textbox'][contenteditable='true'][data-slate-editor='true']",
+    "[role='textbox'][contenteditable='true'][data-slate-editor='true']",
+    "[data-slate-editor='true'][contenteditable='true']"
+  ].join(",");
+
+  function rectOf(node) {
+    const r = node.getBoundingClientRect();
+    const style = getComputedStyle(node);
+    const visible = !!(
+      r.width &&
+      r.height &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      Number(style.opacity || "1") > 0
+    );
+
+    return {
+      x: Math.round(r.x),
+      y: Math.round(r.y),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      visible
+    };
+  }
+
+  function nodeText(node) {
+    return (node.innerText || node.textContent || "").trim().slice(0, 300);
+  }
+
+  const composers = [...document.querySelectorAll(COMPOSER_SELECTOR)]
+    .map((node, index) => ({
+      index,
+      node,
+      rect: rectOf(node),
+      text: nodeText(node),
+      outerHTML: node.outerHTML.slice(0, 800)
+    }))
+    .filter(item =>
+      item.rect.visible &&
+      item.rect.width >= 120 &&
+      item      outerHTML: node.outerHTML.slice(0, 800)
+    }))
+    .filter(item =>
+      item.rect.visible.rect.height >= 16 &&
+      item.rect.y >= window.innerHeight * 0.35
+    )
+    .sort((a, b) => b.rect.y - a.rect.y);
+
+  const composer = composers[0] || null;
+
+  if (!composer) {
+    const pageChips = [...document.querySelectorAll(ATTACHMENT_SELECTOR)]
+      .map((img, index) => ({
+        index,
+        src: img.getAttribute("src") || "",
+        alt: img.getAttribute("alt") || "",
+        rect: rectOf(img),
+        outerHTML: img.outerHTML.slice(0, 500)
+      }))
+      .filter(chip =>
+        chip.rect.visible &&
+        chip.rect.width >= 35 &&
+        chip.rect.height >= 35 &&
+        chip.rect.width <= 140 &&
+        chip.rect.height <= 140 &&
+        chip.rect.y >= window.innerHeight * 0.45
+      );
+
+    const unique = [...new Map(pageChips.map(chip => [chip.src, chip])).values()];
+
+    return {
+      count: unique.length,
+      strategy: "page_level_attachment_alt_fallback_no_composer",
+      composer_found: false,
+      composer_candidates: composers.map(({node, ...rest}) => rest),
+      chips: unique,
+      url: location.href,
+      viewport: {width: window.innerWidth, height: window.innerHeight}
+    };
+  }
+
+  let node = composer.node;
+  const inspectedAncestors = [];
+
+  for (let depth = 0; node && depth <= 8; depth += 1, node = node.parentElement) {
+    const rootRect = rectOf(node);
+    const chips = [...node.querySelectorAll(ATTACHMENT_SELECTOR)]
+      .map((img, index) => ({
+        index,
+        src: img.getAttribute("src") || "",
+        alt: img.getAttribute("alt") || "",
+        rect: rectOf(img),
+        outerHTML: img.outerHTML.slice(0, 500)
+      }))
+      .filter(chip =>
+        chip.rect.visible &&
+        chip.rect.width >= 35 &&
+        chip.rect.height >= 35 &&
+        chip.rect.width <= 140 &&
+        chip.rect.height <= 140 &&
+        chip.rect.y >= composer.rect.y - 180 &&
+        chip.rect.y <= composer.rect.y + 120
+      );
+
+    const unique = [...new Map(chips.map(chip => [chip.src, chip])).values()];
+
+    inspectedAncestors.push({
+      depth,
+      tag: node.tagName,
+      className: node.getAttribute("class") || "",
+      rect: rootRect,
+      text: nodeText(node),
+      attached_chip_count: unique.length
+    });
+
+    if (unique.length > 0) {
+      return {
+        count: unique.length,
+        strategy: "slate_composer_ancestor_attachment_alt",
+        composer_found: true,
+        composer: {
+          index: composer.index,
+          rect: composer.rect,
+          text: composer.text,
+          outerHTML: composer.outerHTML
+        },
+        root: {
+          depth,
+          tag: node.tagName,
+          className: node.getAttribute("class") || "",
+          rect: rootRect,
+          text: nodeText(node),
+          outerHTML: node.outerHTML.slice(0, 1200)
+        },
+        chips: unique,
+        inspected_ancestors: inspectedAncestors,
+        url: location.href,
+        viewport: {width: window.innerWidth, height: window.innerHeight}
+      };
+    }
+  }
+
+  return {
+    count: 0,
+    strategy: "slate_composer_ancestor_attachment_alt_not_found",
+    composer_found: true,
+    composer: {
+      index: composer.index,
+      rect: composer.rect,
+      text: composer.text,
+      outerHTML: composer.outerHTML
+    },
+    inspected_ancestors: inspectedAncestors,
+    url: location.href,
+    viewport: {width: window.innerWidth, height: window.innerHeight}
+  };
+}
+"""
+            )
+
+            if not isinstance(result, dict):
+                return {
+                    "count": 0,
+                    "strategy": "flow_reference_chip_diagnostic_non_dict",
+                    "raw_type": type(result).__name__,
+                    "url": getattr(page, "url", ""),
+                }
+
+            return result
+
+        except Exception as exc:
+            return {
+                "count": 0,
+                "strategy": "flow_reference_chip_diagnostic_failed",
+                "error": str(exc)[:500],
+                "url": getattr(page, "url", ""),
+            }
+```
+
+---
+
+## STEP 2 - PATCH_12S2: replace `_flow_composer_reference_count(...)`
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+import re
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+method = re.search(
+    r"    def _flow_composer_reference_count\(self, page\) -> int:\n(?P<body>.*?)\n    def _flow_reference_attach_summary",
+    text,
+    re.S,
+)
+
+assert method, "method not found"
+
+body = method.group("body")
+
+checks = {
+    "old_composer_scopes": "composer_scopes = [" in body,
+    "old_main_scope": '"main"' in body,
+    "new_helper_call": "self._flow_attached_reference_chip_details(page)" in body,
+}
+
+print(checks)
+
+assert checks["old_composer_scopes"]
+assert checks["old_main_scope"]
+assert not checks["new_helper_call"]
+
+print("PATCH_12S2_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12S2_DRY_RUN_PASS
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _flow_composer_reference_count(self, page) -> int:
+```
+
+through the line immediately before:
+
+```python
+    def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
+```
+
+### Replacement
+
+```python
+    def _flow_composer_reference_count(self, page) -> int:
+        details = self._flow_attached_reference_chip_details(page)
+
+        try:
+            return int(details.get("count") or 0)
+        except Exception:
+            return 0
+```
+
+---
+
+## STEP 3 - PATCH_12S3: replace upload-ready wait with diagnostic-backed wait
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+import re
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+method = re.search(
+    r"    def _wait_for_flow_reference_uploads_ready\(self, page, expected_count: int\) -> None:\n(?P<body>.*?)\n    def _paste_flow_reference_images_into_composer",
+    text,
+    re.S,
+)
+
+assert method, "wait method not found"
+
+body = method.group("body")
+
+checks = {
+    "old_current_count_call": "current_count = self._flow_composer_reference_count(page)" in body,
+    "old_failure_count": '"composer_reference_count": self._flow_composer_reference_count(page)' in body,
+    "new_details_call": "self._flow_attached_reference_chip_details(page)" in body,
+}
+
+print(checks)
+
+assert checks["old_current_count_call"]
+assert checks["old_failure_count"]
+assert not checks["new_details_call"]
+
+print("PATCH_12S3_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12S3_DRY_RUN_PASS
+```
+
+### Replace entire method
+
+From:
+
+```python
+    def _wait_for_flow_reference_uploads_ready(self, page, expected_count: int) -> None:
+```
+
+through the line immediately before:
+
+```python
+    def _paste_flow_reference_images_into_composer(self, page, source_images: List[str]) -> None:
+```
+
+### Replacement
+
+```python
+    def _wait_for_flow_reference_uploads_ready(self, page, expected_count: int) -> None:
+        deadline = time.time() + max(
+            FLOW_REFERENCE_COMPOSER_TIMEOUT_SECONDS,
+            FLOW_CLIPBOARD_PASTE_WAIT_SECONDS * max(1, expected_count) + FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS,
+        )
+
+        stable_required = 3
+        stable_seen = 0
+        last_count = -1
+        last_details: Dict[str, Any] = {}
+
+        self._flow_user_info(
+            "Waiting for pasted reference uploads to finish",
+            expected_count=expected_count,
+            timeout_seconds=round(deadline - time.time(), 2),
+        )
+
+        while time.time() < deadline:
+            try:
+                last_details = self._flow_attached_reference_chip_details(page)
+                current_count = int(last_details.get("count") or 0)
+            except Exception as exc:
+                current_count = -1
+                last_details = {
+                    "count": current_count,
+                    "strategy": "flow_reference_upload_count_check_exception",
+                    "error": str(exc)[:500],
+                    "url": getattr(page, "url", ""),
+                }
+                self._flow_user_info("Reference upload count check skipped", error=str(exc)[:200])
+
+            if current_count >= expected_count:
+                if current_count == last_count:
+                    stable_seen += 1
+                else:
+                    stable_seen = 1
+                    last_count = current_count
+
+                self._flow_user_info(
+                    "Reference upload count observed",
+                    expected_count=expected_count,
+                    current_count=current_count,
+                    stable_seen=stable_seen,
+                    stable_required=stable_required,
+                    detection_strategy=last_details.get("strategy"),
+                    chip_count=last_details.get("count"),
+                    chip_sources=[
+                        chip.get("src")
+                        for chip in (last_details.get("chips") or [])
+                        if isinstance(chip, dict)
+                    ],
+                )
+
+                if stable_seen >= stable_required:
+                    self._flow_user_info(
+                        "Reference uploads ready",
+                        expected_count=expected_count,
+                        current_count=current_count,
+                        detection_strategy=last_details.get("strategy"),
+                    )
+                    return
+            else:
+                stable_seen = 0
+                last_count = current_count
+                self._flow_user_info(
+                    "Reference uploads still pending",
+                    expected_count=expected_count,
+                    current_count=current_count,
+                    detection_strategy=last_details.get("strategy"),
+                    composer_found=last_details.get("composer_found"),
+                    chip_count=last_details.get("count"),
+                )
+
+            page.wait_for_timeout(1000)
+
+        fail(
+            "FLOW_REFERENCE_UPLOAD_NOT_READY",
+            "Flow pasted reference images did not become stable in the composer before submit.",
+            field="flow_reference_uploads",
+            expected=f"attached reference chip count >= {expected_count} and stable before submit",
+            actual=json.dumps(
+                {
+                    "attached_reference_chip_count": last_details.get("count"),
+                    "source_image_count": expected_count,
+                    "detection_strategy": last_details.get("strategy"),
+                    "details": last_details,
+                    "url": getattr(page, "url", ""),
+                },
+                ensure_ascii=False,
+            ),
+            stage="PROCESSING",
+        )
+```
+
+---
+
+## STEP 4 - PATCH_12S4: improve attachment summary diagnostics
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+import re
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+method = re.search(
+    r"    def _flow_reference_attach_summary\(self, page\) -> Dict\[str, Any\]:\n(?P<body>.*?)\n    def _flow_open_uploaded_media_gallery",
+    text,
+    re.S,
+)
+
+assert method, "summary method not found"
+
+body = method.group("body")
+
+checks = {
+    "old_composer_reference_count": '"composer_reference_count": self._flow_composer_reference_count(page)' in body,
+    "new_reference_chip_details": '"attached_reference_chip_details": self._flow_attached_reference_chip_details(page)' in body,
+}
+
+print(checks)
+
+assert checks["old_composer_reference_count"]
+assert not checks["new_reference_chip_details"]
+
+print("PATCH_12S4_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12S4_DRY_RUN_PASS
+```
+
+### Replace method
+
+From:
+
+```python
+    def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
+```
+
+through the line immediately before:
+
+```python
+    def _flow_open_uploaded_media_gallery(self,
+```
+
+### Replacement
+
+```python
+    def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
+        attached_reference_chip_details = self._flow_attached_reference_chip_details(page)
+
+        return {
+            "url": getattr(page, "url", ""),
+            "visible_media_count": self._flow_visible_media_count(page),
+            "composer_reference_count": self._flow_composer_reference_count(page),
+            "attached_reference_chip_details": attached_reference_chip_details,
+            "surface_summary": self._flow_prompt_surface_summary(page),
+        }
+```
+
+---
+
+## STEP 5 - S-Validation 1: compile
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+---
+
+## STEP 6 - S-Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+import re
+
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+
+required = [
+    "def _flow_attached_reference_chip_details",
+    "A piece of media generated or uploaded by you, that is present in your collection.",
+    "/fx/api/trpc/media.getMediaUrlRedirect?name=",
+    "slate_composer_ancestor_attachment_alt",
+    "page_level_attachment_alt_fallback_no_composer",
+    "attached_reference_chip_details",
+    "attached_reference_chip_count",
+    "detection_strategy",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+count_method = re.search(
+    r"    def _flow_composer_reference_count\(self, page\) -> int:\n(?P<body>.*?)\n    def _flow_reference_attach_summary",
+    text,
+    re.S,
+)
+assert count_method, "count method missing"
+
+count_body = count_method.group("body")
+assert "self._flow_attached_reference_chip_details(page)" in count_body
+assert "composer_scopes = [" not in count_body
+assert '"main"' not in count_body
+
+wait_method = re.search(
+    r"    def _wait_for_flow_reference_uploads_ready\(self, page, expected_count: int\) -> None:\n(?P<body>.*?)\n    def _paste_flow_reference_images_into_composer",
+    text,
+    re.S,
+)
+assert wait_method, "wait method missing"
+
+wait_body = wait_method.group("body")
+assert "last_details = self._flow_attached_reference_chip_details(page)" in wait_body
+assert "attached_reference_chip_count" in wait_body
+assert '"composer_reference_count": self._flow_composer_reference_count(page)' not in wait_body
+
+print("PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_STATIC_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_STATIC_OK
+```
+
+---
+
+## STEP 7 - S-Validation 3: method sanity
+
+```powershell
+$env:IMAGE_EXECUTION_BACKEND="flow_browser"
+
+@'
+import workflow_orchestrator as w
+
+adapter = w.FlowBrowserImageGenerationAdapter(
+    w.BROWSER_CDP_URL,
+    w.FLOW_URL,
+    w.BROWSER_ACTION_TIMEOUT_MS,
+)
+
+required = [
+    "_flow_attached_reference_chip_details",
+    "_flow_composer_reference_count",
+    "_wait_for_flow_reference_uploads_ready",
+    "_flow_reference_attach_summary",
+    "_paste_flow_reference_images_into_composer",
+]
+
+for name in required:
+    assert hasattr(adapter, name), name
+
+print("PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_METHODS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_METHODS_OK
+```
+
+---
+
+# Resume STEP 7 after PATCH_12S
