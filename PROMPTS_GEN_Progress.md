@@ -588,3 +588,9 @@ PROMPTS_GEN_STEP1_attached_image_chip.json sent
 ```text
 PROMPTS_GEN_STEP2_visible_media_like_nodes.json
 ```
+
+## STEP 3 - Inspect the composer textbox and its nearby DOM
+
+```text
+PROMPTS_GEN_STEP3_composer_nearby_dom.json
+```
