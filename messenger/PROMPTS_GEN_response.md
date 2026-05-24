@@ -937,3 +937,59 @@ PROMPTS_GEN_Progress
 Next action:
 
 Proceed with STEP 8 - S-Validation 4: Resume STEP 7 after PATCH_12S.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-24T12:06:58.0577678-05:00
+
+- Source URL: https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa
+- Page title: PROMPTS_GEN
+- Local checkpoint time: `2026-05-24T12:06:58.0577678-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STEP A - Inspect the actual generated image element is confirmed. 
+
+PROMPTS_GEN_Progress
+
+Confirmed generated-image DOM contract
+
+The selected generated output is a real loaded IMG node:
+
+CSS
+img[alt="Generated image"][src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]
+
+Key state:
+
+JSON
+{
+  "alt": "Generated image",
+  "complete": true,
+  "naturalWidth": 768,
+  "naturalHeight": 1376,
+  "visible": true,
+  "inViewport": true
+}
+
+It is inside a Flow output tile with:
+
+HTML
+data-tile-id="fe_id_519678f8-7d90-4dbb-9f8d-b2cfaa35dd74"
+
+and the parent anchor points to the edit route:
+
+/fx/tools/flow/project/.../edit/519678f8-7d90-4dbb-9f8d-b2cfaa35dd74
+
+So the deterministic generated-output signal is:
+
+visible in-viewport IMG
+alt="Generated image"
+src contains /fx/api/trpc/media.getMediaUrlRedirect?name=
+complete=true
+naturalWidth > 0
+naturalHeight > 0
+ancestor has data-tile-id
+not composer reference alt text
+
+This confirms STEP A. Proceed with STEP B - Inspect all generated-image candidates on the page.
