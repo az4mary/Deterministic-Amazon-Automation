@@ -636,3 +636,9 @@ PATCH_12S4_DRY_RUN_PASS
 ```text
 PASS / no output
 ```
+
+## STEP 6 - S-Validation 2: static marker check
+
+```text
+PATCH_12S_FLOW_REFERENCE_CHIP_DETECTOR_STATIC_OK
+```
