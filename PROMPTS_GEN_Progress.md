@@ -582,3 +582,9 @@ PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_METHODS_OK
 ```text
 PROMPTS_GEN_STEP1_attached_image_chip.json sent
 ```
+
+## STEP 2 - Inspect all visible media-like nodes near the composer
+
+```text
+PROMPTS_GEN_STEP2_visible_media_like_nodes.json
+```
