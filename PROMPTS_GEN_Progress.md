@@ -609,3 +609,10 @@ PASS / cleanup completed
 {'count_method': 1, 'existing_helper': 0, 'attach_alt_in_code': 0}
 PATCH_12S1_DRY_RUN_PASS
 ```
+
+## STEP 2 - PATCH_12S2: replace `_flow_composer_reference_count(...)`
+
+```text
+{'old_composer_scopes': True, 'old_main_scope': True, 'new_helper_call': False}
+PATCH_12S2_DRY_RUN_PASS
+```

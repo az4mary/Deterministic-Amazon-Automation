@@ -2399,56 +2399,12 @@ Start-Sleep -Milliseconds 300
             }
 
     def _flow_composer_reference_count(self, page) -> int:
-        composer_scopes = [
-            "form",
-            "[role='form']",
-            "[data-testid*='composer']",
-            "[data-testid*='prompt']",
-            "[class*='composer']",
-            "[class*='prompt']",
-            "main",
-        ]
+        details = self._flow_attached_reference_chip_details(page)
 
-        media_selectors = [
-            "img",
-            "canvas",
-            "[role='img']",
-            "[data-testid*='attachment']",
-            "[data-testid*='chip']",
-            "[data-testid*='asset']",
-            "[data-testid*='media']",
-            "[aria-label*='Remove']",
-        ]
-
-        max_seen = 0
-        for scope_selector in composer_scopes:
-            try:
-                scopes = page.locator(scope_selector)
-                scope_count = min(scopes.count(), 10)
-                for sidx in range(scope_count):
-                    scope = scopes.nth(sidx)
-                    if not scope.is_visible():
-                        continue
-                    seen = 0
-                    for media_selector in media_selectors:
-                        try:
-                            media = scope.locator(media_selector)
-                            count = min(media.count(), 30)
-                            for midx in range(count):
-                                item = media.nth(midx)
-                                if item.is_visible():
-                                    box = item.bounding_box() or {}
-                                    width = float(box.get("width", 0) or 0)
-                                    height = float(box.get("height", 0) or 0)
-                                    if width >= 16 and height >= 16:
-                                        seen += 1
-                        except Exception:
-                            continue
-                    max_seen = max(max_seen, seen)
-            except Exception:
-                continue
-
-        return max_seen
+        try:
+            return int(details.get("count") or 0)
+        except Exception:
+            return 0
 
     def _flow_reference_attach_summary(self, page) -> Dict[str, Any]:
         return {
