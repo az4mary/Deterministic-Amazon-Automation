@@ -552,3 +552,10 @@ PATCH_12R2_DRY_RUN_PASS
 {'capture_method': 1, 'raw_wait': 12, 'existing_safe_wait': 0}
 PATCH_12R3_DRY_RUN_PASS
 ```
+
+## STEP 4 - PATCH_12R4: add capture INFO at start and scan loop
+
+```text
+{'capture_method': 1, 'capture_info_existing': 0}
+PATCH_12R4_DRY_RUN_PASS
+```

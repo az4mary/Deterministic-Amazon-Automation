@@ -3469,6 +3469,11 @@ Start-Sleep -Milliseconds 300
 
         deadline = time.time() + FLOW_IMAGE_TIMEOUT_SECONDS
         last_error = ""
+        self._flow_user_info(
+            "Flow capture scan started",
+            timeout_seconds=FLOW_IMAGE_TIMEOUT_SECONDS,
+            url=getattr(page, "url", ""),
+        )
         json_log(
             level="INFO",
             message="Flow download-click capture disabled",
@@ -3501,6 +3506,7 @@ Start-Sleep -Milliseconds 300
                                 "image_base64_chars": len(image_base64),
                             },
                         )
+                        self._flow_user_info("Flow generated image captured", capture_method="tile", selector=selector)
                         return image_base64
 
                     screenshot_bytes = candidate.screenshot(timeout=self.action_timeout_ms)
@@ -3516,6 +3522,7 @@ Start-Sleep -Milliseconds 300
                             "image_base64_chars": len(image_base64),
                         },
                     )
+                    self._flow_user_info("Flow generated image captured", capture_method="screenshot", selector=selector)
                     return image_base64
                 except Exception as exc:
                     last_error = str(exc)[:500]
