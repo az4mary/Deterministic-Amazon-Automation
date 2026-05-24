@@ -626,3 +626,38 @@ STEP 7 - R-Validation 3: method sanity is confirmed.
 Next action:
 
 Proceed with STEP 8 - R-Validation 4: Resume STEP 7 after PATCH_12R.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-24T05:36:52.5349801-05:00
+
+- Source URL: https://chatgpt.com/c/69b16c98-11c4-8328-8582-145ea2e5affa
+- Page title: PROMPTS_GEN
+- Local checkpoint time: `2026-05-24T05:36:52.5349801-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STEP 1 - Inspect the actual attached image/chip element is confirmed.
+
+Key finding: the attached reference is a real visible IMG, not a CSS background or hidden state object. It is inside a removable chip button whose text is cancel, with a 50x50 visible rect and a Flow media URL:
+
+img[src*="/fx/api/trpc/media.getMediaUrlRedirect?name="]
+alt="A piece of media generated or uploaded by you, that is present in your collection."
+
+The ancestor chain also shows the composer attachment strip contains two attached image chips under the same container, so your visual observation is correct: the images were attached to the composer. 
+
+PROMPTS_GEN_STEP1_attached_imag…
+
+The progress file also records STEP 1 diagnostic output under “STEP 1 - Inspect the actual attached image/chip element”, confirming this inspection step is now captured in the working log. 
+
+PROMPTS_GEN_Progress
+
+Conclusion:
+
+STEP 1 confirmed.
+The current failure is a detector/scope mismatch, not proof that images were absent.
+
+Next diagnostic action:
+
+Proceed with STEP 2 - Inspect all visible media-like nodes near the composer.
