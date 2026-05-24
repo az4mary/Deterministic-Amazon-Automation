@@ -647,9 +647,9 @@ alt="A piece of media generated or uploaded by you, that is present in your coll
 
 The ancestor chain also shows the composer attachment strip contains two attached image chips under the same container, so your visual observation is correct: the images were attached to the composer. 
 
-PROMPTS_GEN_STEP1_attached_imag…
+PROMPTS_GEN_STEP1_attached_imagÂ…
 
-The progress file also records STEP 1 diagnostic output under “STEP 1 - Inspect the actual attached image/chip element”, confirming this inspection step is now captured in the working log. 
+The progress file also records STEP 1 diagnostic output under Â“STEP 1 - Inspect the actual attached image/chip elementÂ”, confirming this inspection step is now captured in the working log. 
 
 PROMPTS_GEN_Progress
 
@@ -708,7 +708,7 @@ PROMPTS_GEN_Progress
 
  
 
-PROMPTS_GEN_STEP2_visible_media…
+PROMPTS_GEN_STEP2_visible_mediaÂ…
 
 Conclusion:
 
@@ -764,9 +764,9 @@ close Clear prompt
 
 and its HTML includes both attached image chips before the Slate textbox. 
 
-PROMPTS_GEN_STEP3_composer_near…
+PROMPTS_GEN_STEP3_composer_nearÂ…
 
-The progress file also records that the STEP 3 diagnostic file was submitted under “STEP 3 - Inspect the composer textbox and its nearby DOM.” 
+The progress file also records that the STEP 3 diagnostic file was submitted under Â“STEP 3 - Inspect the composer textbox and its nearby DOM.Â” 
 
 PROMPTS_GEN_Progress
 
@@ -875,7 +875,7 @@ STEP 4 - PATCH_12 - PATCHS4 is con
 
 PROMPTS_GEN_Progress
 
-99file0îˆ
+99file0Ã®ÂˆÂ
 
 Next action:
 
