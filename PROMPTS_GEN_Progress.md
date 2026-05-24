@@ -596,3 +596,9 @@ PROMPTS_GEN_STEP3_composer_nearby_dom.json
 ```
 
 # PATCH_12S = replace Flow reference-readiness detector with inspected DOM contract
+
+## STEP 0 - Cleanup before PATCH_12S
+
+```text
+PASS / cleanup completed
+```
