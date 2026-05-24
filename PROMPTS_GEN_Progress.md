@@ -545,3 +545,10 @@ PATCH_12R1_DRY_RUN_PASS
 {'final_settle_log': 1, 'ready_call': 0}
 PATCH_12R2_DRY_RUN_PASS
 ```
+
+## STEP 3 - PATCH_12R3: make Flow capture tolerate closed/replaced page
+
+```text
+{'capture_method': 1, 'raw_wait': 12, 'existing_safe_wait': 0}
+PATCH_12R3_DRY_RUN_PASS
+```

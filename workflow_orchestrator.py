@@ -3345,6 +3345,27 @@ Start-Sleep -Milliseconds 300
             },
         )
 
+    def _flow_safe_capture_wait(self, page, wait_ms: int):
+        try:
+            if page is None or page.is_closed():
+                self._flow_user_info("Flow capture page closed; reacquiring Flow page")
+                return self._page()
+
+            page.wait_for_timeout(wait_ms)
+            return page
+
+        except Exception as exc:
+            error_text = str(exc)
+            if "Target page, context or browser has been closed" in error_text or "TargetClosedError" in error_text:
+                self._flow_user_info(
+                    "Flow capture page target closed; reacquiring Flow page",
+                    error=error_text[:300],
+                )
+                self._page_obj = None
+                return self._page()
+
+            raise
+
     def _capture_flow_generated_image_base64(self, page) -> str:
         json_log(
             level="INFO",
@@ -3499,7 +3520,7 @@ Start-Sleep -Milliseconds 300
                 except Exception as exc:
                     last_error = str(exc)[:500]
 
-            page.wait_for_timeout(1000)
+            page = self._flow_safe_capture_wait(page, 1000)
 
         fail(
             "FLOW_IMAGE_GENERATION_TIMEOUT",
