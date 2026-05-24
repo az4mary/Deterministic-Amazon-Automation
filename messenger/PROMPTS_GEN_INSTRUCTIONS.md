@@ -6387,7 +6387,7 @@ through the line immediately before:
 
 ---
 
-# STEP 3 - PATCH_12T3: capture generated baseline before submit
+## STEP 3 - PATCH_12T3: capture generated baseline before submit
 
 ### Dry-run
 
