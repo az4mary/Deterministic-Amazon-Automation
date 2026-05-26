@@ -827,3 +827,11 @@ PATCH_13C_DIRECT_VERIFY_PASS
 PATCH_13D_DRY_RUN_PASS
 PATCH_13D_VALIDATION_PASS
 ```
+
+
+## DIRECT VERIFY — PATCH_13D real docs/prompts.md
+
+```text
+{'Why do I need this product?': 0, 'When would I use this product?': 0, 'What technology makes this product better?': 0, 'What specifications or technical details matter?': 0, 'Why do I need it?': 3, 'When would I use it?': 3, 'What technology makes it better?': 3, 'What specifications matter?': 3}
+PATCH_13D_DIRECT_VERIFY_PASS
+```
