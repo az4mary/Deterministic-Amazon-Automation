@@ -162,3 +162,33 @@ last_line: '        raise'
  5671:         json_log("unhandled_exception", error=str(e))
  5672:         raise
 ```
+
+## STEP 5 - Generate Python AST symbol map
+
+```text
+symbol_count: 143
+
+--- first 10 symbols ---
+workflow_orchestrator.py:127-137 FunctionDef build_patch_set_12_static_diagnostics
+workflow_orchestrator.py:186-192 ClassDef Step
+workflow_orchestrator.py:195-198 FunctionDef next_span_id
+workflow_orchestrator.py:201-211 ClassDef PromptExecutionAdapter
+workflow_orchestrator.py:202-203 FunctionDef execute_text
+workflow_orchestrator.py:205-211 FunctionDef execute_image
+workflow_orchestrator.py:214-363 ClassDef OpenAIPromptExecutionAdapter
+workflow_orchestrator.py:215-216 FunctionDef __init__
+workflow_orchestrator.py:218-228 FunctionDef execute_text
+workflow_orchestrator.py:230-363 FunctionDef execute_image
+
+--- last 10 symbols ---
+workflow_orchestrator.py:5272-5274 FunctionDef update_state_with_prompt
+workflow_orchestrator.py:5277-5285 FunctionDef deterministic_style_lock
+workflow_orchestrator.py:5288-5326 FunctionDef apply_step_wait
+workflow_orchestrator.py:5357-5360 FunctionDef build_step_plan
+workflow_orchestrator.py:5363-5377 FunctionDef write_image_prompts
+workflow_orchestrator.py:5380-5466 FunctionDef run_step
+workflow_orchestrator.py:5381-5389 FunctionDef build_schema
+workflow_orchestrator.py:5468-5477 FunctionDef validate_initial_inputs
+workflow_orchestrator.py:5480-5485 FunctionDef resolve_raw_text_path
+workflow_orchestrator.py:5488-5662 FunctionDef main
+```
