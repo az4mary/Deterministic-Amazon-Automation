@@ -1021,3 +1021,68 @@ git diff
 
 Proceed to STEP 13 after confirmation.
 ````
+
+## STEP 13 - Run pytest / ruff / mypy
+
+````md
+# STEP 13 Validation Stack Report
+
+## Verdict
+
+PARTIAL
+
+## Commands run
+
+```powershell
+rg --files | rg "pyproject\.toml|pytest\.ini|setup\.cfg|tox\.ini|mypy\.ini|ruff\.toml|\.ruff\.toml|requirements\.txt"
+python -m pytest
+python -m ruff check .
+python -m mypy .
+ruff check .
+mypy .
+git status --short
+```
+
+## Results
+
+| Tool | Command | Result | Notes |
+|---|---|---|---|
+| pytest | `python -m pytest` | SKIPPED | `pytest` is not installed. |
+| ruff | `python -m ruff check .` | SKIPPED | `ruff` Python module is not installed. |
+| ruff | `ruff check .` | SKIPPED | `ruff` command is not available. |
+| mypy | `python -m mypy .` | SKIPPED | `mypy` Python module is not installed. |
+| mypy | `mypy .` | SKIPPED | `mypy` command is not available. |
+
+## Failure details
+
+- No validation failures were produced by project code because the validation tools could not run.
+
+## Missing tools
+
+- `pytest`
+  - Command: `python -m pytest`
+  - Exit code: `1`
+  - Error: `D:\TOOLS\Python314\python.exe: No module named pytest`
+- `ruff`
+  - Command: `python -m ruff check .`
+  - Exit code: `1`
+  - Error: `D:\TOOLS\Python314\python.exe: No module named ruff`
+  - Command: `ruff check .`
+  - Exit code: `1`
+  - Error: `ruff : The term 'ruff' is not recognized as the name of a cmdlet, function, script file, or operable program.`
+- `mypy`
+  - Command: `python -m mypy .`
+  - Exit code: `1`
+  - Error: `D:\TOOLS\Python314\python.exe: No module named mypy`
+  - Command: `mypy .`
+  - Exit code: `1`
+  - Error: `mypy : The term 'mypy' is not recognized as the name of a cmdlet, function, script file, or operable program.`
+
+## Git status
+
+```text
+?? tests/
+```
+
+Proceed to STEP 14 after confirmation.
+````
