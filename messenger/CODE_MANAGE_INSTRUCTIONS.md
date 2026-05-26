@@ -966,11 +966,7 @@ Include:
 git status --short
 ````
 
-## Next recommended step
-
 Proceed to STEP 14 after user confirmation.
-
-````
 
 Stop after STEP 13.
 
