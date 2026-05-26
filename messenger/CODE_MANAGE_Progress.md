@@ -251,3 +251,165 @@ workflow_orchestrator.py:1: # workflow_orchestrator.py
 workflow_orchestrator.py:30:     "name": "workflow_orchestrator",
 workflow_orchestrator.py:4038:             "orchestrator_start": ("INFO", "Orchestrator started", "INIT", "STARTED"),
 ```
+
+## STEP 7 - Required report back
+
+```md
+# Codex File Ownership Report
+
+## Verdict
+
+PASS: Codex accessed `workflow_orchestrator.py` as a raw local file from byte 1 to EOF.
+
+## Evidence
+
+### File metadata
+
+- Absolute path: `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py`
+- Byte count: `222797`
+- Character count: `217117`
+- Line count: `5672`
+- SHA-256: `ec5054d3173daf973757631945ddfbfcda2cd1400227e78c2a0ed8d52790346f`
+- Last modified: `25/05/2026 04:39:09`
+
+### EOF verification
+
+- First 100 bytes: `b'# workflow_orchestrator.py\r\nfrom __future__ import annotations\r\n\r\nimport argparse\r\nimport base64\r\nim'`
+- Last 100 bytes: `b'\r\n    except Exception as e:\r\n        json_log("unhandled_exception", error=str(e))\r\n        raise\r\n'`
+- First line: `'# workflow_orchestrator.py'`
+- Last line: `'        raise'`
+
+### Line-numbered excerpts produced
+
+- Beginning excerpt: yes
+- Middle excerpt: yes
+- End excerpt: yes
+
+### Symbol map
+
+- AST parse succeeded: yes
+- Symbol count: `143`
+- First 10 symbols:
+  - `workflow_orchestrator.py:127-137 FunctionDef build_patch_set_12_static_diagnostics`
+  - `workflow_orchestrator.py:186-192 ClassDef Step`
+  - `workflow_orchestrator.py:195-198 FunctionDef next_span_id`
+  - `workflow_orchestrator.py:201-211 ClassDef PromptExecutionAdapter`
+  - `workflow_orchestrator.py:202-203 FunctionDef execute_text`
+  - `workflow_orchestrator.py:205-211 FunctionDef execute_image`
+  - `workflow_orchestrator.py:214-363 ClassDef OpenAIPromptExecutionAdapter`
+  - `workflow_orchestrator.py:215-216 FunctionDef __init__`
+  - `workflow_orchestrator.py:218-228 FunctionDef execute_text`
+  - `workflow_orchestrator.py:230-363 FunctionDef execute_image`
+- Last 10 symbols:
+  - `workflow_orchestrator.py:5272-5274 FunctionDef update_state_with_prompt`
+  - `workflow_orchestrator.py:5277-5285 FunctionDef deterministic_style_lock`
+  - `workflow_orchestrator.py:5288-5326 FunctionDef apply_step_wait`
+  - `workflow_orchestrator.py:5357-5360 FunctionDef build_step_plan`
+  - `workflow_orchestrator.py:5363-5377 FunctionDef write_image_prompts`
+  - `workflow_orchestrator.py:5380-5466 FunctionDef run_step`
+  - `workflow_orchestrator.py:5381-5389 FunctionDef build_schema`
+  - `workflow_orchestrator.py:5468-5477 FunctionDef validate_initial_inputs`
+  - `workflow_orchestrator.py:5480-5485 FunctionDef resolve_raw_text_path`
+  - `workflow_orchestrator.py:5488-5662 FunctionDef main`
+
+### Search verification
+
+- schema: `57`
+- validate: `6`
+- validation: `4`
+- prompt: `246`
+- citation: `0`
+- line: `66`
+- file: `57`
+- chunk: `4`
+- orchestrator: `7`
+
+## Commands run
+
+```powershell
+Get-Item .\workflow_orchestrator.py | Format-List FullName,Length,LastWriteTime
+```
+
+```python
+from pathlib import Path
+path = Path("workflow_orchestrator.py")
+print("exists:", path.exists())
+print("absolute_path:", path.resolve())
+print("bytes:", path.stat().st_size if path.exists() else None)
+print("modified:", path.stat().st_mtime if path.exists() else None)
+```
+
+```python
+from pathlib import Path
+import hashlib
+path = Path("workflow_orchestrator.py")
+data = path.read_bytes()
+print("file:", path.resolve())
+print("byte_count:", len(data))
+print("sha256:", hashlib.sha256(data).hexdigest())
+print("first_100_bytes:", repr(data[:100]))
+print("last_100_bytes:", repr(data[-100:]))
+```
+
+```python
+from pathlib import Path
+path = Path("workflow_orchestrator.py")
+text = path.read_text(encoding="utf-8")
+lines = text.splitlines()
+print("character_count:", len(text))
+print("line_count:", len(lines))
+print("first_line:", repr(lines[0] if lines else ""))
+print("last_line:", repr(lines[-1] if lines else ""))
+```
+
+```python
+from pathlib import Path
+path = Path("workflow_orchestrator.py")
+lines = path.read_text(encoding="utf-8").splitlines()
+def show_range(start, end):
+    print(f"\n--- {path}:{start}-{end} ---")
+    for i in range(start, min(end, len(lines)) + 1):
+        print(f"{i:>5}: {lines[i-1]}")
+line_count = len(lines)
+show_range(1, min(40, line_count))
+mid = max(1, line_count // 2)
+show_range(max(1, mid - 20), min(line_count, mid + 20))
+show_range(max(1, line_count - 39), line_count)
+```
+
+```python
+from pathlib import Path
+import ast
+path = Path("workflow_orchestrator.py")
+text = path.read_text(encoding="utf-8")
+tree = ast.parse(text)
+symbols = []
+for node in ast.walk(tree):
+    if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+        symbols.append((node.lineno, getattr(node, "end_lineno", node.lineno), type(node).__name__, node.name))
+symbols.sort()
+```
+
+```python
+from pathlib import Path
+import re
+path = Path("workflow_orchestrator.py")
+lines = path.read_text(encoding="utf-8").splitlines()
+terms = ["schema", "validate", "validation", "prompt", "citation", "line", "file", "chunk", "orchestrator"]
+for term in terms:
+    pattern = re.compile(re.escape(term), re.IGNORECASE)
+    count = 0
+    for i, line in enumerate(lines, start=1):
+        if pattern.search(line):
+            count += 1
+    print(term, count)
+```
+
+## Errors or limitations
+
+None. No encoding, path, permission, dependency, or truncation issue blocked the required checks.
+
+## Conclusion
+
+This proves Codex has raw local-file access to `workflow_orchestrator.py` rather than relying only on chunked/indexed retrieval. The evidence includes direct filesystem metadata, byte-level EOF reads with SHA-256 and first/last bytes, exact character and line counts, exact line-numbered excerpts from beginning/middle/end, an AST symbol map with line ranges, and deterministic direct-file search results.
+```
