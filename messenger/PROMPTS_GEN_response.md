@@ -1957,3 +1957,61 @@ BLOCKERS: NONE
 
 CONFIRMATION REQUIRED:
 YES ? proceed to STEP 8 / prompt-schema contract sanity.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-26T05:59:20.3148882-05:00
+
+- Source URL: https://chatgpt.com/c/6a14ae59-c888-83ea-a7b7-5450def63ea8
+- Page title: PROMPTS_GEN_1
+- Local checkpoint time: `2026-05-26T05:59:20.3148882-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STATE EDIT:
+
+ACTION:
+
+Reviewed STEP 8 ? Validation 3: prompt/schema contract sanity only.
+
+SEARCH VALIDATION RESULT:
+
+File-grounded validation confirms STEP 8 records all contract checks as True, including:
+
+schema_1b_requires_spatial
+
+prompt_1b_supplies_spatial
+
+schema_aplus_requires_brand_story
+
+prompt_7_supplies_brand_story
+
+prompt_7_forbidden_old_key_absent
+
+schema_specs_rejects_top_package_contents
+
+prompt_8_extra_package_block_absent
+
+buyer-question alignments for images 2, 4, 5, and 7
+
+PATCH_SET_13_CONTRACT_SANITY_PASS 
+
+PROMPTS_GEN_Progress
+
+VALIDATED DECISION:
+
+PASS ? STEP 8 / prompt-schema contract sanity is confirmed.
+
+PATCH_SET_13 has passed its contract sanity gate.
+
+OUTPUT:
+
+PATCH_SET_13_STEP_8_PROMPT_SCHEMA_CONTRACT_SANITY_CONFIRMED
+STATUS: PASS
+CONTRACT_SANITY_RESULT: PATCH_SET_13_CONTRACT_SANITY_PASS
+NEXT_STEP: STEP 9 - STATE 10 RE-CHECK
+BLOCKERS: NONE
+
+CONFIRMATION REQUIRED:
+YES ? proceed to STEP 9 / STATE 10 re-check.
