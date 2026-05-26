@@ -819,3 +819,11 @@ PATCH_13C_VALIDATION_PASS
 {'spatial_image_contract': 1, 'product_dimensions': 1, 'product_3d_geometry': 1, 'component_interaction_rules': 1, 'photographer_scene_rules': 1, 'physics_constraints': 1, 'negative_spatial_constraints': 8}
 PATCH_13C_DIRECT_VERIFY_PASS
 ```
+
+
+## STEP 4 — PATCH_13D: Align image buyer-question constants
+
+```text
+PATCH_13D_DRY_RUN_PASS
+PATCH_13D_VALIDATION_PASS
+```
