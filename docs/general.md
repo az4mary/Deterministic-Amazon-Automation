@@ -5,3 +5,5 @@
 
 ## STEP 2 - <TITLE>
 ### Expected result/Output etc
+
+# Resume <blocked STEP #>
