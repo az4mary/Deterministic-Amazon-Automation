@@ -725,3 +725,11 @@ PATCH_12T_STATE_CAPTURE_METHODS_OK
 {'prompts_exists': True, 'workflow_exists': True, 'state_json_preserved': True}
 PATCH_13_CLEANUP_VALIDATION_PASS
 ```
+
+
+## STEP 0 — Cleanup before PATCH_SET_13
+
+```text
+{'prompts_exists': True, 'workflow_exists': True, 'state_json_preserved': True}
+PATCH_13_CLEANUP_VALIDATION_PASS
+```
