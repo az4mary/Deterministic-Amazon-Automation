@@ -324,6 +324,45 @@ Use direct filesystem inspection only.
 
 ---
 
+# CODE_MANAGE Messenger Checkpoint - 2026-05-26T14:03:16.0082122-05:00
+
+- Source URL: https://chatgpt.com/c/6a15ab66-1080-83ea-a8ab-38e06a452642
+- Page title: CODE_MANAGE
+- Local checkpoint time: `2026-05-26T14:03:16.0082122-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+Confirmed: STEP 10 is complete. It passed schema-vs-prompts.md validation, found no production patch requirement, and recommends STEP 11 tests to lock the current schema/prompt alignment. 
+
+CODE_MANAGE_Progress
+
+Use this reply to Codex:
+
+Markdown
+Confirmed: STEP 10 is complete.
+
+Approved concrete action for STEP 11:
+
+Create focused tests for schema/prompt alignment covering:
+
+- `schema_1b`
+- `schema_aplus`
+- `schema_specs`
+- `schema_image_prompt`
+
+Create a minimal test file, preferably:
+
+`tests/test_schema_prompt_alignment.py`
+
+The tests should verify that the required schema keys remain present in `docs/prompts.md`.
+
+Do not modify production code in STEP 11.
+Do not patch the parser yet.
+Run the narrowest relevant pytest command after creating the tests.
+
+---
+
 # CODE_MANAGE Messenger Checkpoint - 2026-05-26T13:48:49.2866708-05:00
 
 - Source URL: https://chatgpt.com/c/6a15ab66-1080-83ea-a8ab-38e06a452642
