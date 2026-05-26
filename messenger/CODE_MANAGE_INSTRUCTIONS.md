@@ -1063,20 +1063,3 @@ State whether the changes are ready for manager review, need another Codex fix p
 Stop after STEP 14.
 
 ---
-
-# Final completion condition
-
-This STEP 8 - STEP 14 sequence is complete only when Codex has produced:
-
-1. Repo inspection report.
-2. Caller discovery report.
-3. Schema-vs-prompts validation report.
-4. Test-writing report.
-5. Parser patch report.
-6. Validation stack report.
-7. Diff package report.
-
-Do not proceed from one step to the next without user confirmation.
-
-```
-```
