@@ -863,11 +863,7 @@ Paste `git diff` or write it to a report file if too long.
 
 List any behavior changes or remaining edge cases.
 
-## Next recommended step
-
 Proceed to STEP 13 after user confirmation.
-
-````
 
 Stop after STEP 12.
 
