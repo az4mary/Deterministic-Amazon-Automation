@@ -285,9 +285,7 @@ List any errors, missing dependencies, encoding issues, path issues, permission 
 
 State whether this proves Codex has raw local-file access rather than chunked/indexed retrieval access.
 ```
-Use this as the Codex handoff packet for **STEP 8 through STEP 14**.
 
-````md
 # Codex Task Brief: STEP 8 - STEP 14 Capability Validation
 
 ## Objective
@@ -430,7 +428,6 @@ Paste exact commands.
 ## Next recommended step
 
 Proceed to STEP 9 after user confirmation.
-```
 
 Stop after STEP 8.
 
