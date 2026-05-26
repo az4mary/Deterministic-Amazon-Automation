@@ -715,3 +715,5 @@ PATCH_12T_STATE_CAPTURE_STATIC_OK
 ```text
 PATCH_12T_STATE_CAPTURE_METHODS_OK
 ```
+
+PATCH_SET_13 — Prompt/schema contract cleanup to unblock STATE 10
