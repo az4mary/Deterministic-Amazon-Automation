@@ -285,3 +285,174 @@ List any errors, missing dependencies, encoding issues, path issues, permission 
 
 State whether this proves Codex has raw local-file access rather than chunked/indexed retrieval access.
 ```
+
+The raw-file ownership test is complete. Codex proved it can read `workflow_orchestrator.py` directly from the local filesystem, including byte-level EOF access, exact line count, line-numbered excerpts, AST symbols, and deterministic search. 
+
+What remains is everything **after single-file ownership**.
+
+## Status by task
+
+| Codex Desktop task                           |       Status | What still needs testing                                                                                                      |
+| -------------------------------------------- | -----------: | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Inspect this repo**                        |  **Partial** | Codex inspected one target file, not the whole repo. Need repo inventory, key file map, dependency/config/test discovery.     |
+| **Find every caller of this function**       | **Untested** | Need to pick a function and verify Codex can find all direct callers using `rg`, AST, and possibly import/reference analysis. |
+| **Validate the schema against `prompts.md`** | **Untested** | Need Codex to compare `workflow_orchestrator.py` schema builders against prompt files and report mismatches.                  |
+| **Write tests**                              | **Untested** | Need Codex to add focused tests for one behavior without broad refactoring.                                                   |
+| **Patch the parser**                         | **Untested** | Need an actual parser defect or improvement target.                                                                           |
+| **Run `pytest` / `ruff` / `mypy`**           | **Untested** | Need Codex to run the repo’s existing validation stack and report results.                                                    |
+| **Produce a diff**                           | **Untested** | Requires a controlled edit, then `git diff` / reviewable patch output.                                                        |
+
+## Recommended remaining test order
+
+### STEP 8 — Repo inspection test
+
+Purpose: prove Codex can inspect the **whole project**, not just one file.
+
+Expected output:
+
+```text
+repo root
+git branch/status
+top-level files/folders
+Python files
+prompt files
+test files
+config files
+dependency files
+entrypoints
+likely generated/output folders
+```
+
+No edits.
+
+---
+
+### STEP 9 — Caller-discovery test
+
+Purpose: prove Codex can trace references precisely.
+
+Use one known function from the AST map, for example:
+
+```text
+validate_initial_inputs
+build_schema
+run_step
+write_image_prompts
+```
+
+Expected output:
+
+```text
+target function definition line
+all direct callers
+all indirect relevant references
+search commands used
+AST/reference method used
+confidence level
+```
+
+No edits.
+
+---
+
+### STEP 10 — Schema-vs-prompts validation test
+
+Purpose: test the actual workflow concern.
+
+Codex should inspect:
+
+```text
+workflow_orchestrator.py
+docs/prompts.md
+docs/prompts/
+```
+
+Expected output:
+
+```text
+schema builders found
+prompt files found
+fields expected by schemas
+fields requested by prompts
+mismatches
+missing fields
+unused fields
+recommended patch, but no edit yet
+```
+
+No edits unless you approve.
+
+---
+
+### STEP 11 — Test-writing test
+
+Purpose: verify Codex can add a narrow regression test.
+
+Expected output:
+
+```text
+test file created or updated
+test target
+commands run
+pass/fail result
+git diff
+```
+
+This is the first step that should allow edits.
+
+---
+
+### STEP 12 — Parser patch test
+
+Purpose: verify Codex can make a minimal code change.
+
+Expected output:
+
+```text
+bug/defect identified
+minimal patch applied
+tests added or updated
+pytest/ruff/mypy results
+git diff
+```
+
+---
+
+### STEP 13 — Full validation test
+
+Purpose: verify Codex can run the project’s validation stack.
+
+Expected output:
+
+```text
+pytest result
+ruff result
+mypy result
+any skipped tools
+failures with exact files/lines
+```
+
+---
+
+### STEP 14 — Diff production test
+
+Purpose: verify Codex can package the work for review.
+
+Expected output:
+
+```text
+git status
+git diff --stat
+git diff
+files changed
+risk summary
+rollback notes
+```
+
+## Immediate next test
+
+The next logical test is:
+
+> **STEP 8 — Inspect this repo**
+
+That tests the broader capability you need before caller tracing, schema validation, tests, or patches.
