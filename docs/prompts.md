@@ -535,8 +535,7 @@ Do not suggest additional steps.
    "Attributes": {
      "attribute_name": "value"
    }
- },
- "package_contents": []
+ }
 }
 ```
 
