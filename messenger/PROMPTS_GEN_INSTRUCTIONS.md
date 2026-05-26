@@ -6566,3 +6566,844 @@ PATCH_12T_STATE_CAPTURE_METHODS_OK
 ---
 
 # Resume STEP 7 after PATCH_12T
+
+STATE EDIT:
+
+ACTION:
+
+* Built **PATCH_SET_13** using `PATCH_SET_FORMAT.md` as the execution template: cleanup → dry-run → atomic patches → validation. The attached guide establishes that each patch set should start with cleanup, then run dry-run assertions, then apply targeted edits, then validate with static checks. 
+* Kept the patch surface constrained to **`prompts.md`**, because STATE 10 is blocked by prompt/schema drift, not Python syntax.
+* Ran local dry-run checks against uploaded:
+
+  * `workflow_orchestrator(43).py`
+  * `prompts(13).md`
+  * `PATCH_SET_FORMAT.md`
+* Created a dry-run patched copy only: [prompts_PATCH_SET_13_DRY_RUN.md](sandbox:/mnt/data/prompts_PATCH_SET_13_DRY_RUN.md)
+* Did **not** mutate the original uploaded files.
+
+SEARCH VALIDATION RESULT:
+
+* Internal file validation confirms STATE 10 requires a production-ready script before STATE 11; current STATE 10 remains blocked until prompt/schema mismatches are patched. 
+* `SYSTEM_ORCHESTRATOR.md` enforces one-state output format and blocks uncontrolled implementation detail before later states, so PATCH_SET_13 must remain a controlled patch plan with dry-run gates. 
+* Online validation: use official/runtime-backed patching primitives rather than trial-and-error snippets. Python documents `os.replace()` as a cross-platform destination-overwrite operation that is atomic when successful, making it appropriate for temp-file → replace patch application. ([Python documentation][1]) Python’s `tempfile` documentation confirms visible named temporary files and Windows-specific reopen/delete behavior, so Windows patch scripts should avoid fragile open-handle temp replacement patterns. ([Python documentation][2])
+* Community-sourced snippets should not be trusted as-is: empirical Stack Overflow research found many snippets are not directly executable, and another study found obsolete answers often remain outdated. This supports using dry-run assertions and official docs rather than copying community patch recipes blindly. ([arXiv][3]) ([arXiv][4])
+
+VALIDATED DECISION:
+
+* **PATCH_SET_13 dry-run: PASS**
+* **STATE 10 remains BLOCKED until PATCH_SET_13 is applied to the real `prompts.md` and revalidated.**
+* PATCH_SET_13 should be applied as prompt-contract cleanup only. Do not patch `workflow_orchestrator.py` for this set unless revalidation proves the prompt fixes are insufficient.
+
+OUTPUT:
+
+# PATCH_SET_13 — Prompt/schema contract cleanup to unblock STATE 10
+
+Proceed with:
+
+```text
+PATCH_13A-D — align prompts.md with workflow_orchestrator.py strict schemas
+```
+
+## STEP 0 — Cleanup before PATCH_SET_13
+
+### Cleanup command
+
+```powershell
+Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
+Remove-Item -Force .\prompts_PATCH_SET_13_DRY_RUN.md -ErrorAction SilentlyContinue
+```
+
+Do **not** delete:
+
+* `workflow_state.json`
+* `image_prompts.json`
+* `image_content.json`
+* generated images
+* source data
+* logs
+
+### Cleanup validation
+
+```powershell
+@'
+from pathlib import Path
+
+checks = {
+    "prompts_exists": Path("docs/prompts.md").exists(),
+    "workflow_exists": Path("workflow_orchestrator.py").exists(),
+    "state_json_preserved": Path("output/workflow_state.json").exists(),
+}
+
+print(checks)
+
+assert checks["prompts_exists"] is True
+assert checks["workflow_exists"] is True
+print("PATCH_13_CLEANUP_VALIDATION_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_13_CLEANUP_VALIDATION_PASS
+```
+
+---
+
+## STEP 1 — PATCH_13A: Prompt 7 A+ schema key alignment
+
+### Reason
+
+`workflow_orchestrator.py` requires `amazon_aplus_content.brand_story`. The current prompt asks for `seller_or_brand_story`, which violates strict schema validation because `schema_aplus()` requires `brand_story` and disallows extra properties.  
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+checks = {
+    "seller_or_brand_story": text.count('"seller_or_brand_story": ""'),
+    "brand_story_exact": text.count('"brand_story": ""'),
+}
+
+print(checks)
+
+assert checks["seller_or_brand_story"] == 1
+assert checks["brand_story_exact"] == 0
+print("PATCH_13A_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### FIND
+
+```json
+"seller_or_brand_story": ""
+```
+
+### REPLACE
+
+```json
+"brand_story": ""
+```
+
+### Validation
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+assert '"seller_or_brand_story": ""' not in text
+assert text.count('"brand_story": ""') == 1
+
+print("PATCH_13A_VALIDATION_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_13A_VALIDATION_PASS
+```
+
+**Local dry-run result:** PASS.
+
+---
+
+## STEP 2 — PATCH_13B: Prompt 8 remove schema-rejected top-level `package_contents`
+
+### Reason
+
+`schema_specs()` allows only top-level `reference_tag` and `technical_specifications`; current Prompt 8 adds top-level `package_contents`. That is rejected by `additionalProperties: False`.  
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+target = '''{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ },
+ "package_contents": []
+}'''
+
+checks = {
+    "prompt8_extra_package_contents_block": text.count(target),
+}
+
+print(checks)
+
+assert checks["prompt8_extra_package_contents_block"] == 1
+print("PATCH_13B_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### FIND
+
+```json
+{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ },
+ "package_contents": []
+}
+```
+
+### REPLACE
+
+```json
+{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ }
+}
+```
+
+### Validation
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+invalid = '''{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ },
+ "package_contents": []
+}'''
+
+valid = '''{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ }
+}'''
+
+assert invalid not in text
+assert valid in text
+
+print("PATCH_13B_VALIDATION_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_13B_VALIDATION_PASS
+```
+
+**Local dry-run result:** PASS.
+
+---
+
+## STEP 3 — PATCH_13C: Prompt 1B add required `spatial_image_contract`
+
+### Reason
+
+`schema_1b()` requires `spatial_image_contract`, but Prompt 1B’s output block currently stops at `product_geometry`.  
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+target = ''' "product_geometry": {
+   "shape_description": "",
+   "proportions": "",
+   "relative_dimensions": ""
+ }
+}'''
+
+checks = {
+    "prompt1b_closing_product_geometry_block": text.count(target),
+    "spatial_image_contract_existing": text.count('"spatial_image_contract"'),
+}
+
+print(checks)
+
+assert checks["prompt1b_closing_product_geometry_block"] == 1
+assert checks["spatial_image_contract_existing"] == 0
+print("PATCH_13C_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### FIND
+
+```json
+ "product_geometry": {
+   "shape_description": "",
+   "proportions": "",
+   "relative_dimensions": ""
+ }
+}
+```
+
+### REPLACE
+
+```json
+ "product_geometry": {
+   "shape_description": "",
+   "proportions": "",
+   "relative_dimensions": ""
+ },
+
+ "spatial_image_contract": {
+   "product_dimensions": {
+     "exact_dimensions": "",
+     "dimension_source": "",
+     "dimension_status": "",
+     "relative_scale": ""
+   },
+   "product_3d_geometry": {
+     "overall_shape": "",
+     "front_face": "",
+     "rear_face": "",
+     "top_face": "",
+     "bottom_face": "",
+     "left_side": "",
+     "right_side": "",
+     "component_depth_relationships": ""
+   },
+   "component_interaction_rules": {
+     "mounting_or_support_logic": "",
+     "lens_or_primary_function_axis": "",
+     "screen_or_display_logic": "",
+     "controls_and_ports_logic": "",
+     "accessory_interaction_logic": ""
+   },
+   "photographer_scene_rules": {
+     "camera_pov_required": "",
+     "foreground_midground_background": "",
+     "focal_plane_and_depth_of_field": "",
+     "environment_sync_rules": "",
+     "scale_rules": ""
+   },
+   "physics_constraints": [],
+   "negative_spatial_constraints": []
+ }
+}
+```
+
+### Validation
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+required = [
+    '"spatial_image_contract"',
+    '"product_dimensions"',
+    '"product_3d_geometry"',
+    '"component_interaction_rules"',
+    '"photographer_scene_rules"',
+    '"physics_constraints"',
+    '"negative_spatial_constraints"',
+]
+
+for marker in required:
+    assert marker in text, marker
+
+print("PATCH_13C_VALIDATION_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_13C_VALIDATION_PASS
+```
+
+**Local dry-run result:** PASS.
+
+---
+
+## STEP 4 — PATCH_13D: Align image buyer-question constants
+
+### Reason
+
+`STEP_PLAN` uses exact `const` values in `schema_image_prompt()`. Current prompt text drifts from those exact strings. Example: step 13 requires `"Why do I need it?"`, while Prompt 13 says `"Why do I need this product?"`.  
+
+### Dry-run
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+checks = {
+    "why_this_product": text.count("Why do I need this product?"),
+    "when_this_product": text.count("When would I use this product?"),
+    "technology_this_product": text.count("What technology makes this product better?"),
+    "specs_or_technical": text.count("What specifications or technical details matter?"),
+}
+
+print(checks)
+
+assert checks["why_this_product"] >= 1
+assert checks["when_this_product"] >= 1
+assert checks["technology_this_product"] >= 1
+assert checks["specs_or_technical"] >= 1
+
+print("PATCH_13D_DRY_RUN_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+### Replacements
+
+#### FIND
+
+```text
+Why do I need this product?
+```
+
+#### REPLACE
+
+```text
+Why do I need it?
+```
+
+#### FIND
+
+```text
+When would I use this product?
+```
+
+#### REPLACE
+
+```text
+When would I use it?
+```
+
+#### FIND
+
+```text
+What technology makes this product better?
+```
+
+#### REPLACE
+
+```text
+What technology makes it better?
+```
+
+#### FIND
+
+```text
+What specifications or technical details matter?
+```
+
+#### REPLACE
+
+```text
+What specifications matter?
+```
+
+### Validation
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+old_values = [
+    "Why do I need this product?",
+    "When would I use this product?",
+    "What technology makes this product better?",
+    "What specifications or technical details matter?",
+]
+
+new_values = [
+    "Why do I need it?",
+    "When would I use it?",
+    "What technology makes it better?",
+    "What specifications matter?",
+]
+
+for old in old_values:
+    assert old not in text, old
+
+for new in new_values:
+    assert new in text, new
+
+print("PATCH_13D_VALIDATION_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_13D_VALIDATION_PASS
+```
+
+**Local dry-run result:** PASS.
+
+---
+
+## STEP 5 — Apply PATCH_SET_13 safely
+
+Use a temp-file + replace pattern. Official Python docs support `os.replace()` as a cross-platform overwrite primitive that is atomic when successful. ([Python documentation][1])
+
+```powershell
+@'
+from pathlib import Path
+import os
+import tempfile
+
+path = Path("docs/prompts.md")
+original = path.read_text(encoding="utf-8")
+patched = original
+
+replacements = [
+    ('   "seller_or_brand_story": ""', '   "brand_story": ""'),
+
+    ('''{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ },
+ "package_contents": []
+}''',
+'''{
+ "reference_tag": "",
+ "technical_specifications": {
+   "Brand": "",
+   "Product Name": "",
+   "Model": "",
+   "Color": "",
+   "Attributes": {
+     "attribute_name": "value"
+   }
+ }
+}'''),
+
+    (''' "product_geometry": {
+   "shape_description": "",
+   "proportions": "",
+   "relative_dimensions": ""
+ }
+}''',
+''' "product_geometry": {
+   "shape_description": "",
+   "proportions": "",
+   "relative_dimensions": ""
+ },
+
+ "spatial_image_contract": {
+   "product_dimensions": {
+     "exact_dimensions": "",
+     "dimension_source": "",
+     "dimension_status": "",
+     "relative_scale": ""
+   },
+   "product_3d_geometry": {
+     "overall_shape": "",
+     "front_face": "",
+     "rear_face": "",
+     "top_face": "",
+     "bottom_face": "",
+     "left_side": "",
+     "right_side": "",
+     "component_depth_relationships": ""
+   },
+   "component_interaction_rules": {
+     "mounting_or_support_logic": "",
+     "lens_or_primary_function_axis": "",
+     "screen_or_display_logic": "",
+     "controls_and_ports_logic": "",
+     "accessory_interaction_logic": ""
+   },
+   "photographer_scene_rules": {
+     "camera_pov_required": "",
+     "foreground_midground_background": "",
+     "focal_plane_and_depth_of_field": "",
+     "environment_sync_rules": "",
+     "scale_rules": ""
+   },
+   "physics_constraints": [],
+   "negative_spatial_constraints": []
+ }
+}'''),
+
+    ("Why do I need this product?", "Why do I need it?"),
+    ("When would I use this product?", "When would I use it?"),
+    ("What technology makes this product better?", "What technology makes it better?"),
+    ("What specifications or technical details matter?", "What specifications matter?"),
+]
+
+for find, replace in replacements:
+    if find not in patched:
+        raise SystemExit(f"PATCH_SET_13_APPLY_FAIL_MISSING_TARGET: {find[:120]}")
+    patched = patched.replace(find, replace)
+
+if patched == original:
+    raise SystemExit("PATCH_SET_13_APPLY_FAIL_NO_CHANGE")
+
+with tempfile.NamedTemporaryFile(
+    "w",
+    encoding="utf-8",
+    delete=False,
+    dir=str(path.parent),
+    prefix=path.name + ".",
+    suffix=".tmp",
+) as tmp:
+    tmp.write(patched)
+    tmp_path = Path(tmp.name)
+
+os.replace(tmp_path, path)
+
+print("PATCH_SET_13_APPLY_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_SET_13_APPLY_PASS
+```
+
+---
+
+## STEP 6 — Validation 1: compile current script
+
+```powershell
+D:\TOOLS\Python314\python.exe -m py_compile workflow_orchestrator.py
+```
+
+Expected:
+
+```text
+PASS / no output
+```
+
+**Local dry-run result:** PASS for uploaded `workflow_orchestrator(43).py`.
+
+---
+
+## STEP 7 — Validation 2: static marker check
+
+```powershell
+@'
+from pathlib import Path
+
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+required = [
+    '"brand_story": ""',
+    '"spatial_image_contract"',
+    '"product_dimensions"',
+    '"product_3d_geometry"',
+    '"component_interaction_rules"',
+    '"photographer_scene_rules"',
+    "Why do I need it?",
+    "When would I use it?",
+    "What technology makes it better?",
+    "What specifications matter?",
+]
+
+for marker in required:
+    assert marker in text, marker
+
+forbidden = [
+    '"seller_or_brand_story": ""',
+    "Why do I need this product?",
+    "When would I use this product?",
+    "What technology makes this product better?",
+    "What specifications or technical details matter?",
+]
+
+for marker in forbidden:
+    assert marker not in text, marker
+
+print("PATCH_SET_13_STATIC_MARKERS_OK")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_SET_13_STATIC_MARKERS_OK
+```
+
+**Local dry-run result:** PASS.
+
+---
+
+## STEP 8 — Validation 3: prompt/schema contract sanity
+
+```powershell
+@'
+from pathlib import Path
+
+workflow = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+prompts = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+checks = {
+    "schema_1b_requires_spatial": '"spatial_image_contract"' in workflow,
+    "prompt_1b_supplies_spatial": '"spatial_image_contract"' in prompts,
+
+    "schema_aplus_requires_brand_story": '"brand_story"' in workflow,
+    "prompt_7_supplies_brand_story": '"brand_story": ""' in prompts,
+    "prompt_7_forbidden_old_key_absent": '"seller_or_brand_story": ""' not in prompts,
+
+    "schema_specs_rejects_top_package_contents": 'def schema_specs' in workflow and '"technical_specifications"' in workflow,
+    "prompt_8_extra_package_block_absent": ' },\n "package_contents": []\n}' not in prompts,
+
+    "buyer_2_aligned": "Why do I need it?" in prompts,
+    "buyer_4_aligned": "When would I use it?" in prompts,
+    "buyer_5_aligned": "What technology makes it better?" in prompts,
+    "buyer_7_aligned": "What specifications matter?" in prompts,
+}
+
+print(checks)
+
+failed = [key for key, ok in checks.items() if not ok]
+if failed:
+    raise SystemExit("PATCH_SET_13_CONTRACT_SANITY_FAIL: " + ", ".join(failed))
+
+print("PATCH_SET_13_CONTRACT_SANITY_PASS")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+PATCH_SET_13_CONTRACT_SANITY_PASS
+```
+
+**Local dry-run result:** PASS.
+
+---
+
+## STEP 9 — Validation 4: STATE 10 re-check
+
+```powershell
+@'
+from pathlib import Path
+import py_compile
+
+py_compile.compile("workflow_orchestrator.py", doraise=True)
+
+prompts = Path("docs/prompts.md").read_text(encoding="utf-8")
+
+required = [
+    '"brand_story": ""',
+    '"spatial_image_contract"',
+    "Why do I need it?",
+    "When would I use it?",
+    "What technology makes it better?",
+    "What specifications matter?",
+]
+
+for marker in required:
+    assert marker in prompts, marker
+
+forbidden = [
+    '"seller_or_brand_story": ""',
+    "Why do I need this product?",
+    "When would I use this product?",
+    "What technology makes this product better?",
+    "What specifications or technical details matter?",
+]
+
+for marker in forbidden:
+    assert marker not in prompts, marker
+
+print("STATE_10_REVALIDATION_READY_FOR_STATE_11")
+'@ | D:\TOOLS\Python314\python.exe -
+```
+
+Expected:
+
+```text
+STATE_10_REVALIDATION_READY_FOR_STATE_11
+```
+
+---
+
+## Local dry-run summary
+
+| Check                                                 | Result |
+| ----------------------------------------------------- | -----: |
+| Uploaded `workflow_orchestrator(43).py` compiles      |   PASS |
+| PATCH_13A target appears exactly once                 |   PASS |
+| PATCH_13B target appears exactly once                 |   PASS |
+| PATCH_13C target appears exactly once                 |   PASS |
+| PATCH_13D buyer-question replacements present         |   PASS |
+| In-memory patched prompt removes old keys/phrasing    |   PASS |
+| In-memory patched prompt adds required schema markers |   PASS |
+| Dry-run patched copy created                          |   PASS |
+
+## Troubleshooting reserve
+
+If any validation fails, do **not** proceed by guessing. Use this diagnostic order:
+
+1. Re-run the dry-run count for the failed patch only.
+2. Confirm whether the target text changed due to whitespace or prior manual edits.
+3. Use section-scoped search: inspect only `# PROMPT 1B`, `# PROMPT 7`, `# PROMPT 8`, and image prompt sections.
+4. Do not batch new edits into PATCH_SET_13; create PATCH_SET_13B if the file has diverged.
+5. Do not modify `workflow_orchestrator.py` until `prompts.md` is contract-clean.
+
+CONFIRMATION REQUIRED:
+YES — Apply PATCH_SET_13 to the real `docs/prompts.md`, then re-run STEP 6 through STEP 9.
+
+[1]: https://docs.python.org/3/library/os.html "os — Miscellaneous operating system interfaces — Python 3.14.5 documentation"
+[2]: https://docs.python.org/3/library/tempfile.html "tempfile — Generate temporary files and directories — Python 3.14.5 documentation"
+[3]: https://arxiv.org/abs/1907.04908?utm_source=chatgpt.com "Executability of Python Snippets in Stack Overflow"
+[4]: https://arxiv.org/abs/1903.12282?utm_source=chatgpt.com "An Empirical Study of Obsolete Answers on Stack Overflow"
