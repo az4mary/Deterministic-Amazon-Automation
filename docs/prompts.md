@@ -967,7 +967,7 @@ Generate the image-generation prompt for Image 2 of the Amazon listing.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 2 → Why do I need this product?
+Image 2 → Why do I need it?
 
 **IMAGE ROLE**
 Feature / Core Benefit Image
@@ -1033,7 +1033,7 @@ Do not suggest additional steps.
  "image_strategy": {
    "image_number": 2,
    "image_type": "Core Benefit Image",
-   "buyer_question": "Why do I need this product?",
+   "buyer_question": "Why do I need it?",
    "layout_description": "",
    "headline_text": "",
    "supporting_text": "",
@@ -1085,7 +1085,7 @@ Generate Image 2 for the Amazon listing based on the previously created prompt.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 2 → Why do I need this product?
+Image 2 → Why do I need it?
 
 **IMAGE ROLE**
 Core Benefit / Feature Image
@@ -1359,7 +1359,7 @@ Generate the image-generation prompt for Image 4 of the Amazon listing.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 4 → When would I use this product?
+Image 4 → When would I use it?
 
 **IMAGE ROLE**
 Lifestyle / Real-World Use Image
@@ -1425,7 +1425,7 @@ OUTPUT FORMAT (JSON)
  "image_strategy": {
    "image_number": 4,
    "image_type": "Lifestyle Use Image",
-   "buyer_question": "When would I use this product?",
+   "buyer_question": "When would I use it?",
    "layout_description": "",
    "headline_text": "",
    "supporting_text": "",
@@ -1477,7 +1477,7 @@ Generate Image 4 for the Amazon listing using the prepared image strategy.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 4 → When would I use this product?
+Image 4 → When would I use it?
 
 **IMAGE ROLE**
 Lifestyle / Real-World Use Image
@@ -1555,7 +1555,7 @@ Generate the image-generation prompt for Image 5 of the Amazon listing.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 5 → What technology makes this product better?
+Image 5 → What technology makes it better?
 
 **IMAGE ROLE**
 Technology / Capability Feature Image
@@ -1621,7 +1621,7 @@ OUTPUT FORMAT (JSON)
  "image_strategy": {
    "image_number": 5,
    "image_type": "Technology Feature Image",
-   "buyer_question": "What technology makes this product better?",
+   "buyer_question": "What technology makes it better?",
    "layout_description": "",
    "headline_text": "",
    "supporting_text": "",
@@ -1673,7 +1673,7 @@ Generate Image 5 for the Amazon listing using the prepared image strategy.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 5 → What technology makes this product better?
+Image 5 → What technology makes it better?
 
 **IMAGE ROLE**
 Technology / Capability Feature Image
@@ -1947,7 +1947,7 @@ Generate the image-generation prompt for Image 7 of the Amazon listing.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 7 → What specifications or technical details matter?
+Image 7 → What specifications matter?
 
 **IMAGE ROLE**
 Specifications / Feature Overview Infographic
@@ -2065,7 +2065,7 @@ Generate Image 7 for the Amazon listing using the prepared image strategy.
 Use only IMAGE_CONTEXT_JSON and separately attached reference product images; do not assume category, product type, accessories, specifications, features, or visual details beyond those supplied inputs.
 
 **BUYER QUESTION THIS IMAGE MUST ANSWER**
-Image 7 → What specifications or technical details matter?
+Image 7 → What specifications matter?
 
 **IMAGE ROLE**
 Specifications / Feature Overview Infographic
