@@ -1,3 +1,3 @@
-# CODE_MANAGE Messenger Checkpoints
+# CODE_MANAGE Messenger Checkpoint Log
 
-No CODE_MANAGE messenger response has been extracted yet.
+No CODE_MANAGE messenger checkpoint has been extracted yet.
