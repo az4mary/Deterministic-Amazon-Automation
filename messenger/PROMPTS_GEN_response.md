@@ -1442,3 +1442,57 @@ Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
 
 CONFIRMATION REQUIRED:
 YES ? confirm git status --short and whether docs/prompts.md appears in the changed-file list.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-26T04:51:36.2046865-05:00
+
+- Source URL: https://chatgpt.com/c/6a14ae59-c888-83ea-a7b7-5450def63ea8
+- Page title: PROMPTS_GEN_1
+- Local checkpoint time: `2026-05-26T04:51:36.2046865-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STATE EDIT:
+
+ACTION:
+
+Reviewed ADDITIONAL CLEANUP VERIFICATION ? PATCH_SET_13 only.
+
+Confirmed __pycache__ cleanup: PASS.
+
+Confirmed generated images and image JSON should not be deleted.
+
+Confirmed git stash list has one stash and git stash show includes prior files/artifacts.
+
+Confirmed docs/prompts.md appears in changed-file list: NO. 
+
+PROMPTS_GEN_Progress
+
+SEARCH VALIDATION RESULT:
+
+File-grounded validation completed against attached PROMPTS_GEN_Progress(90).md.
+
+No additional checks performed.
+
+VALIDATED DECISION:
+
+Cleanup verification: PASS with one warning.
+
+Cleanup itself is fine.
+
+Warning: docs/prompts.md is not in the changed-file list, so PATCH_SET_13 prompt edits are either already committed, not applied to the real repo file, or not tracked in the current working tree.
+
+OUTPUT:
+
+PATCH_SET_13_CLEANUP_VERIFICATION_CONFIRMED
+STATUS: PASS_WITH_WARNING
+__PYCACHE__CLEANUP: PASS
+DELETE_GENERATED_IMAGES: NO
+DELETE_IMAGE_JSON: NO
+DOCS_PROMPTS_CHANGED: NO
+WARNING: Verify docs/prompts.md directly before treating PATCH_SET_13 as fully applied.
+
+CONFIRMATION REQUIRED:
+YES ? direct-verify docs/prompts.md contains PATCH_13A before confirming PATCH_SET_13 beyond cleanup.
