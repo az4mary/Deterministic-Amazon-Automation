@@ -1395,21 +1395,3 @@ Expected result:
 * Stop for user confirmation.
 
 ````
-
-```md
-# Installation_13 - Validation Toolchain Installation
-
-Deferred.
-
-Do not execute installation yet.
-
-Installation steps will be provided only after Diagnostic_13 confirms the actual missing tools and the user approves installation.
-````
-
-```md
-# Resume 13
-
-Deferred.
-
-Do not resume STEP 13 until after Installation_13 completes and the installed tools are verified.
-```
