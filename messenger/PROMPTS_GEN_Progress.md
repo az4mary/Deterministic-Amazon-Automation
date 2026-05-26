@@ -835,3 +835,10 @@ PATCH_13D_VALIDATION_PASS
 {'Why do I need this product?': 0, 'When would I use this product?': 0, 'What technology makes this product better?': 0, 'What specifications or technical details matter?': 0, 'Why do I need it?': 3, 'When would I use it?': 3, 'What technology makes it better?': 3, 'What specifications matter?': 3}
 PATCH_13D_DIRECT_VERIFY_PASS
 ```
+
+
+## STEP 5 — Apply PATCH_SET_13 safely
+
+```text
+PATCH_SET_13_APPLY_PASS
+```
