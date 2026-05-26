@@ -795,3 +795,11 @@ PATCH_13A_DIRECT_VERIFY_PASS
 PATCH_13B_DRY_RUN_PASS
 PATCH_13B_VALIDATION_PASS
 ```
+
+
+## DIRECT VERIFY — PATCH_13B real docs/prompts.md
+
+```text
+{'prompt8_invalid_block': 0, 'prompt8_valid_block': 1}
+PATCH_13B_DIRECT_VERIFY_PASS
+```
