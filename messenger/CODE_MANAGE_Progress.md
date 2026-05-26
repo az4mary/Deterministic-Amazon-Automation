@@ -412,7 +412,6 @@ None. No encoding, path, permission, dependency, or truncation issue blocked the
 ## Conclusion
 
 This proves Codex has raw local-file access to `workflow_orchestrator.py` rather than relying only on chunked/indexed retrieval. The evidence includes direct filesystem metadata, byte-level EOF reads with SHA-256 and first/last bytes, exact character and line counts, exact line-numbered excerpts from beginning/middle/end, an AST symbol map with line ranges, and deterministic direct-file search results.
-```
 
 ## STEP 8 - Inspect this repo
 
