@@ -856,3 +856,11 @@ PASS / no output
 ```text
 PATCH_SET_13_STATIC_MARKERS_OK
 ```
+
+
+## STEP 8 — Validation 3: prompt/schema contract sanity
+
+```text
+{'schema_1b_requires_spatial': True, 'prompt_1b_supplies_spatial': True, 'schema_aplus_requires_brand_story': True, 'prompt_7_supplies_brand_story': True, 'prompt_7_forbidden_old_key_absent': True, 'schema_specs_rejects_top_package_contents': True, 'prompt_8_extra_package_block_absent': True, 'buyer_2_aligned': True, 'buyer_4_aligned': True, 'buyer_5_aligned': True, 'buyer_7_aligned': True}
+PATCH_SET_13_CONTRACT_SANITY_PASS
+```
