@@ -1,20 +1,4 @@
-PATCH_12Q is **functionally past submit**. The remaining block is now **post-submit capture stability**, plus one upload-readiness gap from the first attempt.
-
-## Diagnosis
-
-1. **First attempt submitted too early** because the current clipboard paste path uses fixed sleeps only. It waits `FLOW_CLIPBOARD_PASTE_WAIT_SECONDS` after each paste and `FLOW_CLIPBOARD_FINAL_SETTLE_SECONDS` at the end, but it does **not** enforce:
-   `composer_reference_count >= source_image_count` before submit. 
-
-2. **Second attempt submitted correctly.** Your trace shows the correct composer submit button was found and clicked:
-
-```text
-Flow: Click submit | {"button_index": 55, "label": "arrow_forward\nCreate"}
-Flow: Submitted
-```
-
-3. **The crash occurred after submit inside capture**, not during submit. The traceback is from `_capture_flow_generated_image_base64()` at `page.wait_for_timeout(1000)`. Current capture loops candidate scanning and then sleeps, but that sleep is not protected against `TargetClosedError`, so if Flow closes/replaces the page/context/browser during or after generation, Playwright throws a raw exception instead of controlled recovery/failure. 
-
-4. `execute_image()` still calls capture immediately after `_submit_flow_prompt(...)`, so capture must tolerate Flow page replacement/closure and re-resolve the active Flow page if possible. 
+# PATCH_SET_12 - TITLE
 
 Proceed with:
 
@@ -375,31 +359,4 @@ Expected:
 
 ```text
 PATCH_12R_UPLOAD_READY_CAPTURE_RESILIENCE_METHODS_OK
-```
-
-## STEP 8 - R-Validation 4: Resume STEP 7 after PATCH_12R
-
-Use the same resume command.
-
-Expected new trace checkpoints:
-
-```text
-Flow: Waiting for pasted reference uploads to finish
-Flow: Reference uploads ready
-Flow: Prompt filled; preparing submit click
-Flow: Click submit
-Flow: Submitted
-Flow: Flow capture scan started
-Flow: Flow generated image captured
-```
-
-Forbidden:
-
-```text
-FLOW_REFERENCE_UPLOAD_NOT_READY
-TargetClosedError
-Page.wait_for_timeout: Target page, context or browser has been closed
-FLOW_SUBMIT_PROMPT_BOX_RECT_MISSING
-clicked gallery image
-download uploaded image
 ```
