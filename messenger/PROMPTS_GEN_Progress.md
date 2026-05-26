@@ -803,3 +803,11 @@ PATCH_13B_VALIDATION_PASS
 {'prompt8_invalid_block': 0, 'prompt8_valid_block': 1}
 PATCH_13B_DIRECT_VERIFY_PASS
 ```
+
+
+## STEP 3 — PATCH_13C: Prompt 1B add required `spatial_image_contract`
+
+```text
+PATCH_13C_DRY_RUN_PASS
+PATCH_13C_VALIDATION_PASS
+```
