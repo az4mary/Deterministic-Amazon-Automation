@@ -5,19 +5,22 @@ STEPS should be in this format:
 # Diagnostic_<blocked STEP #> - <TITLE>
 
 ## STEP 1 - <TITLE>
-### Expected result/Output etc
+### <Actual diagnostic, test, run etc>
+### <Expected results, feedback, output etc>
+
 
 ## STEP 2 - <TITLE>
-### Expected result/Output etc
-
+### <Actual diagnostic, test, run etc>
+### <Expected results, feedback, output etc>
 ---
 
 # Installation_<blocked STEP #> - <TITLE>
 
 ## STEP 1 - <TITLE>
-### Expected result/Output etc
-
+### <Actual installation, test, run etc>
+### <Expected results, feedback, output etc>
 ## STEP 2 - <TITLE>
-### Expected result/Output etc
+### <Actual installation, test, run etc>
+### <Expected results, feedback, output etc>
 
 # Resume <blocked STEP #>
