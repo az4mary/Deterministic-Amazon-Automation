@@ -787,3 +787,11 @@ DELETE_IMAGE_JSON: NO
 {'seller_or_brand_story': 0, 'brand_story_exact': 1}
 PATCH_13A_DIRECT_VERIFY_PASS
 ```
+
+
+## STEP 2 — PATCH_13B: Prompt 8 remove schema-rejected top-level `package_contents`
+
+```text
+PATCH_13B_DRY_RUN_PASS
+PATCH_13B_VALIDATION_PASS
+```
