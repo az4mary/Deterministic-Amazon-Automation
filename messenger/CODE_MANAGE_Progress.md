@@ -1086,3 +1086,165 @@ git status --short
 
 Proceed to STEP 14 after confirmation.
 ````
+
+## STEP 14 - Produce a diff
+
+````md
+# STEP 14 Diff Package Report
+
+## Verdict
+
+PARTIAL
+
+## Changed files
+
+- `tests/test_schema_prompt_alignment.py` - test
+- `tests/__pycache__/test_schema_prompt_alignment.cpython-314.pyc` - generated/output
+
+## Diff stat
+
+`git diff --stat` produced no output because the current changed files are untracked.
+
+Explicit untracked test-file diff stat:
+
+```text
+ /dev/null => tests/test_schema_prompt_alignment.py | 91 ++++++++++++++++++++++
+ 1 file changed, 91 insertions(+)
+```
+
+## Full diff
+
+`git diff` produced no output because the current changed files are untracked.
+
+Explicit untracked test-file diff:
+
+```diff
+diff --git a/tests/test_schema_prompt_alignment.py b/tests/test_schema_prompt_alignment.py
+new file mode 100644
+index 0000000..2531c92
+--- /dev/null
++++ b/tests/test_schema_prompt_alignment.py
+@@ -0,0 +1,91 @@
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parents[1]
++WORKFLOW = ROOT / "workflow_orchestrator.py"
++PROMPTS = ROOT / "docs" / "prompts.md"
++
++
++def read_workflow() -> str:
++    return WORKFLOW.read_text(encoding="utf-8")
++
++
++def read_prompts() -> str:
++    return PROMPTS.read_text(encoding="utf-8")
++
++
++def test_schema_1b_spatial_contract_keys_present_in_prompts() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    required = [
++        '"spatial_image_contract"',
++        '"product_dimensions"',
++        '"product_3d_geometry"',
++        '"component_interaction_rules"',
++        '"photographer_scene_rules"',
++        '"physics_constraints"',
++        '"negative_spatial_constraints"',
++    ]
++
++    for marker in required:
++        assert marker in workflow
++        assert marker in prompts
++
++
++def test_schema_aplus_uses_brand_story_prompt_key() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    assert '"brand_story"' in workflow
++    assert '"brand_story": ""' in prompts
++    assert '"seller_or_brand_story": ""' not in prompts
++
++
++def test_schema_specs_matches_prompt_technical_specifications_shape() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    required = [
++        '"technical_specifications"',
++        '"Brand"',
++        '"Product Name"',
++        '"Model"',
++        '"Color"',
++        '"Attributes"',
++    ]
++
++    for marker in required:
++        assert marker in workflow
++        assert marker in prompts
++
++    assert ' },\n "package_contents": []\n}' not in prompts
++
++
++def test_schema_image_prompt_buyer_questions_match_step_plan() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    required_questions = [
++        "What is this product?",
++        "Why do I need it?",
++        "What problem does this product solve?",
++        "When would I use it?",
++        "What technology makes it better?",
++        "How easy is it to install or use?",
++        "What specifications matter?",
++    ]
++
++    for question in required_questions:
++        assert question in workflow
++        assert question in prompts
++
++    forbidden_questions = [
++        "Why do I need this product?",
++        "When would I use this product?",
++        "What technology makes this product better?",
++        "What specifications or technical details matter?",
++    ]
++
++    for question in forbidden_questions:
++        assert question not in prompts
+```
+
+No textual diff was produced for `tests/__pycache__/test_schema_prompt_alignment.cpython-314.pyc`.
+
+## Validation summary
+
+- pytest: skipped/unavailable - `D:\TOOLS\Python314\python.exe: No module named pytest`
+- ruff: skipped/unavailable - module and command unavailable
+- mypy: skipped/unavailable - module and command unavailable
+
+## Review notes
+
+- What changed: STEP 11 added a focused schema/prompt alignment test file.
+- Why it changed: CODE_MANAGE approved tests to lock the current schema/prompt alignment after STEP 10 found no production patch requirement.
+- How to review it: inspect `tests/test_schema_prompt_alignment.py` and verify the marker assertions match `workflow_orchestrator.py` and `docs/prompts.md`.
+- Rollback approach: remove the untracked `tests/` directory if CODE_MANAGE or the user rejects the test artifact.
+
+## Commands run
+
+```powershell
+git status --short
+git status --short --untracked-files=all
+git diff --stat
+git diff
+git diff --no-index --stat -- /dev/null tests/test_schema_prompt_alignment.py
+git diff --no-index -- /dev/null tests/test_schema_prompt_alignment.py
+```
+
+## Final recommendation
+
+Ready for manager review as a diff package, with validation limited by unavailable local tools.
+````
