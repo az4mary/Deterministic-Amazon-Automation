@@ -948,3 +948,76 @@ index 0000000..2531c92
 
 Proceed to STEP 12 after confirmation. Because STEP 10 found no production patch requirement, STEP 12 should either be recorded as no production parser patch needed or CODE_MANAGE should provide a concrete parser/source target before any production edit.
 ````
+
+## STEP 12 - Patch the parser
+
+````md
+# STEP 12 Parser Patch Report
+
+## Verdict
+
+PASS
+
+## Defect patched
+
+No production parser defect was patched.
+
+CODE_MANAGE confirmed STEP 12 should be recorded as a no-op production parser patch because STEP 10 found no schema-vs-prompt mismatch and STEP 11 added alignment tests only.
+
+## Files changed
+
+No files were changed during STEP 12.
+
+Existing STEP 11 artifact preserved:
+
+- `tests/test_schema_prompt_alignment.py`
+
+## Functions changed
+
+None.
+
+## Patch summary
+
+No production code was modified.
+
+`workflow_orchestrator.py` was not edited.
+
+## Commands run
+
+```powershell
+git status --short
+git diff --stat
+git diff
+python -m pytest
+python -m py_compile tests\test_schema_prompt_alignment.py
+git status --short
+git diff --stat
+git diff
+```
+
+## Results
+
+- Relevant tests: `python -m py_compile tests\test_schema_prompt_alignment.py` passed.
+- Full pytest: `python -m pytest` failed because `pytest` is not installed.
+  - Exit code: `1`
+  - Error: `D:\TOOLS\Python314\python.exe: No module named pytest`
+
+## Git diff summary
+
+```text
+?? tests/
+```
+
+`git diff --stat` produced no output.
+
+## Full diff
+
+`git diff` produced no output.
+
+## Risks
+
+- `pytest` remains unavailable in the local Python environment.
+- The STEP 11 test file is still untracked and preserved.
+
+Proceed to STEP 13 after confirmation.
+````
