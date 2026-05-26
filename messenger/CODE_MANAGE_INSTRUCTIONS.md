@@ -1063,3 +1063,353 @@ State whether the changes are ready for manager review, need another Codex fix p
 Stop after STEP 14.
 
 ---
+
+# Diagnostic_13 - Validation Toolchain Availability
+
+## STEP 1 - Confirm Python executable and version
+### Expected result/Output etc
+
+Run:
+
+```powershell
+python --version
+python -c "import sys; print(sys.executable); print(sys.version)"
+where python
+````
+
+Expected output:
+
+* Python version is printed.
+* Absolute Python executable path is printed.
+* `where python` shows the executable path(s).
+* Record whether Codex is using the expected project Python interpreter.
+
+Stop condition:
+
+* If Python is unavailable, block immediately and report `Python unavailable`.
+
+---
+
+## STEP 2 - Confirm pip availability
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+python -m pip --version
+python -m pip list
+```
+
+Expected output:
+
+* `pip` version is printed.
+* Installed package list is printed.
+* Record whether `pip` is available for the same Python interpreter used by `python`.
+
+Stop condition:
+
+* If `pip` is unavailable, block and report `pip unavailable`.
+
+---
+
+## STEP 3 - Check whether pytest is installed as a Python module
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+python -m pytest --version
+python -c "import pytest; print(pytest.__version__)"
+```
+
+Expected output:
+
+* `pytest` version is printed if installed.
+* If unavailable, capture exact error.
+
+Record:
+
+* installed: yes/no
+* version:
+* command result:
+* error if missing:
+
+---
+
+## STEP 4 - Check whether pytest is available as a command
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+pytest --version
+where pytest
+```
+
+Expected output:
+
+* `pytest` command version is printed if available.
+* `where pytest` prints path if available.
+* If unavailable, capture exact PowerShell error.
+
+Record:
+
+* command available: yes/no
+* path:
+* version:
+* error if missing:
+
+---
+
+## STEP 5 - Check whether ruff is installed as a Python module
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+python -m ruff --version
+python -c "import ruff; print('ruff module import ok')"
+```
+
+Expected output:
+
+* `ruff` version is printed if installed.
+* If unavailable, capture exact error.
+
+Record:
+
+* installed: yes/no
+* version:
+* command result:
+* error if missing:
+
+---
+
+## STEP 6 - Check whether ruff is available as a command
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+ruff --version
+where ruff
+```
+
+Expected output:
+
+* `ruff` command version is printed if available.
+* `where ruff` prints path if available.
+* If unavailable, capture exact PowerShell error.
+
+Record:
+
+* command available: yes/no
+* path:
+* version:
+* error if missing:
+
+---
+
+## STEP 7 - Check whether mypy is installed as a Python module
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+python -m mypy --version
+python -c "import mypy; print('mypy module import ok')"
+```
+
+Expected output:
+
+* `mypy` version is printed if installed.
+* If unavailable, capture exact error.
+
+Record:
+
+* installed: yes/no
+* version:
+* command result:
+* error if missing:
+
+---
+
+## STEP 8 - Check whether mypy is available as a command
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+mypy --version
+where mypy
+```
+
+Expected output:
+
+* `mypy` command version is printed if available.
+* `where mypy` prints path if available.
+* If unavailable, capture exact PowerShell error.
+
+Record:
+
+* command available: yes/no
+* path:
+* version:
+* error if missing:
+
+---
+
+## STEP 9 - Check for project dependency/config files
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+Get-ChildItem -Force -File pyproject.toml,requirements.txt,setup.cfg,setup.py,pytest.ini,mypy.ini,ruff.toml,.ruff.toml,tox.ini -ErrorAction SilentlyContinue | Select-Object Name,FullName
+```
+
+Also run:
+
+```powershell
+rg --files | rg "pyproject\.toml|requirements\.txt|setup\.cfg|setup\.py|pytest\.ini|mypy\.ini|ruff\.toml|\.ruff\.toml|tox\.ini"
+```
+
+Expected output:
+
+* List any project config/dependency files.
+* If none exist, report `No dependency/config files found`.
+
+Record:
+
+* dependency files found:
+* pytest config found:
+* ruff config found:
+* mypy config found:
+
+---
+
+## STEP 10 - Check current Git status before any installation
+
+### Expected result/Output etc
+
+Run:
+
+```powershell
+git status --short --untracked-files=all
+```
+
+Expected output:
+
+* Current untracked/modified files are shown.
+* Confirm no installation or cleanup was performed during diagnostic.
+
+Record:
+
+* modified files:
+* untracked files:
+* generated files:
+
+---
+
+## STEP 11 - Produce Diagnostic_13 report and block
+
+### Expected result/Output etc
+
+Produce this report:
+
+```md
+# Diagnostic_13 Report - Validation Toolchain Availability
+
+## Verdict
+
+BLOCKED / READY
+
+## Python
+
+- Version:
+- Executable:
+- `where python`:
+- Notes:
+
+## pip
+
+- Available: yes/no
+- Version:
+- Notes:
+
+## pytest
+
+- Python module available: yes/no
+- Python module version:
+- Command available: yes/no
+- Command path:
+- Error if missing:
+
+## ruff
+
+- Python module available: yes/no
+- Python module version:
+- Command available: yes/no
+- Command path:
+- Error if missing:
+
+## mypy
+
+- Python module available: yes/no
+- Python module version:
+- Command available: yes/no
+- Command path:
+- Error if missing:
+
+## Project config/dependency files
+
+List discovered files, or state none found.
+
+## Git status
+
+Paste `git status --short --untracked-files=all`.
+
+## Conclusion
+
+State whether STEP 13 can proceed or must remain blocked.
+
+## Next action
+
+Stop and wait for user confirmation before installation, cleanup, or resume.
+```
+
+Expected result:
+
+* If `pytest`, `ruff`, or `mypy` are missing, verdict must be `BLOCKED`.
+* Do not proceed to STEP 13 validation.
+* Do not proceed to STEP 14 diff.
+* Do not install anything.
+* Stop for user confirmation.
+
+````
+
+```md
+# Installation_13 - Validation Toolchain Installation
+
+Deferred.
+
+Do not execute installation yet.
+
+Installation steps will be provided only after Diagnostic_13 confirms the actual missing tools and the user approves installation.
+````
+
+```md
+# Resume 13
+
+Deferred.
+
+Do not resume STEP 13 until after Installation_13 completes and the installed tools are verified.
+```
