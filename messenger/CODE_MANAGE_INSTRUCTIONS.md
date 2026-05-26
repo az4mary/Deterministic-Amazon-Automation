@@ -1067,7 +1067,7 @@ Stop after STEP 14.
 # Diagnostic_13 - Validation Toolchain Availability
 
 ## STEP 1 - Confirm Python executable and version
-### Expected result/Output etc
+
 
 Run:
 
@@ -1092,7 +1092,7 @@ Stop condition:
 
 ## STEP 2 - Confirm pip availability
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1115,7 +1115,7 @@ Stop condition:
 
 ## STEP 3 - Check whether pytest is installed as a Python module
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1140,7 +1140,7 @@ Record:
 
 ## STEP 4 - Check whether pytest is available as a command
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1166,7 +1166,7 @@ Record:
 
 ## STEP 5 - Check whether ruff is installed as a Python module
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1191,7 +1191,7 @@ Record:
 
 ## STEP 6 - Check whether ruff is available as a command
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1217,7 +1217,7 @@ Record:
 
 ## STEP 7 - Check whether mypy is installed as a Python module
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1242,7 +1242,7 @@ Record:
 
 ## STEP 8 - Check whether mypy is available as a command
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1268,7 +1268,7 @@ Record:
 
 ## STEP 9 - Check for project dependency/config files
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1298,7 +1298,7 @@ Record:
 
 ## STEP 10 - Check current Git status before any installation
 
-### Expected result/Output etc
+
 
 Run:
 
@@ -1321,7 +1321,7 @@ Record:
 
 ## STEP 11 - Produce Diagnostic_13 report and block
 
-### Expected result/Output etc
+
 
 Produce this report:
 
@@ -1395,21 +1395,3 @@ Expected result:
 * Stop for user confirmation.
 
 ````
-
-```md
-# Installation_13 - Validation Toolchain Installation
-
-Deferred.
-
-Do not execute installation yet.
-
-Installation steps will be provided only after Diagnostic_13 confirms the actual missing tools and the user approves installation.
-````
-
-```md
-# Resume 13
-
-Deferred.
-
-Do not resume STEP 13 until after Installation_13 completes and the installed tools are verified.
-```
