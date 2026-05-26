@@ -413,3 +413,108 @@ None. No encoding, path, permission, dependency, or truncation issue blocked the
 
 This proves Codex has raw local-file access to `workflow_orchestrator.py` rather than relying only on chunked/indexed retrieval. The evidence includes direct filesystem metadata, byte-level EOF reads with SHA-256 and first/last bytes, exact character and line counts, exact line-numbered excerpts from beginning/middle/end, an AST symbol map with line ranges, and deterministic direct-file search results.
 ```
+
+## STEP 8 - Inspect this repo
+
+```md
+# STEP 8 Repo Inspection Report
+
+### Verdict
+
+PASS
+
+### Repo identity
+
+- Root: `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch`
+- Branch: `codex_branch`
+- Git status summary: clean
+
+### Top-level inventory
+
+- `.codex_validation_patch_set_07/`
+- `.git/`
+- `data/`
+- `diagnostic/`
+- `docs/`
+- `messenger/`
+- `output/`
+- `scripts/`
+- `README.md`
+- `workflow_orchestrator.py`
+
+### Relevant files discovered
+
+#### Python files
+
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\amazon_listing_markdown_exporter.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\chatgpt_workflow_TESTED.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\flow_attach_smoke.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\flow_attach_smoke_settings.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\flow_clipboard_paste_smoke.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\flow_plus_upload_smoke.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\flow_settings_inspect.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\flow_settings_smoke.py`
+
+#### Prompt / markdown files
+
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\README.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\.codex_validation_patch_set_07\validation_output.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\data\raw_product_input.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\data\SYSTEM_ORCHESTRATOR.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\data\workflow.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\docs\Complete_Final_Implementation_Plan_Before_STATE_17.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\docs\general.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\docs\PATCH_SET_FORMAT.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\docs\prompts.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\WORKFLOW_RULES.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_Progress.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_response.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\output\amazon_listing_copy_paste.md`
+
+#### Test files
+
+No `tests/`, `test/`, `test_*.py`, or `*_test.py` files were discovered.
+
+#### Config / dependency files
+
+No `pyproject.toml`, `requirements.txt`, `setup.cfg`, `setup.py`, `pytest.ini`, `mypy.ini`, `ruff.toml`, `.ruff.toml`, or `tox.ini` files were discovered.
+
+#### Generated / output folders
+
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\output`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\scripts\output`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\.codex_validation_patch_set_07`
+
+### Likely workflow entrypoints
+
+- `workflow_orchestrator.py:5488` - `main()`
+- `workflow_orchestrator.py:5497` - `argparse.ArgumentParser(...)`
+- `workflow_orchestrator.py:5357` - `build_step_plan(...)`
+- `workflow_orchestrator.py:5380` - `run_step(...)`
+- `workflow_orchestrator.py:5665` - `if __name__ == "__main__":`
+
+### Risks or gaps
+
+- No local test suite files were discovered.
+- No dependency/config files were discovered.
+- `output/`, `scripts/output/`, and `.codex_validation_patch_set_07/` appear generated or validation-output related.
+- One attempted `rg` command using a shell glob for `scripts/*.py` returned a Windows path/glob error; direct filesystem inspection and `workflow_orchestrator.py` searches still succeeded.
+
+### Commands run
+
+```powershell
+Get-Location; git status --short; git branch --show-current; Get-ChildItem -Force | Select-Object Mode,Length,LastWriteTime,Name
+Get-ChildItem -Recurse -File -Include *.py -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\.git\\|__pycache__|\\.venv\\|\\venv\\|\\env\\' } | Select-Object -ExpandProperty FullName
+Get-ChildItem -Recurse -File -Include *.md -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\.git\\|__pycache__|\\.venv\\|\\venv\\|\\env\\' } | Select-Object -ExpandProperty FullName
+Get-ChildItem -Recurse -File -Include pyproject.toml,requirements.txt,setup.cfg,setup.py,pytest.ini,mypy.ini,ruff.toml,.ruff.toml,tox.ini -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\.git\\|__pycache__|\\.venv\\|\\venv\\|\\env\\' } | Select-Object -ExpandProperty FullName
+Get-ChildItem -Recurse -Directory -Include tests,test,docs,prompts,output,generated -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\.git\\|__pycache__|\\.venv\\|\\venv\\|\\env\\' } | Select-Object -ExpandProperty FullName
+Get-ChildItem -Recurse -File -Include test_*.py,*_test.py -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\.git\\|__pycache__|\\.venv\\|\\venv\\|\\env\\' } | Select-Object -ExpandProperty FullName
+rg -n "if __name__|def main\(|argparse|build_step_plan|run_step\(" workflow_orchestrator.py scripts/*.py
+```
+
+### Next recommended step
+
+Proceed to STEP 9 after confirmation.
+```
