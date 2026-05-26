@@ -741,3 +741,41 @@ PATCH_13_CLEANUP_VALIDATION_PASS
 PATCH_13A_DRY_RUN_PASS
 PATCH_13A_VALIDATION_PASS
 ```
+
+
+## ADDITIONAL CLEANUP VERIFICATION — PATCH_SET_13
+
+```text
+git status --short
+ M output/image_prompts.json
+ M output/logs/execution.jsonl
+ M output/workflow_state.json
+?? output/generated_images/
+?? output/image_content.json
+?? scripts/output/
+
+git diff --name-only
+output/image_prompts.json
+output/logs/execution.jsonl
+output/workflow_state.json
+
+git stash list
+stash@{0}: On codex_branch: !!GitHub_Desktop<codex_branch>
+
+git stash show --name-only stash@{0}
+PROMPTS_GEN_INSTRUCTIONS.md
+PROMPTS_GEN_Progress.md
+__pycache__/workflow_orchestrator.cpython-314.pyc
+output/_archive/pre_PATCH_SET_12_20260516-050928/execution.jsonl
+output/_archive/pre_PATCH_SET_12_20260516-050928/image_content.json
+output/_archive/pre_PATCH_SET_12_20260516-050928/image_prompts.json
+output/_archive/pre_PATCH_SET_12_20260516-050928/workflow_state.json
+output/image_prompts.json
+output/logs/execution.jsonl
+output/workflow_state.json
+
+docs/prompts.md appears in changed-file list: NO
+__pycache__ cleanup: PASS
+DELETE_GENERATED_IMAGES: NO
+DELETE_IMAGE_JSON: NO
+```
