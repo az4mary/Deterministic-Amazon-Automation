@@ -1,11 +1,7 @@
-Alright what is left to test in these tasks:
+# Diagnostic_<blocked STEP #> - <TITLE>
 
-## Use Codex Desktop for:
+## STEP 1 - <TITLE>
+### Expected result/Output etc
 
-* “Inspect this repo.”
-* “Find every caller of this function.”
-* “Validate the schema against prompts.md.”
-* “Write tests.”
-* “Patch the parser.”
-* “Run pytest/ruff/mypy.”
-* “Produce a diff.”
+## STEP 2 - <TITLE>
+### Expected result/Output etc
