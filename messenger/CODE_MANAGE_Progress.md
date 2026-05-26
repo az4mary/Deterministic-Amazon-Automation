@@ -416,7 +416,7 @@ This proves Codex has raw local-file access to `workflow_orchestrator.py` rather
 
 ## STEP 8 - Inspect this repo
 
-```md
+````md
 # STEP 8 Repo Inspection Report
 
 ### Verdict
@@ -517,4 +517,100 @@ rg -n "if __name__|def main\(|argparse|build_step_plan|run_step\(" workflow_orch
 ### Next recommended step
 
 Proceed to STEP 9 after confirmation.
+````
+
+## STEP 9 - Find every caller of this function
+
+````md
+# STEP 9 Caller Discovery Report
+
+## Verdict
+
+PASS
+
+## Target function
+
+`validate_initial_inputs`
+
+## Definition found
+
+- File: `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py`
+- Lines: `5468-5477`
+
+## Direct callers found
+
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py:5527`
+
+## Other references
+
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md:447`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md:467`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md:468`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md:477`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md:518`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_response.md:320`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_Progress.md:191`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_Progress.md:219`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_Progress.md:311`
+
+## Methods used
+
+- Text search: `rg -n "validate_initial_inputs" .`
+- Text search: `rg -n "def validate_initial_inputs|validate_initial_inputs\(" .`
+- AST inspection: parsed local `*.py` files and reported `FunctionDef` plus `Call` nodes matching `validate_initial_inputs`
+
+## Confidence
+
+High
+
+The direct code definition and call were found by both exact text search and AST inspection. Workflow markdown references were identified separately as non-code references.
+
+## Commands run
+
+```powershell
+rg -n "validate_initial_inputs" .
+rg -n "def validate_initial_inputs|validate_initial_inputs\(" .
 ```
+
+```python
+from pathlib import Path
+import ast
+
+target = "validate_initial_inputs"
+
+for path in Path(".").rglob("*.py"):
+    if any(part in {".git", "__pycache__", ".venv", "venv", "env"} for part in path.parts):
+        continue
+
+    try:
+        text = path.read_text(encoding="utf-8")
+        tree = ast.parse(text)
+    except Exception as exc:
+        print(f"SKIP {path}: {exc}")
+        continue
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == target:
+            print(f"DEF  {path}:{node.lineno}-{getattr(node, 'end_lineno', node.lineno)}")
+
+        if isinstance(node, ast.Call):
+            func = node.func
+            name = None
+
+            if isinstance(func, ast.Name):
+                name = func.id
+            elif isinstance(func, ast.Attribute):
+                name = func.attr
+
+            if name == target:
+                print(f"CALL {path}:{node.lineno}")
+```
+
+## Errors or limitations
+
+No parsing errors were reported. Dynamic invocation through strings, reflection, or generated code cannot be fully ruled out by AST call tracing, but exact text search found no additional Python-code callers.
+
+## Next recommended step
+
+Proceed to STEP 10 after confirmation.
+````
