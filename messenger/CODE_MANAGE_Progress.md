@@ -22,3 +22,12 @@ sha256: ec5054d3173daf973757631945ddfbfcda2cd1400227e78c2a0ed8d52790346f
 first_100_bytes: b'# workflow_orchestrator.py\r\nfrom __future__ import annotations\r\n\r\nimport argparse\r\nimport base64\r\nim'
 last_100_bytes: b'\r\n    except Exception as e:\r\n        json_log("unhandled_exception", error=str(e))\r\n        raise\r\n'
 ```
+
+## STEP 3 - Count exact lines and characters
+
+```text
+character_count: 217117
+line_count: 5672
+first_line: '# workflow_orchestrator.py'
+last_line: '        raise'
+```
