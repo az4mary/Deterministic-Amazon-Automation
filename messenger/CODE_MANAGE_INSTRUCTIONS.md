@@ -2,6 +2,15 @@
 
 # **file ownership / exact line-number test**.
 
+## Important constraints
+
+* Do not edit `workflow_orchestrator.py`.
+* Do not summarize from memory.
+* Do not rely on indexed search, semantic retrieval, or chat-provided snippets.
+* Use direct filesystem reads only.
+* Use exact file paths and line numbers.
+* If any output is too long, write the full output to a local report file and show the report file path.
+
 ## STEP 1 - Verify Raw File Ownership
 ````md
 # Codex Task Brief: Verify Raw File Ownership for `workflow_orchestrator.py`
@@ -279,14 +288,7 @@ State whether this proves Codex has raw local-file access rather than chunked/in
 
 ---
 
-## Important constraints
 
-* Do not edit `workflow_orchestrator.py`.
-* Do not summarize from memory.
-* Do not rely on indexed search, semantic retrieval, or chat-provided snippets.
-* Use direct filesystem reads only.
-* Use exact file paths and line numbers.
-* If any output is too long, write the full output to a local report file and show the report file path.
 
 ---
 
