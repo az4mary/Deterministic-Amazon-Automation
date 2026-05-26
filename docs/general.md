@@ -1,4 +1,4 @@
-Proceed with concrete concrete installation STEPS using the below format. Add cleanup STEPS if needed and verify no related artifacts are present after clean except they are needed for future tasks.
+Proceed with concrete installation STEPS using the below format. Add cleanup STEPS if needed and verify no related artifacts are present after cleanup except they are needed for future tasks.
 
 STEPS should be in this format:
 
