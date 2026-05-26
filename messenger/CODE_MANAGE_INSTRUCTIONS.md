@@ -1,7 +1,8 @@
 # CODE_MANAGE Instructions
 
-Below is a Codex handoff packet for the **file ownership / exact line-number test**.
+# **file ownership / exact line-number test**.
 
+## STEP 1 - Verify Raw File Ownership
 ````md
 # Codex Task Brief: Verify Raw File Ownership for `workflow_orchestrator.py`
 
@@ -56,7 +57,7 @@ PY
 
 ---
 
-### 2. Read the file from byte 1 to EOF
+## STEP 2 - Read the file from byte 1 to EOF
 
 ```bash
 python - <<'PY'
@@ -78,7 +79,7 @@ Success criterion: Codex reports actual byte count, SHA-256 hash, first 100 byte
 
 ---
 
-### 3. Count exact lines and characters
+## STEP 3 - Count exact lines and characters
 
 ```bash
 python - <<'PY'
@@ -99,7 +100,7 @@ Success criterion: Codex reports exact line count and verifies both first and la
 
 ---
 
-### 4. Produce line-numbered excerpts
+## STEP 4 - Produce line-numbered excerpts
 
 ```bash
 python - <<'PY'
@@ -128,7 +129,7 @@ Success criterion: Codex returns beginning, middle, and end excerpts with exact 
 
 ---
 
-### 5. Generate Python AST symbol map
+## STEP 5 - Generate Python AST symbol map
 
 ```bash
 python - <<'PY'
@@ -165,7 +166,7 @@ Success criterion: Codex returns a complete symbol map with line ranges.
 
 ---
 
-### 6. Search for likely validation/prompt/schema terms
+## STEP 6 - Search for likely validation/prompt/schema terms
 
 ```bash
 python - <<'PY'
