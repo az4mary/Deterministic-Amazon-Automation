@@ -733,3 +733,11 @@ PATCH_13_CLEANUP_VALIDATION_PASS
 {'prompts_exists': True, 'workflow_exists': True, 'state_json_preserved': True}
 PATCH_13_CLEANUP_VALIDATION_PASS
 ```
+
+
+## STEP 1 — PATCH_13A: Prompt 7 A+ schema key alignment
+
+```text
+PATCH_13A_DRY_RUN_PASS
+PATCH_13A_VALIDATION_PASS
+```
