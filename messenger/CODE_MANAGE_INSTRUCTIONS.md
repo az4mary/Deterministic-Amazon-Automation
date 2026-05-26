@@ -3,126 +3,45 @@
 Source response file: `CODE_MANAGE_response.md`
 Source checkpoint: `2026-05-26T11:21:32.4338044-05:00`
 
-## Standalone Execution Context
-
-This file is the complete executable instruction source for the CODE_MANAGE workflow. Do not rely on chat history for context.
-
 Repository root:
 
 ```text
 D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch
 ```
 
-Active messenger files:
-
-```text
-D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_INSTRUCTIONS.md
-D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_Progress.md
-D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\CODE_MANAGE_response.md
-D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\messenger\WORKFLOW_RULES.md
-```
-
-CODE_MANAGE messenger URL:
-
-```text
-https://chatgpt.com/c/6a15ab66-1080-83ea-a8ab-38e06a452642
-```
-
 Target file:
 
 ```text
-D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py
+workflow_orchestrator.py
 ```
 
-Task objective:
+Objective:
 
 ```text
-Verify whether Codex can access workflow_orchestrator.py as a raw local file from byte 1 to EOF, rather than only through indexed/chunked retrieval.
+Verify raw local-file ownership of workflow_orchestrator.py from byte 1 to EOF, with exact metadata, counts, line-numbered excerpts, AST symbol ranges, deterministic search results, and a final file ownership report.
 ```
 
-Success requires evidence that Codex can:
-
-1. Read `workflow_orchestrator.py` from beginning to end.
-2. Count exact bytes, characters, and lines.
-3. Produce exact line-numbered beginning, middle, and ending excerpts.
-4. Generate a Python AST symbol/function/class map with exact line ranges.
-5. Search the file deterministically with exact line numbers.
-6. Report whether the evidence proves raw local-file access rather than chunked/indexed retrieval access.
-
-## Current State
-
-CODE_MANAGE provided a Codex handoff packet for verifying raw local-file ownership of `workflow_orchestrator.py`.
-
-The extracted CODE_MANAGE response has been recorded in `CODE_MANAGE_response.md` and pushed.
-
-Execution is paused until the user confirms starting STEP 1.
-
-## Mandatory Execution And Reporting Rules
-
-Follow `WORKFLOW_RULES.md` exactly.
-
-Before STEP 1:
+Before execution:
 
 ```text
-Wait for explicit user confirmation to start STEP 1.
+Do not start STEP 1 until the user confirms.
 ```
 
-For every step:
-
-1. Run only the current step.
-2. Record the exact result in `CODE_MANAGE_Progress.md` using the step's reporting format.
-3. Include a local checkpoint time from `Get-Date -Format o` under the current step heading.
-4. Commit and push only `CODE_MANAGE_Progress.md` with a task-specific commit message.
-5. Send a short CODE_MANAGE messenger prompt asking it to review the attached progress file and confirm the next concrete action.
-6. Attach `CODE_MANAGE_Progress.md` to the CODE_MANAGE messenger prompt.
-7. Detect the new CODE_MANAGE assistant response after the submitted user message.
-8. Extract the full response into `CODE_MANAGE_response.md` before any analysis.
-9. Commit and push only `CODE_MANAGE_response.md`.
-10. Process the response into `CODE_MANAGE_INSTRUCTIONS.md` only if CODE_MANAGE creates new executable steps.
-11. Commit and push only `CODE_MANAGE_INSTRUCTIONS.md` after any instruction update.
-12. Do not proceed to the next step until CODE_MANAGE confirms the current step.
-
-Messenger prompt format:
+After each step:
 
 ```text
-Please review attached CODE_MANAGE_Progress.md and confirm the next concrete action.
+Append only the requested result/report fields to CODE_MANAGE_Progress.md, commit and push CODE_MANAGE_Progress.md, send it to CODE_MANAGE for confirmation, extract CODE_MANAGE response into CODE_MANAGE_response.md, then commit and push CODE_MANAGE_response.md before continuing.
 ```
 
-Blocked format:
+## STEP 1 - Confirm file exists and collect basic metadata
 
-```md
-NEXT STEP BLOCKED
-No future-step edits/proceeding
-Do you need any additional files/logs for troubleshooting?
-```
-
-Do not edit `workflow_orchestrator.py`.
-
-Do not summarize from memory.
-
-Do not rely on indexed search, semantic retrieval, or chat-provided snippets.
-
-Use direct filesystem reads only.
-
-Use exact file paths and line numbers.
-
-If output is too long, write the full output to the local report artifact requested in STEP 8 and report that path.
-
-## Ready To Execute Steps
-
-## STEP 1 - Confirm `workflow_orchestrator.py` exists and collect basic metadata
-
-Run from the repository root:
-
-```text
-D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch
-```
+Run from the repository root.
 
 ```powershell
 Get-Item .\workflow_orchestrator.py | Format-List FullName,Length,LastWriteTime
 ```
 
-Python fallback:
+If needed, use this Python fallback:
 
 ```python
 from pathlib import Path
@@ -134,7 +53,7 @@ print("bytes:", path.stat().st_size if path.exists() else None)
 print("modified:", path.stat().st_mtime if path.exists() else None)
 ```
 
-Expected:
+Expected result:
 
 ```text
 exists: True
@@ -146,16 +65,19 @@ modified: <file modified timestamp>
 Progress reporting format:
 
 ````md
-## STEP 1 - Confirm `workflow_orchestrator.py` exists and collect basic metadata
+## STEP 1 - Confirm file exists and collect basic metadata
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
 <exact metadata output>
 ```
 ````
 
-## STEP 2 - Read `workflow_orchestrator.py` from byte 1 to EOF
+## STEP 2 - Read file from byte 1 to EOF
 
-Run from the repository root shown in Standalone Execution Context.
+Run from the repository root.
 
 ```python
 from pathlib import Path
@@ -171,11 +93,11 @@ print("first_100_bytes:", repr(data[:100]))
 print("last_100_bytes:", repr(data[-100:]))
 ```
 
-Expected:
+Expected result:
 
 ```text
 file: <absolute path ending in workflow_orchestrator.py>
-byte_count: <same nonzero byte count from STEP 1>
+byte_count: <nonzero byte count>
 sha256: <64-character SHA-256 hash>
 first_100_bytes: <repr of first 100 bytes>
 last_100_bytes: <repr of last 100 bytes>
@@ -184,7 +106,10 @@ last_100_bytes: <repr of last 100 bytes>
 Progress reporting format:
 
 ````md
-## STEP 2 - Read `workflow_orchestrator.py` from byte 1 to EOF
+## STEP 2 - Read file from byte 1 to EOF
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
 <exact EOF verification output>
@@ -193,7 +118,7 @@ Progress reporting format:
 
 ## STEP 3 - Count exact lines and characters
 
-Run from the repository root shown in Standalone Execution Context.
+Run from the repository root.
 
 ```python
 from pathlib import Path
@@ -208,7 +133,7 @@ print("first_line:", repr(lines[0] if lines else ""))
 print("last_line:", repr(lines[-1] if lines else ""))
 ```
 
-Expected:
+Expected result:
 
 ```text
 character_count: <nonzero character count>
@@ -222,14 +147,17 @@ Progress reporting format:
 ````md
 ## STEP 3 - Count exact lines and characters
 
+Local checkpoint time:
+- `<Get-Date -Format o>`
+
 ```text
 <exact line and character count output>
 ```
 ````
 
-## STEP 4 - Produce exact line-numbered excerpts
+## STEP 4 - Produce line-numbered excerpts
 
-Run from the repository root shown in Standalone Execution Context.
+Run from the repository root.
 
 ```python
 from pathlib import Path
@@ -243,44 +171,39 @@ def show_range(start, end):
         print(f"{i:>5}: {lines[i-1]}")
 
 line_count = len(lines)
-
 show_range(1, min(40, line_count))
-
 mid = max(1, line_count // 2)
 show_range(max(1, mid - 20), min(line_count, mid + 20))
-
 show_range(max(1, line_count - 39), line_count)
 ```
 
-Expected:
+Expected result:
 
 ```text
---- workflow_orchestrator.py:1-<up to 40> ---
-<line-numbered beginning excerpt>
-
---- workflow_orchestrator.py:<middle start>-<middle end> ---
-<line-numbered middle excerpt>
-
---- workflow_orchestrator.py:<end start>-<final line> ---
-<line-numbered ending excerpt>
+Beginning excerpt with exact line numbers: produced
+Middle excerpt with exact line numbers: produced
+End excerpt with exact line numbers: produced
 ```
 
 Progress reporting format:
 
 ````md
-## STEP 4 - Produce exact line-numbered excerpts
+## STEP 4 - Produce line-numbered excerpts
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
 Beginning excerpt: yes
 Middle excerpt: yes
 End excerpt: yes
-<include exact excerpt output or report artifact path if too long>
+<exact excerpt output or local report path if too long>
 ```
 ````
 
-## STEP 5 - Generate the Python AST symbol map
+## STEP 5 - Generate AST symbol map
 
-Run from the repository root shown in Standalone Execution Context.
+Run from the repository root.
 
 ```python
 from pathlib import Path
@@ -291,17 +214,9 @@ text = path.read_text(encoding="utf-8")
 tree = ast.parse(text)
 
 symbols = []
-
 for node in ast.walk(tree):
     if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
-        symbols.append(
-            (
-                node.lineno,
-                getattr(node, "end_lineno", node.lineno),
-                type(node).__name__,
-                node.name,
-            )
-        )
+        symbols.append((node.lineno, getattr(node, "end_lineno", node.lineno), type(node).__name__, node.name))
 
 symbols.sort()
 
@@ -311,30 +226,32 @@ for start, end, kind, name in symbols:
     print(f"{path}:{start}-{end} {kind} {name}")
 ```
 
-Expected:
+Expected result:
 
 ```text
-symbol_count: <nonzero symbol count>
-
---- symbols ---
-workflow_orchestrator.py:<start>-<end> <ClassDef|FunctionDef|AsyncFunctionDef> <symbol_name>
+AST parse succeeds.
+symbol_count: <symbol count>
+Each symbol line includes workflow_orchestrator.py:<start>-<end>, symbol kind, and symbol name.
 ```
 
 Progress reporting format:
 
 ````md
-## STEP 5 - Generate the Python AST symbol map
+## STEP 5 - Generate AST symbol map
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
 AST parse succeeded: yes
 symbol_count: <exact symbol count>
-<first symbols, last symbols, or report artifact path if too long>
+<exact symbol output or local report path if too long>
 ```
 ````
 
-## STEP 6 - Search for validation, prompt, schema, and ownership terms
+## STEP 6 - Search deterministic ownership terms
 
-Run from the repository root shown in Standalone Execution Context.
+Run from the repository root.
 
 ```python
 from pathlib import Path
@@ -366,51 +283,39 @@ for term in terms:
     print(f"total_matches: {count}")
 ```
 
-Expected:
+Expected result:
 
 ```text
---- matches for 'schema' ---
-total_matches: <count>
---- matches for 'validate' ---
-total_matches: <count>
---- matches for 'validation' ---
-total_matches: <count>
---- matches for 'prompt' ---
-total_matches: <count>
---- matches for 'citation' ---
-total_matches: <count>
---- matches for 'line' ---
-total_matches: <count>
---- matches for 'file' ---
-total_matches: <count>
---- matches for 'chunk' ---
-total_matches: <count>
---- matches for 'orchestrator' ---
-total_matches: <count>
+Each requested term is searched deterministically.
+Each match includes workflow_orchestrator.py:<line number>.
+Each term reports total_matches.
 ```
 
 Progress reporting format:
 
 ````md
-## STEP 6 - Search for validation, prompt, schema, and ownership terms
+## STEP 6 - Search deterministic ownership terms
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
-schema: <count>
-validate: <count>
-validation: <count>
-prompt: <count>
-citation: <count>
-line: <count>
-file: <count>
-chunk: <count>
-orchestrator: <count>
-<include exact search output or report artifact path if too long>
+schema: <total_matches>
+validate: <total_matches>
+validation: <total_matches>
+prompt: <total_matches>
+citation: <total_matches>
+line: <total_matches>
+file: <total_matches>
+chunk: <total_matches>
+orchestrator: <total_matches>
+<exact search output or local report path if too long>
 ```
 ````
 
-## STEP 7 - Produce the CODE_MANAGE file ownership report
+## STEP 7 - Produce Codex File Ownership Report
 
-Return the result in this exact structure:
+Return the final report in this exact structure:
 
 ```md
 # Codex File Ownership Report
@@ -481,17 +386,19 @@ List any errors, missing dependencies, encoding issues, path issues, permission 
 State whether this proves Codex has raw local-file access rather than chunked/indexed retrieval access.
 ```
 
-Expected:
+Expected result:
 
 ```text
-Report contains one verdict: PASS, PARTIAL, or FAIL.
-Report includes file metadata, EOF verification, excerpt status, AST symbol status, search counts, exact commands run, errors or limitations, and conclusion.
+The report contains the exact requested sections and a PASS, PARTIAL, or FAIL verdict.
 ```
 
 Progress reporting format:
 
 ````md
-## STEP 7 - Produce the CODE_MANAGE file ownership report
+## STEP 7 - Produce Codex File Ownership Report
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
 VERDICT: <PASS|PARTIAL|FAIL>
@@ -503,9 +410,9 @@ SYMBOL_COUNT: <exact symbol count>
 ```
 ````
 
-## STEP 8 - Optional stronger complete local report artifact if output is too long
+## STEP 8 - Optional complete local report artifact if output is too long
 
-Run this only if the regular report output is too long or truncated.
+Run only if the regular report output is too long or truncated.
 
 ```python
 from pathlib import Path
@@ -524,27 +431,10 @@ tree = ast.parse(text)
 symbols = []
 for node in ast.walk(tree):
     if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
-        symbols.append(
-            (
-                node.lineno,
-                getattr(node, "end_lineno", node.lineno),
-                type(node).__name__,
-                node.name,
-            )
-        )
+        symbols.append((node.lineno, getattr(node, "end_lineno", node.lineno), type(node).__name__, node.name))
 symbols.sort()
 
-terms = [
-    "schema",
-    "validate",
-    "validation",
-    "prompt",
-    "citation",
-    "line",
-    "file",
-    "chunk",
-    "orchestrator",
-]
+terms = ["schema", "validate", "validation", "prompt", "citation", "line", "file", "chunk", "orchestrator"]
 
 out = []
 out.append("# Codex File Ownership Report")
@@ -584,13 +474,13 @@ report.write_text("\n".join(out), encoding="utf-8")
 print(f"Wrote {report.resolve()}")
 ```
 
-Expected:
+Expected result:
 
 ```text
 Wrote <absolute path ending in codex_file_ownership_report.md>
 ```
 
-Required return format after STEP 8:
+Required return format:
 
 ```md
 The complete report was written to:
@@ -608,7 +498,10 @@ Summary:
 Progress reporting format:
 
 ````md
-## STEP 8 - Optional stronger complete local report artifact if output is too long
+## STEP 8 - Optional complete local report artifact if output is too long
+
+Local checkpoint time:
+- `<Get-Date -Format o>`
 
 ```text
 REPORT_WRITTEN: <absolute path ending in codex_file_ownership_report.md>
@@ -619,16 +512,6 @@ SHA256: <64-character SHA-256 hash>
 SYMBOL_COUNT: <exact symbol count>
 ```
 ````
-
-## Blocked Reporting Format
-
-If any step fails or cannot be confirmed, append only the requested diagnostic fields plus:
-
-```md
-NEXT STEP BLOCKED
-No future-step edits/proceeding
-Do you need any additional files/logs for troubleshooting?
-```
 
 ## Constraints
 
@@ -642,4 +525,10 @@ Use direct filesystem reads only.
 
 Use exact file paths and line numbers.
 
-If any output is too long, write the full output to a local report file and show the report file path.
+If any step fails or cannot be confirmed, append this to `CODE_MANAGE_Progress.md`:
+
+```md
+NEXT STEP BLOCKED
+No future-step edits/proceeding
+Do you need any additional files/logs for troubleshooting?
+```
