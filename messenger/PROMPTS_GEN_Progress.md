@@ -849,3 +849,10 @@ PATCH_SET_13_APPLY_PASS
 ```text
 PASS / no output
 ```
+
+
+## STEP 7 — Validation 2: static marker check
+
+```text
+PATCH_SET_13_STATIC_MARKERS_OK
+```
