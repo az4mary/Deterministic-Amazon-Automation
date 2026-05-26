@@ -1347,3 +1347,98 @@ BLOCKERS: NONE
 
 CONFIRMATION REQUIRED:
 YES ? proceed to STEP 2 / PATCH_13B.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-26T04:45:19.9384951-05:00
+
+- Source URL: https://chatgpt.com/c/6a14ae59-c888-83ea-a7b7-5450def63ea8
+- Page title: PROMPTS_GEN_1
+- Local checkpoint time: `2026-05-26T04:45:19.9384951-05:00`
+- Response detection: prior cleanup response detected and stable
+
+## Extracted response
+
+STATE EDIT:
+
+ACTION:
+
+Reviewed the screenshot of the current changed artifacts.
+
+Visible changed files are generated output artifacts:
+
+output/generated_images/image_12.png
+
+image_14.png
+
+image_16.png
+
+image_18.png
+
+image_20.png
+
+image_22.png
+
+image_24.png
+
+output/image_content.json
+
+output/image_prompts.json
+
+plus hidden/collapsed remaining changed files and a Stashed Changes entry.
+
+SEARCH VALIDATION RESULT:
+
+Screenshot review only.
+
+No additional file retrieval needed for cleanup confirmation.
+
+VALIDATED DECISION:
+
+OK, no destructive cleanup needed if these are the expected final generated artifacts from successful image-generation steps.
+
+Do not delete these output files. They are exactly the kind of artifacts expected after steps 12?24 complete.
+
+The only thing I would clean/verify before proceeding is the stash and staged file boundary.
+
+OUTPUT:
+
+Cleanup decision
+STATUS: OK_WITH_VERIFICATION
+DELETE_GENERATED_IMAGES: NO
+DELETE_IMAGE_JSON: NO
+BLOCKER: NONE_VISIBLE_FROM_SCREENSHOT
+Required quick checks before moving on
+
+Run:
+
+git status --short
+git diff --name-only
+git stash list
+
+Expected:
+
+docs/prompts.md
+output/generated_images/image_12.png
+output/generated_images/image_14.png
+output/generated_images/image_16.png
+output/generated_images/image_18.png
+output/generated_images/image_20.png
+output/generated_images/image_22.png
+output/generated_images/image_24.png
+output/image_content.json
+output/image_prompts.json
+
+If docs/prompts.md is not changed, PATCH_SET_13 may not have been applied to the real prompt file. If the stash contains earlier script edits, inspect it before proceeding:
+
+git stash show --name-only stash@{0}
+Recommendation
+
+Keep the generated artifacts. Do not clean them unless they were produced before PATCH_SET_13 and are known stale.
+
+The only cleanup I recommend now:
+
+Remove-Item -Recurse -Force .\__pycache__ -ErrorAction SilentlyContinue
+
+CONFIRMATION REQUIRED:
+YES ? confirm git status --short and whether docs/prompts.md appears in the changed-file list.
