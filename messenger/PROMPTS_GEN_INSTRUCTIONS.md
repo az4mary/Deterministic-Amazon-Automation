@@ -6567,35 +6567,6 @@ PATCH_12T_STATE_CAPTURE_METHODS_OK
 
 # Resume STEP 7 after PATCH_12T
 
-STATE EDIT:
-
-ACTION:
-
-* Built **PATCH_SET_13** using `PATCH_SET_FORMAT.md` as the execution template: cleanup → dry-run → atomic patches → validation. The attached guide establishes that each patch set should start with cleanup, then run dry-run assertions, then apply targeted edits, then validate with static checks. 
-* Kept the patch surface constrained to **`prompts.md`**, because STATE 10 is blocked by prompt/schema drift, not Python syntax.
-* Ran local dry-run checks against uploaded:
-
-  * `workflow_orchestrator(43).py`
-  * `prompts(13).md`
-  * `PATCH_SET_FORMAT.md`
-* Created a dry-run patched copy only: [prompts_PATCH_SET_13_DRY_RUN.md](sandbox:/mnt/data/prompts_PATCH_SET_13_DRY_RUN.md)
-* Did **not** mutate the original uploaded files.
-
-SEARCH VALIDATION RESULT:
-
-* Internal file validation confirms STATE 10 requires a production-ready script before STATE 11; current STATE 10 remains blocked until prompt/schema mismatches are patched. 
-* `SYSTEM_ORCHESTRATOR.md` enforces one-state output format and blocks uncontrolled implementation detail before later states, so PATCH_SET_13 must remain a controlled patch plan with dry-run gates. 
-* Online validation: use official/runtime-backed patching primitives rather than trial-and-error snippets. Python documents `os.replace()` as a cross-platform destination-overwrite operation that is atomic when successful, making it appropriate for temp-file → replace patch application. ([Python documentation][1]) Python’s `tempfile` documentation confirms visible named temporary files and Windows-specific reopen/delete behavior, so Windows patch scripts should avoid fragile open-handle temp replacement patterns. ([Python documentation][2])
-* Community-sourced snippets should not be trusted as-is: empirical Stack Overflow research found many snippets are not directly executable, and another study found obsolete answers often remain outdated. This supports using dry-run assertions and official docs rather than copying community patch recipes blindly. ([arXiv][3]) ([arXiv][4])
-
-VALIDATED DECISION:
-
-* **PATCH_SET_13 dry-run: PASS**
-* **STATE 10 remains BLOCKED until PATCH_SET_13 is applied to the real `prompts.md` and revalidated.**
-* PATCH_SET_13 should be applied as prompt-contract cleanup only. Do not patch `workflow_orchestrator.py` for this set unless revalidation proves the prompt fixes are insufficient.
-
-OUTPUT:
-
 # PATCH_SET_13 — Prompt/schema contract cleanup to unblock STATE 10
 
 Proceed with:
