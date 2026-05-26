@@ -770,3 +770,181 @@ One scratch AST helper command failed with a Python `SyntaxError` and was rerun 
 
 Proceed to STEP 11 only after user approval of the patch/test target.
 ````
+
+## STEP 11 - Write tests
+
+````md
+# STEP 11 Test-Writing Report
+
+## Verdict
+
+PARTIAL
+
+## Test target
+
+Schema/prompt alignment markers approved by CODE_MANAGE after STEP 10:
+
+- `schema_1b`
+- `schema_aplus`
+- `schema_specs`
+- `schema_image_prompt`
+
+The tests verify that required schema keys and buyer-question markers remain present in `docs/prompts.md` and `workflow_orchestrator.py`.
+
+## Files changed
+
+- `tests/test_schema_prompt_alignment.py`
+
+## Tests added
+
+- `test_schema_1b_spatial_contract_keys_present_in_prompts`
+  - validates `spatial_image_contract` and nested spatial contract markers are present in both `workflow_orchestrator.py` and `docs/prompts.md`
+- `test_schema_aplus_uses_brand_story_prompt_key`
+  - validates `brand_story` is present and obsolete `seller_or_brand_story` is absent from prompts
+- `test_schema_specs_matches_prompt_technical_specifications_shape`
+  - validates `technical_specifications` required keys align and the old invalid top-level `package_contents` block is absent
+- `test_schema_image_prompt_buyer_questions_match_step_plan`
+  - validates image buyer questions match the current `STEP_PLAN` wording and obsolete buyer-question wording is absent from prompts
+
+## Commands run
+
+```powershell
+git status --short
+rg --files | rg "(^|/)tests?/|test_.*\.py$|.*_test\.py$"
+Test-Path tests; Get-ChildItem -Force | Select-Object Name,Mode
+python -m pytest tests/test_schema_prompt_alignment.py
+python -m py_compile tests/test_schema_prompt_alignment.py
+git status --short
+git diff --stat
+git diff --no-index -- /dev/null tests/test_schema_prompt_alignment.py
+```
+
+## Results
+
+- Narrow test result: `PARTIAL` - `python -m pytest tests/test_schema_prompt_alignment.py` failed because `pytest` is not installed.
+- Full test result if run: not run.
+- Syntax validation: `PASS` - `python -m py_compile tests/test_schema_prompt_alignment.py`
+
+## Git diff summary
+
+```text
+?? tests/
+```
+
+`git diff --stat` did not include the untracked test file. `git diff --no-index -- /dev/null tests/test_schema_prompt_alignment.py` produced the new-file diff.
+
+## Full diff
+
+```diff
+diff --git a/tests/test_schema_prompt_alignment.py b/tests/test_schema_prompt_alignment.py
+new file mode 100644
+index 0000000..2531c92
+--- /dev/null
++++ b/tests/test_schema_prompt_alignment.py
+@@ -0,0 +1,91 @@
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parents[1]
++WORKFLOW = ROOT / "workflow_orchestrator.py"
++PROMPTS = ROOT / "docs" / "prompts.md"
++
++
++def read_workflow() -> str:
++    return WORKFLOW.read_text(encoding="utf-8")
++
++
++def read_prompts() -> str:
++    return PROMPTS.read_text(encoding="utf-8")
++
++
++def test_schema_1b_spatial_contract_keys_present_in_prompts() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    required = [
++        '"spatial_image_contract"',
++        '"product_dimensions"',
++        '"product_3d_geometry"',
++        '"component_interaction_rules"',
++        '"photographer_scene_rules"',
++        '"physics_constraints"',
++        '"negative_spatial_constraints"',
++    ]
++
++    for marker in required:
++        assert marker in workflow
++        assert marker in prompts
++
++
++def test_schema_aplus_uses_brand_story_prompt_key() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    assert '"brand_story"' in workflow
++    assert '"brand_story": ""' in prompts
++    assert '"seller_or_brand_story": ""' not in prompts
++
++
++def test_schema_specs_matches_prompt_technical_specifications_shape() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    required = [
++        '"technical_specifications"',
++        '"Brand"',
++        '"Product Name"',
++        '"Model"',
++        '"Color"',
++        '"Attributes"',
++    ]
++
++    for marker in required:
++        assert marker in workflow
++        assert marker in prompts
++
++    assert ' },\n "package_contents": []\n}' not in prompts
++
++
++def test_schema_image_prompt_buyer_questions_match_step_plan() -> None:
++    workflow = read_workflow()
++    prompts = read_prompts()
++
++    required_questions = [
++        "What is this product?",
++        "Why do I need it?",
++        "What problem does this product solve?",
++        "When would I use it?",
++        "What technology makes it better?",
++        "How easy is it to install or use?",
++        "What specifications matter?",
++    ]
++
++    for question in required_questions:
++        assert question in workflow
++        assert question in prompts
++
++    forbidden_questions = [
++        "Why do I need this product?",
++        "When would I use this product?",
++        "What technology makes this product better?",
++        "What specifications or technical details matter?",
++    ]
++
++    for question in forbidden_questions:
++        assert question not in prompts
+```
+
+## Errors or limitations
+
+- `pytest` is unavailable in the local Python environment:
+  - Command: `python -m pytest tests/test_schema_prompt_alignment.py`
+  - Exit code: `1`
+  - Error: `D:\TOOLS\Python314\python.exe: No module named pytest`
+- No dependencies were installed.
+- Test syntax was validated with `python -m py_compile`.
+
+## Next recommended step
+
+Proceed to STEP 12 after confirmation. Because STEP 10 found no production patch requirement, STEP 12 should either be recorded as no production parser patch needed or CODE_MANAGE should provide a concrete parser/source target before any production edit.
+````
