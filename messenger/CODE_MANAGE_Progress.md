@@ -613,3 +613,160 @@ No parsing errors were reported. Dynamic invocation through strings, reflection,
 
 Proceed to STEP 10 after confirmation.
 ````
+
+## STEP 10 - Validate schema against `prompts.md`
+
+````md
+# STEP 10 Schema-vs-Prompts Validation Report
+
+## Verdict
+
+PASS
+
+## Files inspected
+
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\workflow_orchestrator.py`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\docs\prompts.md`
+- `D:\PROJECTS\GITHUB\az4mary\Deterministic-Amazon-Automation-codex_branch\docs\prompts\`
+
+## Schema sources found
+
+- `workflow_orchestrator.py:4401-4407` - `build_text_schema`
+- `workflow_orchestrator.py:4410-4444` - `schema_1a`
+- `workflow_orchestrator.py:4447-4617` - `schema_1b`
+- `workflow_orchestrator.py:4620-4629` - `schema_title`
+- `workflow_orchestrator.py:4632-4646` - `schema_bullets`
+- `workflow_orchestrator.py:4649-4658` - `schema_description`
+- `workflow_orchestrator.py:4661-4670` - `schema_backend`
+- `workflow_orchestrator.py:4673-4700` - `schema_search_intent`
+- `workflow_orchestrator.py:4703-4732` - `schema_aplus`
+- `workflow_orchestrator.py:4735-4755` - `schema_specs`
+- `workflow_orchestrator.py:4758-4776` - `schema_faq`
+- `workflow_orchestrator.py:4779-4800` - `schema_social`
+- `workflow_orchestrator.py:4803-4864` - `schema_image_prompt`
+- `workflow_orchestrator.py:4867-4881` - `read_prompt_file`
+- `workflow_orchestrator.py:4919-4939` - `read_prompt_from_prompts_md`
+- `workflow_orchestrator.py:5100-5163` - `build_image_prompt_context`
+- `workflow_orchestrator.py:5166-5199` - `build_image_generation_context`
+- `workflow_orchestrator.py:5357-5360` - `build_step_plan`
+
+## Prompt sources found
+
+- `docs/prompts.md:1-70` - `PROMPT 1A`
+- `docs/prompts.md:71-185` - `PROMPT 1B`
+- `docs/prompts.md:186-237` - `PROMPT 2`
+- `docs/prompts.md:238-290` - `PROMPT 3`
+- `docs/prompts.md:291-342` - `PROMPT 4`
+- `docs/prompts.md:343-387` - `PROMPT 5`
+- `docs/prompts.md:388-444` - `PROMPT 6`
+- `docs/prompts.md:445-523` - `PROMPT 7`
+- `docs/prompts.md:524-577` - `PROMPT 8`
+- `docs/prompts.md:578-653` - `PROMPT 9`
+- `docs/prompts.md:654-727` - `PROMPT 10`
+- `docs/prompts.md:728-846` - `PROMPT 11`
+- `docs/prompts.md:847-935` - `PROMPT 12`
+- `docs/prompts.md:936-1058` - `PROMPT 13`
+- `docs/prompts.md:1059-1131` - `PROMPT 14`
+- `docs/prompts.md:1132-1254` - `PROMPT 15`
+- `docs/prompts.md:1255-1327` - `PROMPT 16`
+- `docs/prompts.md:1328-1450` - `PROMPT 17`
+- `docs/prompts.md:1451-1523` - `PROMPT 18`
+- `docs/prompts.md:1524-1646` - `PROMPT 19`
+- `docs/prompts.md:1647-1719` - `PROMPT 20`
+- `docs/prompts.md:1720-1842` - `PROMPT 21`
+- `docs/prompts.md:1843-1915` - `PROMPT 22`
+- `docs/prompts.md:1916-2038` - `PROMPT 23`
+- `docs/prompts.md:2039-2111` - `PROMPT 24`
+- `docs/prompts\` contains no prompt files.
+
+## Field comparison
+
+| Field / concept | Schema expectation | Prompt expectation | Status | Evidence |
+|---|---|---|---|---|
+| Prompt 1A extraction | `schema_1a` requires `reference_tag`, `product_category`, `product_profile`, `core_features`, `attributes`, `additional_attributes`, `package_contents`, `product_summary` | `PROMPT 1A` includes the same output keys | PASS | `workflow_orchestrator.py:4410-4444`; `docs/prompts.md:1-70` |
+| Prompt 1B spatial contract | `schema_1b` requires `spatial_image_contract` with nested physical-scene fields | `PROMPT 1B` includes `spatial_image_contract` and nested fields | PASS | `workflow_orchestrator.py:4447-4617`; `docs/prompts.md:71-185` |
+| Title output | `schema_title` requires `reference_tag`, `amazon_product_title` | `PROMPT 2` includes `reference_tag`, `amazon_product_title` | PASS | `workflow_orchestrator.py:4620-4629`; `docs/prompts.md:186-237` |
+| Bullet output | `schema_bullets` requires `reference_tag`, `amazon_bullet_points` | `PROMPT 3` includes `reference_tag`, `amazon_bullet_points` | PASS | `workflow_orchestrator.py:4632-4646`; `docs/prompts.md:238-290` |
+| Description output | `schema_description` requires `reference_tag`, `amazon_product_description` | `PROMPT 4` includes `reference_tag`, `amazon_product_description` | PASS | `workflow_orchestrator.py:4649-4658`; `docs/prompts.md:291-342` |
+| Backend search output | `schema_backend` requires `reference_tag`, `amazon_backend_search_terms` | `PROMPT 5` includes `reference_tag`, `amazon_backend_search_terms` | PASS | `workflow_orchestrator.py:4661-4670`; `docs/prompts.md:343-387` |
+| Search intent output | `schema_search_intent` requires five keyword arrays | `PROMPT 6` includes all five arrays | PASS | `workflow_orchestrator.py:4673-4700`; `docs/prompts.md:388-444` |
+| A+ content output | `schema_aplus` requires `brand_story` and four feature sections | `PROMPT 7` includes `brand_story` and four feature sections | PASS | `workflow_orchestrator.py:4703-4732`; `docs/prompts.md:445-523` |
+| Technical specs output | `schema_specs` requires nested `technical_specifications` with `Brand`, `Product Name`, `Model`, `Color`, `Attributes` | `PROMPT 8` includes same nested structure | PASS | `workflow_orchestrator.py:4735-4755`; `docs/prompts.md:524-577` |
+| FAQ output | `schema_faq` requires `reference_tag`, `customer_faq` array of question/answer items | `PROMPT 9` includes `reference_tag`, `customer_faq`, `question`, `answer` | PASS | `workflow_orchestrator.py:4758-4776`; `docs/prompts.md:578-653` |
+| Social output | `schema_social` requires three posts with post number, title, text, tags, hashtags | `PROMPT 10` includes matching fields | PASS | `workflow_orchestrator.py:4779-4800`; `docs/prompts.md:654-727` |
+| Image strategy outputs | `schema_image_prompt` requires `reference_tag`, `image_strategy`, `spatial_scene_brief`, `image_generation_prompt` | Prompts 11, 13, 15, 17, 19, 21, 23 include matching strategy keys | PASS | `workflow_orchestrator.py:4803-4864`; `docs/prompts.md:728-846`, `936-1058`, `1132-1254`, `1328-1450`, `1524-1646`, `1720-1842`, `1916-2038` |
+| Image generation prompts | image generation steps 12, 14, 16, 18, 20, 22, 24 have no JSON schema builder | Prompts include generation instructions and `generated_image`-style fields where present | PASS / N/A | `workflow_orchestrator.py:5342`, `5344`, `5346`, `5348`, `5350`, `5352`, `5354`; `docs/prompts.md:847-935`, `1059-1131`, `1255-1327`, `1451-1523`, `1647-1719`, `1843-1915`, `2039-2111` |
+
+## Mismatches
+
+No schema-vs-prompt mismatches were found in the inspected current files.
+
+## Missing or ambiguous items
+
+- `docs/prompts\` exists but contains no prompt files; prompt fallback is `docs/prompts.md`.
+- Image generation steps do not use a text JSON schema builder; they are handled as `image_generate` steps.
+- No local tests exist yet to lock these schema/prompt alignments.
+
+## Recommended patch plan
+
+No production patch is recommended from STEP 10.
+
+Recommended test target for STEP 11, if approved:
+
+- Add focused tests that assert the current `docs/prompts.md` prompt keys remain aligned with `workflow_orchestrator.py` schema builders for `schema_1b`, `schema_aplus`, `schema_specs`, and `schema_image_prompt`.
+
+## Commands run
+
+```powershell
+rg -n "build_schema|schema_builder|prompt_file|PROMPTS_MD_PATH|PROMPTS_DIR|required|expected|json|fields" workflow_orchestrator.py docs
+Get-ChildItem -Recurse -File docs | Select-Object -ExpandProperty FullName
+rg -n '^#|\"[A-Za-z0-9_]+\"\s*:|required|expected|json|fields|reference_tag|technical_specifications|brand_story|spatial_image_contract|package_contents' docs/prompts.md docs/prompts workflow_orchestrator.py
+```
+
+```python
+from pathlib import Path
+import ast
+text = Path("workflow_orchestrator.py").read_text(encoding="utf-8")
+mod = ast.parse(text)
+for node in ast.walk(mod):
+    if isinstance(node, ast.FunctionDef) and (node.name.startswith("schema") or node.name in {"build_text_schema","build_step_plan","read_prompt_file","read_prompt_from_prompts_md","build_image_prompt_context","build_image_generation_context"}):
+        print(f"{node.name}: workflow_orchestrator.py:{node.lineno}-{getattr(node,'end_lineno',node.lineno)}")
+```
+
+```python
+from pathlib import Path
+import re
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+headings = [(m.start(), m.end(), m.group(1).strip()) for m in re.finditer(r"(?m)^#\s+PROMPT\s+(.+?)\s*$", text)]
+for idx, (start, end_heading, key) in enumerate(headings):
+    end = headings[idx+1][0] if idx+1 < len(headings) else len(text)
+    section = text[end_heading:end]
+    keys = sorted(set(re.findall(r'"([A-Za-z_][A-Za-z0-9_ ]*)"\s*:', section)))
+    print(f"PROMPT {key}: docs/prompts.md:{text[:start].count(chr(10))+1}-{text[:end].count(chr(10))+1}")
+    print("keys:", ", ".join(keys[:80]))
+```
+
+```python
+from pathlib import Path
+text = Path("docs/prompts.md").read_text(encoding="utf-8")
+checks = {
+    "brand_story exact": '"brand_story": ""' in text,
+    "seller_or_brand_story absent": '"seller_or_brand_story": ""' not in text,
+    "spatial_image_contract": '"spatial_image_contract"' in text,
+    "technical_specifications": '"technical_specifications"' in text,
+    "prompt8 top package_contents block absent": ' },\n "package_contents": []\n}' not in text,
+    "Why do I need it": "Why do I need it?" in text,
+    "When would I use it": "When would I use it?" in text,
+    "What technology makes it better": "What technology makes it better?" in text,
+    "What specifications matter": "What specifications matter?" in text,
+}
+for k, v in checks.items():
+    print(f"{k}: {v}")
+```
+
+One scratch AST helper command failed with a Python `SyntaxError` and was rerun with the corrected AST extraction command above. No files were changed by the failed helper.
+
+## Next recommended step
+
+Proceed to STEP 11 only after user approval of the patch/test target.
+````
