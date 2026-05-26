@@ -1784,3 +1784,50 @@ BLOCKERS: NONE
 
 CONFIRMATION REQUIRED:
 YES ? proceed to direct verification for PATCH_13D or PATCH_SET_13 static validation.
+
+---
+
+# PROMPTS_GEN Messenger Checkpoint - 2026-05-26T05:34:44.3063899-05:00
+
+- Source URL: https://chatgpt.com/c/6a14ae59-c888-83ea-a7b7-5450def63ea8
+- Page title: PROMPTS_GEN_1
+- Local checkpoint time: `2026-05-26T05:34:44.3063899-05:00`
+- Response detection: latest assistant response detected and stable
+
+## Extracted response
+
+STATE EDIT:
+
+ACTION:
+
+Reviewed DIRECT VERIFY ? PATCH_13D real docs/prompts.md only.
+
+SEARCH VALIDATION RESULT:
+
+File-grounded validation confirms direct verification records:
+
+old buyer-question variants all count 0
+
+canonical buyer-question variants each count 3
+
+PATCH_13D_DIRECT_VERIFY_PASS 
+
+PROMPTS_GEN_Progress
+
+VALIDATED DECISION:
+
+PASS ? PATCH_13D direct verification is confirmed.
+
+Buyer-question wording is now aligned in the real docs/prompts.md.
+
+OUTPUT:
+
+PATCH_13D_DIRECT_VERIFICATION_CONFIRMED
+STATUS: PASS
+OLD_BUYER_QUESTION_VARIANTS_COUNT: 0
+CANONICAL_BUYER_QUESTION_VARIANTS_COUNT: 3_EACH
+NEXT_STEP: PATCH_SET_13_STATIC_VALIDATION
+BLOCKERS: NONE
+
+CONFIRMATION REQUIRED:
+YES ? proceed to PATCH_SET_13 static validation.
