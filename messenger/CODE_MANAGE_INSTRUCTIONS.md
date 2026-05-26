@@ -428,7 +428,7 @@ Paste exact commands.
 ## Next recommended step
 
 Proceed to STEP 9 after user confirmation.
-
+```
 Stop after STEP 8.
 
 ---
