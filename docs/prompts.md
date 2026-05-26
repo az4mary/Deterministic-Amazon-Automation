@@ -131,6 +131,41 @@ Return JSON:
    "shape_description": "",
    "proportions": "",
    "relative_dimensions": ""
+ },
+
+ "spatial_image_contract": {
+   "product_dimensions": {
+     "exact_dimensions": "",
+     "dimension_source": "",
+     "dimension_status": "",
+     "relative_scale": ""
+   },
+   "product_3d_geometry": {
+     "overall_shape": "",
+     "front_face": "",
+     "rear_face": "",
+     "top_face": "",
+     "bottom_face": "",
+     "left_side": "",
+     "right_side": "",
+     "component_depth_relationships": ""
+   },
+   "component_interaction_rules": {
+     "mounting_or_support_logic": "",
+     "lens_or_primary_function_axis": "",
+     "screen_or_display_logic": "",
+     "controls_and_ports_logic": "",
+     "accessory_interaction_logic": ""
+   },
+   "photographer_scene_rules": {
+     "camera_pov_required": "",
+     "foreground_midground_background": "",
+     "focal_plane_and_depth_of_field": "",
+     "environment_sync_rules": "",
+     "scale_rules": ""
+   },
+   "physics_constraints": [],
+   "negative_spatial_constraints": []
  }
 }
 
