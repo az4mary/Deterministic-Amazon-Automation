@@ -811,3 +811,11 @@ PATCH_13B_DIRECT_VERIFY_PASS
 PATCH_13C_DRY_RUN_PASS
 PATCH_13C_VALIDATION_PASS
 ```
+
+
+## DIRECT VERIFY — PATCH_13C real docs/prompts.md
+
+```text
+{'spatial_image_contract': 1, 'product_dimensions': 1, 'product_3d_geometry': 1, 'component_interaction_rules': 1, 'photographer_scene_rules': 1, 'physics_constraints': 1, 'negative_spatial_constraints': 8}
+PATCH_13C_DIRECT_VERIFY_PASS
+```
