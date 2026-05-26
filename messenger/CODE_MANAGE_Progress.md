@@ -192,3 +192,62 @@ workflow_orchestrator.py:5468-5477 FunctionDef validate_initial_inputs
 workflow_orchestrator.py:5480-5485 FunctionDef resolve_raw_text_path
 workflow_orchestrator.py:5488-5662 FunctionDef main
 ```
+
+## STEP 6 - Search for likely validation/prompt/schema terms
+
+```text
+schema: 57
+validate: 6
+validation: 4
+prompt: 246
+citation: 0
+line: 66
+file: 57
+chunk: 4
+orchestrator: 7
+
+Sample exact-line matches:
+
+schema:
+workflow_orchestrator.py:33:     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
+workflow_orchestrator.py:34:     "output_schema": "workflow_state.json + generated artifacts under output/",
+workflow_orchestrator.py:191:     schema_builder: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None
+
+validate:
+workflow_orchestrator.py:4086:     validate_progress_percent(progress_percent, current_step, total_steps)
+workflow_orchestrator.py:4117: def validate_progress_percent(progress_percent: int, current_step: int, total_steps: int) -> None:
+workflow_orchestrator.py:5468: def validate_initial_inputs() -> None:
+
+validation:
+workflow_orchestrator.py:4040:             "fail_fast": ("ERROR", "Validation failed", "VALIDATION", "FAILED"),
+workflow_orchestrator.py:4041:             "unhandled_exception": ("ERROR", "Unhandled exception", "VALIDATION", "FAILED"),
+workflow_orchestrator.py:4163: def fail(code: str, message: str, field: str = "", expected: str = "", actual: str = "", stage: str = "VALIDATION") -> None:
+
+prompt:
+workflow_orchestrator.py:33:     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
+workflow_orchestrator.py:42: PROMPTS_DIR = ROOT / "docs" / "prompts"
+workflow_orchestrator.py:43: PROMPTS_MD_PATH = ROOT / "docs" / "prompts.md"
+
+citation:
+total_matches: 0
+
+line:
+workflow_orchestrator.py:13: import linecache
+workflow_orchestrator.py:448:         deadline = time.time() + (BROWSER_NEW_CHAT_READY_TIMEOUT_MS / 1000.0)
+workflow_orchestrator.py:451:         while time.time() < deadline:
+
+file:
+workflow_orchestrator.py:33:     "input_schema": "workflow inputs from local filesystem (raw text + images + prompt files)",
+workflow_orchestrator.py:40: ROOT = Path(__file__).resolve().parent
+workflow_orchestrator.py:189:     prompt_file: Optional[str]
+
+chunk:
+workflow_orchestrator.py:3767:   const chunkSize = 0x8000;
+workflow_orchestrator.py:3768:   for (let i = 0; i < bytes.length; i += chunkSize) {
+workflow_orchestrator.py:3769:     const chunk = bytes.subarray(i, i + chunkSize);
+
+orchestrator:
+workflow_orchestrator.py:1: # workflow_orchestrator.py
+workflow_orchestrator.py:30:     "name": "workflow_orchestrator",
+workflow_orchestrator.py:4038:             "orchestrator_start": ("INFO", "Orchestrator started", "INIT", "STARTED"),
+```
