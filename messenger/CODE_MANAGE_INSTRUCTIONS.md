@@ -317,20 +317,20 @@ The goal is to prove Codex can operate as the local repo specialist for:
 
 ---
 
-# STEP 8 - Inspect this repo
+## STEP 8 - Inspect this repo
 
-## Objective
+### Objective
 
 Inspect the full repository structure and identify the files relevant to workflow orchestration, prompts, schema validation, tests, configs, and execution.
 
-## Constraints
+### Constraints
 
 - Read-only.
 - Do not modify files.
 - Do not run tests yet.
 - Do not infer missing files. Report only what exists.
 
-## Required inspection
+### Required inspection
 
 Run commands equivalent to:
 
@@ -372,60 +372,60 @@ rg --files
 rg --files | rg "(^|/)(tests?|docs|prompts|output|generated)/|\.py$|\.md$|pyproject\.toml|requirements\.txt|pytest\.ini|mypy\.ini|ruff\.toml|\.ruff\.toml"
 ```
 
-## Required report
+### Required report
 
 ```md
 # STEP 8 Repo Inspection Report
 
-## Verdict
+### Verdict
 
 PASS / PARTIAL / FAIL
 
-## Repo identity
+### Repo identity
 
 - Root:
 - Branch:
 - Git status summary:
 
-## Top-level inventory
+### Top-level inventory
 
 List top-level files and folders.
 
-## Relevant files discovered
+### Relevant files discovered
 
-### Python files
+#### Python files
 
 List relevant Python files.
 
-### Prompt / markdown files
+#### Prompt / markdown files
 
 List relevant prompt and instruction files.
 
-### Test files
+#### Test files
 
 List discovered test files.
 
-### Config / dependency files
+#### Config / dependency files
 
 List discovered config and dependency files.
 
-### Generated / output folders
+#### Generated / output folders
 
 List likely generated/output folders.
 
-## Likely workflow entrypoints
+### Likely workflow entrypoints
 
 List likely entrypoint files/functions/commands.
 
-## Risks or gaps
+### Risks or gaps
 
 List anything missing, ambiguous, or potentially generated.
 
-## Commands run
+### Commands run
 
 Paste exact commands.
 
-## Next recommended step
+### Next recommended step
 
 Proceed to STEP 9 after user confirmation.
 ```
@@ -433,13 +433,13 @@ Stop after STEP 8.
 
 ---
 
-# STEP 9 - Find every caller of this function
+## STEP 9 - Find every caller of this function
 
-## Objective
+### Objective
 
 Prove Codex can perform precise caller/reference tracing across the local repo.
 
-## Target function
+### Target function
 
 Use this initial target unless the user overrides it:
 
@@ -447,14 +447,14 @@ Use this initial target unless the user overrides it:
 validate_initial_inputs
 ```
 
-## Constraints
+### Constraints
 
 * Read-only.
 * Do not edit files.
 * Use direct filesystem inspection only.
 * Do not rely on semantic search.
 
-## Required method
+### Required method
 
 Use at least two approaches:
 
@@ -504,25 +504,25 @@ for path in Path(".").rglob("*.py"):
                 print(f"CALL {path}:{node.lineno}")
 ```
 
-## Required report
+### Required report
 
 ```md
-# STEP 9 Caller Discovery Report
+## STEP 9 Caller Discovery Report
 
-## Verdict
+### Verdict
 
 PASS / PARTIAL / FAIL
 
-## Target function
+### Target function
 
 `validate_initial_inputs`
 
-## Definition found
+### Definition found
 
 - File:
 - Lines:
 
-## Direct callers found
+### Direct callers found
 
 List every direct caller with file and line number.
 
@@ -664,8 +664,6 @@ Propose a minimal patch plan, but do not edit files.
 
 Paste exact commands/scripts.
 
-## Next recommended step
-
 Proceed to STEP 11 only after user approval of the patch/test target.
 ```
 
@@ -770,8 +768,6 @@ List any failures, missing dependencies, or skipped validation.
 ## Next recommended step
 
 Proceed to STEP 12 after user confirmation.
-
-````
 
 Stop after STEP 11.
 
