@@ -779,3 +779,11 @@ __pycache__ cleanup: PASS
 DELETE_GENERATED_IMAGES: NO
 DELETE_IMAGE_JSON: NO
 ```
+
+
+## DIRECT VERIFY — PATCH_13A real docs/prompts.md
+
+```text
+{'seller_or_brand_story': 0, 'brand_story_exact': 1}
+PATCH_13A_DIRECT_VERIFY_PASS
+```
