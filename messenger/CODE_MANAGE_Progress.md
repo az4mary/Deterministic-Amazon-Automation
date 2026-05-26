@@ -1248,3 +1248,83 @@ git diff --no-index -- /dev/null tests/test_schema_prompt_alignment.py
 
 Ready for manager review as a diff package, with validation limited by unavailable local tools.
 ````
+
+# Diagnostic_13 Report - Validation Toolchain Availability
+
+## Verdict
+
+BLOCKED
+
+## Python
+
+- Version: `Python 3.14.4`
+- Executable: `D:\TOOLS\Python314\python.exe`
+- `where python`:
+  - `D:\TOOLS\Python314\python.exe`
+  - `C:\Users\USER\AppData\Local\Microsoft\WindowsApps\python.exe`
+- Notes: Python is available. No project-specific Python interpreter/config file was found.
+
+## pip
+
+- Available: yes
+- Version: `pip 26.0.1 from D:\TOOLS\Python314\Lib\site-packages\pip (python 3.14)`
+- Notes: `pip` is available for the same Python interpreter used by `python`. Installed packages listed: `greenlet 3.5.0`, `pip 26.0.1`, `playwright 1.59.0`, `pyee 13.0.1`, `typing_extensions 4.15.0`.
+
+## pytest
+
+- Python module available: no
+- Python module version: n/a
+- Command available: no
+- Command path: n/a
+- Error if missing:
+  - `D:\TOOLS\Python314\python.exe: No module named pytest`
+  - `ModuleNotFoundError: No module named 'pytest'`
+  - `pytest : The term 'pytest' is not recognized as the name of a cmdlet, function, script file, or operable program.`
+  - `INFO: Could not find files for the given pattern(s).`
+
+## ruff
+
+- Python module available: no
+- Python module version: n/a
+- Command available: no
+- Command path: n/a
+- Error if missing:
+  - `D:\TOOLS\Python314\python.exe: No module named ruff`
+  - `ModuleNotFoundError: No module named 'ruff'`
+  - `ruff : The term 'ruff' is not recognized as the name of a cmdlet, function, script file, or operable program.`
+  - `INFO: Could not find files for the given pattern(s).`
+
+## mypy
+
+- Python module available: no
+- Python module version: n/a
+- Command available: no
+- Command path: n/a
+- Error if missing:
+  - `D:\TOOLS\Python314\python.exe: No module named mypy`
+  - `ModuleNotFoundError: No module named 'mypy'`
+  - `mypy : The term 'mypy' is not recognized as the name of a cmdlet, function, script file, or operable program.`
+  - `INFO: Could not find files for the given pattern(s).`
+
+## Project config/dependency files
+
+No dependency/config files found.
+
+## Git status
+
+```text
+?? tests/__pycache__/test_schema_prompt_alignment.cpython-314.pyc
+?? tests/test_schema_prompt_alignment.py
+```
+
+## Conclusion
+
+STEP 13 must remain blocked because `pytest`, `ruff`, and `mypy` are unavailable.
+
+## Next action
+
+Stop and wait for user confirmation before installation, cleanup, or resume.
+
+NEXT STEP BLOCKED
+No future-step edits/proceeding
+Do you need any additional files/logs for troubleshooting?
