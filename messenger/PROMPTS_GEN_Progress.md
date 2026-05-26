@@ -842,3 +842,10 @@ PATCH_13D_DIRECT_VERIFY_PASS
 ```text
 PATCH_SET_13_APPLY_PASS
 ```
+
+
+## STEP 6 — Validation 1: compile current script
+
+```text
+PASS / no output
+```
