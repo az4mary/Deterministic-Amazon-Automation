@@ -7345,36 +7345,3 @@ Expected:
 ```text
 STATE_10_REVALIDATION_READY_FOR_STATE_11
 ```
-
----
-
-## Local dry-run summary
-
-| Check                                                 | Result |
-| ----------------------------------------------------- | -----: |
-| Uploaded `workflow_orchestrator(43).py` compiles      |   PASS |
-| PATCH_13A target appears exactly once                 |   PASS |
-| PATCH_13B target appears exactly once                 |   PASS |
-| PATCH_13C target appears exactly once                 |   PASS |
-| PATCH_13D buyer-question replacements present         |   PASS |
-| In-memory patched prompt removes old keys/phrasing    |   PASS |
-| In-memory patched prompt adds required schema markers |   PASS |
-| Dry-run patched copy created                          |   PASS |
-
-## Troubleshooting reserve
-
-If any validation fails, do **not** proceed by guessing. Use this diagnostic order:
-
-1. Re-run the dry-run count for the failed patch only.
-2. Confirm whether the target text changed due to whitespace or prior manual edits.
-3. Use section-scoped search: inspect only `# PROMPT 1B`, `# PROMPT 7`, `# PROMPT 8`, and image prompt sections.
-4. Do not batch new edits into PATCH_SET_13; create PATCH_SET_13B if the file has diverged.
-5. Do not modify `workflow_orchestrator.py` until `prompts.md` is contract-clean.
-
-CONFIRMATION REQUIRED:
-YES — Apply PATCH_SET_13 to the real `docs/prompts.md`, then re-run STEP 6 through STEP 9.
-
-[1]: https://docs.python.org/3/library/os.html "os — Miscellaneous operating system interfaces — Python 3.14.5 documentation"
-[2]: https://docs.python.org/3/library/tempfile.html "tempfile — Generate temporary files and directories — Python 3.14.5 documentation"
-[3]: https://arxiv.org/abs/1907.04908?utm_source=chatgpt.com "Executability of Python Snippets in Stack Overflow"
-[4]: https://arxiv.org/abs/1903.12282?utm_source=chatgpt.com "An Empirical Study of Obsolete Answers on Stack Overflow"
