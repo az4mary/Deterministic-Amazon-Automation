@@ -213,7 +213,7 @@ Success criterion: Codex produces deterministic search results with exact line n
 
 ---
 
-## Required report back
+## STEP 7 - Required report back
 
 Return a report in this exact structure:
 
@@ -285,11 +285,3 @@ List any errors, missing dependencies, encoding issues, path issues, permission 
 
 State whether this proves Codex has raw local-file access rather than chunked/indexed retrieval access.
 ```
-
----
-
-
-
----
-
-``````
