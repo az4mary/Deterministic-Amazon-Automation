@@ -1399,7 +1399,7 @@ Expected result:
 # Installation_13 - Validation Toolchain Installation
 
 ## STEP 1 - Confirm blocked state and current repo artifacts
-### Actual installation, test, run etc
+
 
 Run from the repo root:
 
@@ -1429,7 +1429,7 @@ Do not install anything in this step.
 
 ## STEP 2 - Clean generated test artifacts
 
-### Actual installation, test, run etc
+
 
 Remove generated Python cache artifacts only:
 
@@ -1460,7 +1460,7 @@ If any generated files remain, stop and report them.
 
 ## STEP 3 - Verify missing tools before installation
 
-### Actual installation, test, run etc
+
 
 Run:
 
@@ -1489,7 +1489,7 @@ Do not install anything in this step.
 
 ## STEP 4 - Install required validation tools
 
-### Actual installation, test, run etc
+
 
 Install only the missing validation tools into the active Python interpreter:
 
@@ -1520,7 +1520,7 @@ If installation fails, stop and report:
 
 ## STEP 5 - Verify installed tool versions
 
-### Actual installation, test, run etc
+
 
 Run:
 
@@ -1555,7 +1555,7 @@ If any tool still fails, stop and report the failing command.
 
 ## STEP 6 - Verify command availability
 
-### Actual installation, test, run etc
+
 
 Run:
 
@@ -1589,7 +1589,7 @@ python -m mypy .
 
 ## STEP 7 - Verify no new repo artifacts except intended test file
 
-### Actual installation, test, run etc
+
 
 Run:
 
@@ -1619,7 +1619,7 @@ If tool installation generated unrelated repo artifacts, report them and stop.
 
 ## STEP 8 - Produce Installation_13 report
 
-### Actual installation, test, run etc
+
 
 Produce this report:
 
@@ -1691,7 +1691,7 @@ Expected:
 After Installation_13 is confirmed, resume blocked STEP 13.
 
 ## STEP 1 - Run validation stack using installed tools
-### Actual installation, test, run etc
+
 
 Run:
 
@@ -1718,7 +1718,7 @@ Expected:
 
 ## STEP 2 - Clean post-validation generated artifacts
 
-### Actual installation, test, run etc
+
 
 Run:
 
@@ -1751,7 +1751,7 @@ If any generated artifacts remain, report them before proceeding.
 
 ## STEP 3 - Produce resumed STEP 13 report
 
-### Actual installation, test, run etc
+
 
 Produce:
 
