@@ -1395,3 +1395,421 @@ Expected result:
 * Stop for user confirmation.
 
 ````
+
+````md
+---
+
+# Installation_13 - Validation Toolchain Installation
+
+## STEP 1 - Confirm blocked state and current repo artifacts
+### Actual installation, test, run etc
+
+Run from the repo root:
+
+```powershell
+git status --short --untracked-files=all
+python --version
+python -c "import sys; print(sys.executable)"
+python -m pip --version
+````
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* Python is still `D:\TOOLS\Python314\python.exe`.
+* `pip` is available for Python 3.14.
+* Git status shows only expected validation artifacts, currently likely:
+
+  * `?? tests/test_schema_prompt_alignment.py`
+  * `?? tests/__pycache__/test_schema_prompt_alignment.cpython-314.pyc`
+
+Do not install anything in this step.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 2 - Clean generated test artifacts
+
+### Actual installation, test, run etc
+
+Remove generated Python cache artifacts only:
+
+```powershell
+Remove-Item -Recurse -Force tests\__pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -Directory -Filter __pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyContinue
+git status --short --untracked-files=all
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* No `tests/__pycache__/` directory remains.
+* No `*.pyc` or `*.pyo` files remain under `tests/`.
+* Git status should show only the intended test source file:
+
+```text
+?? tests/test_schema_prompt_alignment.py
+```
+
+If any generated files remain, stop and report them.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 3 - Verify missing tools before installation
+
+### Actual installation, test, run etc
+
+Run:
+
+```powershell
+python -m pytest --version
+python -m ruff --version
+python -m mypy --version
+pytest --version
+ruff --version
+mypy --version
+```
+
+### Expected results, feedback, output etc
+
+Expected before installation:
+
+* `pytest`, `ruff`, and `mypy` are unavailable.
+* Capture the exact errors.
+* This confirms Installation_13 is still necessary.
+
+Do not install anything in this step.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 4 - Install required validation tools
+
+### Actual installation, test, run etc
+
+Install only the missing validation tools into the active Python interpreter:
+
+```powershell
+python -m pip install pytest ruff mypy
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* `pytest` installs successfully.
+* `ruff` installs successfully.
+* `mypy` installs successfully.
+* No production files are modified.
+* No repo dependency/config files are created unless `pip` itself unexpectedly does so.
+
+If installation fails, stop and report:
+
+* exact command
+* exit code
+* full error output
+* whether network, permissions, or Python-version compatibility appears to be the cause
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 5 - Verify installed tool versions
+
+### Actual installation, test, run etc
+
+Run:
+
+```powershell
+python -m pytest --version
+python -m ruff --version
+python -m mypy --version
+python -c "import pytest; print('pytest', pytest.__version__)"
+python -c "import ruff; print('ruff import ok')"
+python -c "import mypy; print('mypy import ok')"
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* `pytest` version prints successfully.
+* `ruff` version prints successfully.
+* `mypy` version prints successfully.
+* Python imports succeed for all three tools.
+* All tools are installed under the same active Python interpreter:
+
+```text
+D:\TOOLS\Python314\python.exe
+```
+
+If any tool still fails, stop and report the failing command.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 6 - Verify command availability
+
+### Actual installation, test, run etc
+
+Run:
+
+```powershell
+pytest --version
+ruff --version
+mypy --version
+where pytest
+where ruff
+where mypy
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* Tool commands are available on PATH, or at minimum the `python -m ...` versions from STEP 5 work.
+* If command forms are unavailable but `python -m pytest`, `python -m ruff`, and `python -m mypy` work, report command forms as unavailable but do not block Resume 13.
+
+Preferred Resume 13 command style should be:
+
+```powershell
+python -m pytest
+python -m ruff check .
+python -m mypy .
+```
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 7 - Verify no new repo artifacts except intended test file
+
+### Actual installation, test, run etc
+
+Run:
+
+```powershell
+Get-ChildItem -Recurse tests -Directory -Filter __pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyContinue
+git status --short --untracked-files=all
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* No `__pycache__` directory exists under `tests/`.
+* No `*.pyc` or `*.pyo` files exist under `tests/`.
+* Git status shows only the intended test file:
+
+```text
+?? tests/test_schema_prompt_alignment.py
+```
+
+If tool installation generated unrelated repo artifacts, report them and stop.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 8 - Produce Installation_13 report
+
+### Actual installation, test, run etc
+
+Produce this report:
+
+````md
+# Installation_13 Report - Validation Toolchain Installation
+
+## Verdict
+
+PASS / PARTIAL / FAIL
+
+## Python
+
+- Version:
+- Executable:
+- pip version:
+
+## Installed tools
+
+| Tool | Python module available | Version | Command available | Path |
+|---|---|---|---|---|
+| pytest | yes/no |  | yes/no |  |
+| ruff | yes/no |  | yes/no |  |
+| mypy | yes/no |  | yes/no |  |
+
+## Cleanup result
+
+- Removed `tests/__pycache__`: yes/no
+- Remaining `tests/__pycache__`: yes/no
+- Remaining `*.pyc` / `*.pyo`: yes/no
+
+## Git status
+
+Paste:
+
+```powershell
+git status --short --untracked-files=all
+````
+
+## Commands run
+
+Paste exact commands.
+
+## Conclusion
+
+State whether Resume 13 is unblocked.
+
+## Next action
+
+Stop and wait for user confirmation before resuming STEP 13.
+
+````
+
+### Expected results, feedback, output etc
+
+Expected:
+
+- Verdict is `PASS` only if:
+  - generated cache artifacts are removed,
+  - `pytest`, `ruff`, and `mypy` are installed or callable via `python -m`,
+  - no unexpected repo artifacts exist,
+  - `tests/test_schema_prompt_alignment.py` is preserved.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+# Resume 13
+
+After Installation_13 is confirmed, resume blocked STEP 13.
+
+## STEP 1 - Run validation stack using installed tools
+### Actual installation, test, run etc
+
+Run:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE = "1"
+python -m pytest
+python -m ruff check .
+python -m mypy .
+````
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* `pytest` actually runs.
+* `ruff` actually runs.
+* `mypy` actually runs.
+* Report PASS/FAIL for each tool.
+* Do not skip any tool unless it still fails to launch after Installation_13.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 2 - Clean post-validation generated artifacts
+
+### Actual installation, test, run etc
+
+Run:
+
+```powershell
+Remove-Item -Recurse -Force tests\__pycache__ -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .pytest_cache -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -Directory -Filter __pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyContinue
+git status --short --untracked-files=all
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+* No `tests/__pycache__/`.
+* No `.pytest_cache/`.
+* No `*.pyc` or `*.pyo`.
+* Git status should show only intended source artifacts, likely:
+
+```text
+?? tests/test_schema_prompt_alignment.py
+```
+
+If any generated artifacts remain, report them before proceeding.
+
+## CONFIRMATION REQUIRED: YES
+
+---
+
+## STEP 3 - Produce resumed STEP 13 report
+
+### Actual installation, test, run etc
+
+Produce:
+
+````md
+# STEP 13 Validation Stack Report - Resumed After Installation_13
+
+## Verdict
+
+PASS / PARTIAL / FAIL
+
+## Results
+
+| Tool | Command | Result | Notes |
+|---|---|---|---|
+| pytest | `python -m pytest` | PASS/FAIL |  |
+| ruff | `python -m ruff check .` | PASS/FAIL |  |
+| mypy | `python -m mypy .` | PASS/FAIL |  |
+
+## Failure details
+
+For each failure:
+
+- file:
+- line:
+- error code/message:
+- likely cause:
+- related to current changes: yes/no/unknown
+
+## Cleanup result
+
+- `.pytest_cache` removed: yes/no
+- `tests/__pycache__` removed: yes/no
+- remaining generated artifacts: yes/no
+
+## Git status
+
+Paste:
+
+```powershell
+git status --short --untracked-files=all
+````
+
+## Next action
+
+Stop and wait for user confirmation before re-running STEP 14.
+
+```
+
+### Expected results, feedback, output etc
+
+Expected:
+
+- STEP 13 is no longer blocked.
+- Any validation failures are real project/test failures, not missing-tool failures.
+- Stop before STEP 14.
+
+## CONFIRMATION REQUIRED: YES
+```
