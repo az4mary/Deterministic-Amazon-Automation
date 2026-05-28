@@ -1394,8 +1394,6 @@ Expected result:
 * Do not install anything.
 * Stop for user confirmation.
 
-````
-
 ---
 
 # Installation_13 - Validation Toolchain Installation
