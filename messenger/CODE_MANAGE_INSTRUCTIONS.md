@@ -1410,7 +1410,7 @@ python -c "import sys; print(sys.executable)"
 python -m pip --version
 ````
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1440,7 +1440,7 @@ Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyCon
 git status --short --untracked-files=all
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1473,7 +1473,7 @@ ruff --version
 mypy --version
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected before installation:
 
@@ -1497,7 +1497,7 @@ Install only the missing validation tools into the active Python interpreter:
 python -m pip install pytest ruff mypy
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1533,7 +1533,7 @@ python -c "import ruff; print('ruff import ok')"
 python -c "import mypy; print('mypy import ok')"
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1568,7 +1568,7 @@ where ruff
 where mypy
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1599,7 +1599,7 @@ Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyCon
 git status --short --untracked-files=all
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1672,7 +1672,7 @@ Stop and wait for user confirmation before resuming STEP 13.
 
 ````
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1702,7 +1702,7 @@ python -m ruff check .
 python -m mypy .
 ````
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1730,7 +1730,7 @@ Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyCon
 git status --short --untracked-files=all
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
@@ -1800,7 +1800,7 @@ Stop and wait for user confirmation before re-running STEP 14.
 
 ```
 
-### Expected results, feedback, output etc
+
 
 Expected:
 
