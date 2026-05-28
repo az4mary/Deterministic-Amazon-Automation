@@ -1396,7 +1396,6 @@ Expected result:
 
 ````
 
-````md
 ---
 
 # Installation_13 - Validation Toolchain Installation
