@@ -1250,3 +1250,81 @@ Ready for manager review as a diff package, with validation limited by unavailab
 ````
 
 # Installation_13 - Validation Toolchain Installation
+
+# Installation_13 Report - Validation Toolchain Installation
+
+## Verdict
+
+PASS
+
+## Python
+
+- Version: Python 3.14.4
+- Executable: D:\TOOLS\Python314\python.exe
+- pip version: pip 26.0.1 from D:\TOOLS\Python314\Lib\site-packages\pip (python 3.14)
+
+## Installed tools
+
+| Tool | Python module available | Version | Command available | Path |
+|---|---|---|---|---|
+| pytest | yes | 9.0.3 | yes | D:\TOOLS\Python314\Scripts\pytest.exe |
+| ruff | yes | 0.15.15 | yes | D:\TOOLS\Python314\Scripts\ruff.exe |
+| mypy | yes | 2.1.0 | yes | D:\TOOLS\Python314\Scripts\mypy.exe |
+
+## Cleanup result
+
+- Removed `tests/__pycache__`: yes
+- Remaining `tests/__pycache__`: no
+- Remaining `*.pyc` / `*.pyo`: no
+
+## Git status
+
+Paste:
+
+```powershell
+git status --short --untracked-files=all
+```
+
+```text
+?? tests/test_schema_prompt_alignment.py
+```
+
+## Commands run
+
+```powershell
+git status --short --untracked-files=all
+python --version
+python -c "import sys; print(sys.executable)"
+python -m pip --version
+Remove-Item -Recurse -Force tests\__pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -Directory -Filter __pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyContinue
+git status --short --untracked-files=all
+python -m pytest --version
+python -m ruff --version
+python -m mypy --version
+pytest --version
+ruff --version
+mypy --version
+python -m pip install pytest ruff mypy
+python -m pytest --version
+python -m ruff --version
+python -m mypy --version
+python -c "import pytest; print('pytest', pytest.__version__)"
+python -c "import ruff; print('ruff import ok')"
+python -c "import mypy; print('mypy import ok')"
+pytest --version
+ruff --version
+mypy --version
+where pytest
+where ruff
+where mypy
+where.exe pytest
+where.exe ruff
+where.exe mypy
+Get-ChildItem -Recurse tests -Directory -Filter __pycache__ -ErrorAction SilentlyContinue
+Get-ChildItem -Recurse tests -File -Include *.pyc,*.pyo -ErrorAction SilentlyContinue
+git status --short --untracked-files=all
+```
+
+---
